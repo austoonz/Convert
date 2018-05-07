@@ -25,7 +25,7 @@ Enter-Build {
 
 # Synopsis: Installs Invoke-Build Dependencies
 task InstallDependencies {
-    #Invoke-PSDepend -Install -Import -Force
+    Invoke-PSDepend -Install -Import -Force
 }
 
 # Synopsis: Clean Artifacts Directory
