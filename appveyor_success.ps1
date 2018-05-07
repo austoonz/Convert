@@ -11,9 +11,10 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
 
     'Adding new Module Manifest'
     Copy-Item -Path .\Artifact\Convert.psd1 -Destination .\Convert\Convert.psd1
-
-    git checkout master
     git add .\Convert\Convert.psd1
+    
+    git remote add github https://github.com/austoonz/Convert.git
     git commit -m "Module Manifest updated (skip ci)"
     
+    git push
 }
