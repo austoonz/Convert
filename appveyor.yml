@@ -26,15 +26,13 @@ skip_commits:
 build: false
 
 install:
-  - ps: |
-    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-    Install-Module -Name InvokeBuild -Force
+  - ps: Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+  - ps: Install-Module -Name InvokeBuild -Force
 
 init:
   - git config --global core.autocrlf true
 
 #Kick off the CI/CD pipeline
 test_script:
-- ps: |
-  $ErrorActionPreference = 'Stop'
-  Invoke-Build
+  - ps: $ErrorActionPreference = 'Stop'
+  - ps: Invoke-Build
