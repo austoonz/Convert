@@ -156,7 +156,7 @@ task Archive {
 
     $null = New-Item -Path $archivePath -ItemType Directory -Force
     
-    $childPath = '{0}_{1}_{2}.{3}.zip' -f $script:ModuleName, $script:Version, ([DateTime]::UtcNow.ToString("yyyyMMdd")), ([DateTime]::UtcNow.ToString("hhmmss"))
+    $childPath = '{0}_{1}_{2}.{3}.zip' -f $script:ModuleName, $script:NewVersion.ToString(), ([DateTime]::UtcNow.ToString("yyyyMMdd")), ([DateTime]::UtcNow.ToString("hhmmss"))
     $zipFile = Join-Path -Path $archivePath -ChildPath $childPath
 
     $filesToArchive = Join-Path -Path $script:ArtifactsPath -ChildPath '*'

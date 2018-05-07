@@ -41,4 +41,3 @@ test_script:
 
 on_success:
   - ps: Invoke-Expression .\appveyor_success.ps1
-  - git push

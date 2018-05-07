@@ -1,6 +1,6 @@
 Get-ChildItem .\Archive | ForEach-Object { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
-"Branch: $($env:APPVEYOR_REPO_BRANCH)"
+"Working on GIT branch: $($env:APPVEYOR_REPO_BRANCH)"
 if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
 {
     'Setting git credentials'
@@ -11,6 +11,9 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
 
     'Adding new Module Manifest'
     Copy-Item -Path .\Artifact\Convert.psd1 -Destination .\Convert\Convert.psd1
+
+    git checkout master
     git add .\Convert\Convert.psd1
     git commit -m "Module Manifest updated (skip ci)"
+    git push origin HEAD:master
 }
