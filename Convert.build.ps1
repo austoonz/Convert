@@ -4,7 +4,7 @@
 #>
 
 # Default
-task . InstallDependencies, Clean, Analyze, Test, Build, Archive
+task . InstallDependencies, Clean, Analyze, Test, IncrementVersion, Build, Archive
 
 # Pre-build variables to configure
 Enter-Build {
@@ -130,7 +130,9 @@ task Build {
 
 # Synopsis: Increments the Module Manifest version
 task IncrementVersion {
-    $script:NewVersion = [version]::new($script:Version.Major, $script:Version.Minor, ([DateTime]::UtcNow.ToString("yyyyMMdd")), ([DateTime]::UtcNow.ToString("hhmmss")))
+    if ([string]::IsNullOrWhiteSpace($env:APPVEYOR_BUILD_VERSION)) { break }
+    
+    $script:NewVersion = [version]::new($script:Version.Major, $script:Version.Minor, $script:Version.Build, $env:APPVEYOR_BUILD_VERSION)
     $artifactManifest = Join-Path -Path $script:ArtifactsPath -ChildPath ('{0}.psd1' -f $script:ModuleName)
 
     try 
