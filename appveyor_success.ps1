@@ -24,6 +24,6 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
     git add .\Convert\Convert.psd1
 
     git status
-    git commit -s -m "Module Manifest updated (skip ci)"
+    git commit -s -m "skip ci - Module Manifest updated"
     git push origin master
 }
