@@ -130,20 +130,36 @@ task Build {
 
 # Synopsis: Increments the Module Manifest version
 task IncrementVersion {
-    if ([string]::IsNullOrWhiteSpace($env:APPVEYOR_BUILD_VERSION)) { break }
-    
-    $artifactManifest = Join-Path -Path $script:ArtifactsPath -ChildPath ('{0}.psd1' -f $script:ModuleName)
-    if (-not (Test-Path -Path $artifactManifest)) { break }
+    # Environmental Variables Guide: https://www.appveyor.com/docs/environment-variables/
+    if ($env:APPVEYOR_REPO_BRANCH -ne 'master') 
+    {
+        $script:NewVersion = $script:Version
+        Write-Warning -Message "Skipping version increment and publish for branch $env:APPVEYOR_REPO_BRANCH"
+    }
+    elseif ($env:APPVEYOR_PULL_REQUEST_NUMBER -gt 0)
+    {
+        $script:NewVersion = $script:Version
+        Write-Warning -Message "Skipping version increment and publish for pull request #$env:APPVEYOR_PULL_REQUEST_NUMBER"
+    }
+    elseif ([string]::IsNullOrWhiteSpace($env:APPVEYOR_BUILD_VERSION)) {
+        $script:NewVersion = $script:Version
+        Write-Warning -Message 'Skipping version increment and publish as no APPVEYOR_BUILD_VERSION environment variable found'
+    }
+    else
+    {
+        $artifactManifest = Join-Path -Path $script:ArtifactsPath -ChildPath ('{0}.psd1' -f $script:ModuleName)
+        if (-not (Test-Path -Path $artifactManifest)) { break }
 
-    # Split the AppVeyor build version to retrieve only the build number
-    $revision = $env:APPVEYOR_BUILD_VERSION.Split('.')[-1]
-    
-    $script:NewVersion = [version]::new($script:Version.Major, $script:Version.Minor, $script:Version.Build, $revision)
+        # Split the AppVeyor build version to retrieve only the build number
+        $revision = $env:APPVEYOR_BUILD_VERSION.Split('.')[-1]
+        
+        $script:NewVersion = [version]::new($script:Version.Major, $script:Version.Minor, $script:Version.Build, $revision)
 
-    "Current Version $($script:Version)"
-    "New Version $($script:NewVersion)"
+        "Current Version $($script:Version)"
+        "New Version $($script:NewVersion)"
 
-    Update-ModuleManifest -Path $artifactManifest -ModuleVersion $script:NewVersion
+        Update-ModuleManifest -Path $artifactManifest -ModuleVersion $script:NewVersion
+    }
 }
 
 # Synopsis: Creates an archive of the built Module
