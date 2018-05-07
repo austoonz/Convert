@@ -13,7 +13,7 @@ environment:
 os: WMF 5
 
 # Version number
-version: {build}
+version: 1.0.{build}
 
 # There's no need to alter the build number for a Pull Request (PR) since they don't modify anything
 pull_requests:
@@ -39,7 +39,7 @@ test_script:
   - ps: $ErrorActionPreference = 'Stop'
   - ps: Invoke-Build
 
-  on_success:
+on_success:
   - git config --global credential.helper store
   - ps: Add-Content "$HOME\.git-credentials" "https://$($env:GitHubKey):x-oauth-basic@github.com`n"
   - git config --global user.name "Andrew Pearce"
