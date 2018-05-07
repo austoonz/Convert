@@ -30,7 +30,7 @@ init:
   - git config --global core.autocrlf true
 
 install:
-  - ps: Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+  - ps: Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
   - ps: Install-Module -Name InvokeBuild,PSDepend -Force
 
 build: false
@@ -44,7 +44,7 @@ on_success:
   - ps: Add-Content "$HOME\.git-credentials" "https://$($env:GitHubKey):x-oauth-basic@github.com`n"
   - git config --global user.name "Andrew Pearce"
   - git config --global user.email "andrew@austoonz.net"
-  - ps: Copy-Item -Path .\Artifacts\Convert.psd1 -Destination .\Convert\Convert.psd1
+  - ps: Copy-Item -Path .\Artifact\Convert.psd1 -Destination .\Convert\Convert.psd1
   - git add .\Convert\Convert.psd1
   - git commit "Module Manifest updated (skip ci)"
   - git push
