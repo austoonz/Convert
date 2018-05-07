@@ -27,9 +27,8 @@ build: false
 
 install:
   - ps: |
-    Write-Host "PowerShell Version:" $PSVersionTable.PSVersion.tostring()
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-    Install-Module -Name 'InvokeBuild' -Force
+    Install-Module -Name InvokeBuild -Force
 
 init:
   - git config --global core.autocrlf true
