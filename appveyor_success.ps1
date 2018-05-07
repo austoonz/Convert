@@ -9,12 +9,13 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
     git config --global user.name "Andrew Pearce"
     git config --global user.email "andrew@austoonz.net"
 
+    'Checking out master'
+    git checkout master
+
     'Adding new Module Manifest'
     Copy-Item -Path .\Artifact\Convert.psd1 -Destination .\Convert\Convert.psd1
     git add .\Convert\Convert.psd1
     
-    git remote add github https://github.com/austoonz/Convert.git
     git commit -m "Module Manifest updated (skip ci)"
-    
-    git push
+    git push origin master
 }
