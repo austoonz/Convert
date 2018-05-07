@@ -4,7 +4,7 @@
 #>
 
 # Default
-task . InstallDependencies, Clean, Analyze, Test, IncrementVersion, Build, Archive
+task . InstallDependencies, Clean, Analyze, Test, Build, IncrementVersion, Archive
 
 # Pre-build variables to configure
 Enter-Build {
@@ -25,7 +25,7 @@ Enter-Build {
 
 # Synopsis: Installs Invoke-Build Dependencies
 task InstallDependencies {
-    Invoke-PSDepend -Install -Import -Force
+    #Invoke-PSDepend -Install -Import -Force
 }
 
 # Synopsis: Clean Artifacts Directory
@@ -132,29 +132,11 @@ task Build {
 task IncrementVersion {
     if ([string]::IsNullOrWhiteSpace($env:APPVEYOR_BUILD_VERSION)) { break }
     
-    #$script:NewVersion = [version]::new($script:Version.Major, $script:Version.Minor, $script:Version.Build, $env:APPVEYOR_BUILD_VERSION)
-    $script:NewVersion = $env:APPVEYOR_BUILD_VERSION
     $artifactManifest = Join-Path -Path $script:ArtifactsPath -ChildPath ('{0}.psd1' -f $script:ModuleName)
+    
+    if (-not (Test-Path -Path $artifactManifest)) { break }
 
-    try 
-    {
-        $replacements = @{
-            "ModuleVersion = '.*'" = "ModuleVersion = '$script:NewVersion'"
-        }
-
-        $manifestContent = Get-Content -Path $artifactManifest -Raw
-
-        $replacements.GetEnumerator() | ForEach-Object {
-            $manifestContent = $manifestContent -replace $_.Key,$_.Value
-        }
-        
-        $manifestContent | Set-Content -Path $artifactManifest
-    }
-    catch
-    {
-        Write-Error -Message $_.Exception.Message -ErrorAction Stop
-        $host.SetShouldExit($LastExitCode)
-    }
+    Update-ModuleManifest -Path $artifactManifest -ModuleVersion $env:APPVEYOR_BUILD_VERSION
 }
 
 # Synopsis: Creates an archive of the built Module
