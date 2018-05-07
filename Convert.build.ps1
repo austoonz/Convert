@@ -132,7 +132,8 @@ task Build {
 task IncrementVersion {
     if ([string]::IsNullOrWhiteSpace($env:APPVEYOR_BUILD_VERSION)) { break }
     
-    $script:NewVersion = [version]::new($script:Version.Major, $script:Version.Minor, $script:Version.Build, $env:APPVEYOR_BUILD_VERSION)
+    #$script:NewVersion = [version]::new($script:Version.Major, $script:Version.Minor, $script:Version.Build, $env:APPVEYOR_BUILD_VERSION)
+    $script:NewVersion = $env:APPVEYOR_BUILD_VERSION
     $artifactManifest = Join-Path -Path $script:ArtifactsPath -ChildPath ('{0}.psd1' -f $script:ModuleName)
 
     try 
