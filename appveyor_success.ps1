@@ -13,5 +13,4 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
     Copy-Item -Path .\Artifact\Convert.psd1 -Destination .\Convert\Convert.psd1
     git add .\Convert\Convert.psd1
     git commit -m "Module Manifest updated (skip ci)"
-    git push
 }
