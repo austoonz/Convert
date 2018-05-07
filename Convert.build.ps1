@@ -19,7 +19,7 @@ Enter-Build {
     $script:UnitTestsPath = Join-Path -Path $script:TestsPath -ChildPath 'Unit'
     $script:PesterTestResultsFile = Join-Path -Path $BuildRoot -ChildPath 'TestsResults.xml'
 
-    $script:ArtifactsPath = Join-Path -Path $BuildRoot -ChildPath 'Artifacts'
+    $script:ArtifactsPath = Join-Path -Path $BuildRoot -ChildPath 'Artifact'
     $script:ArchivePath = Join-Path -Path $BuildRoot -ChildPath 'Archive'
 }
 

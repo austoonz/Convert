@@ -38,3 +38,13 @@ build: false
 test_script:
   - ps: $ErrorActionPreference = 'Stop'
   - ps: Invoke-Build
+
+  on_success:
+  - git config --global credential.helper store
+  - ps: Add-Content "$HOME\.git-credentials" "https://$($env:GitHubKey):x-oauth-basic@github.com`n"
+  - git config --global user.name "Andrew Pearce"
+  - git config --global user.email "andrew@austoonz.net"
+  - ps: Copy-Item -Path .\Artifacts\Convert.psd1 -Destination .\Convert\Convert.psd1
+  - git add .\Convert\Convert.psd1
+  - git commit "Module Manifest updated (skip ci)"
+  - git push
