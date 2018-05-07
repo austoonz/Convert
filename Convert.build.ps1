@@ -135,15 +135,13 @@ task IncrementVersion {
     $artifactManifest = Join-Path -Path $script:ArtifactsPath -ChildPath ('{0}.psd1' -f $script:ModuleName)
     if (-not (Test-Path -Path $artifactManifest)) { break }
 
-    # Split the AppVeyor build in case its been modified
+    # Split the AppVeyor build version to retrieve only the build number
     $revision = $env:APPVEYOR_BUILD_VERSION.Split('.')[-1]
     
-    "Version $($script:Version)"
-    "Major: $($script:Version.Major)"
-    "Minor: $($script:Version.Minor)"
-    "Build: $($script:Version.Build)"
-    "Revision: $revision"
     $script:NewVersion = [version]::new($script:Version.Major, $script:Version.Minor, $script:Version.Build, $revision)
+
+    "Current Version $($script:Version)"
+    "New Version $($script:NewVersion)"
 
     Update-ModuleManifest -Path $artifactManifest -ModuleVersion $script:NewVersion
 }
