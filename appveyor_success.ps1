@@ -20,10 +20,15 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
     git checkout master
 
     'Adding new Module Manifest'
-    Copy-Item -Path .\Artifact\Convert.psd1 -Destination .\Convert\Convert.psd1
-    git add .\Convert\Convert.psd1
+    $manifestSource = '.\Artifact\Convert.psd1'
+    $manifestTarget = '.\Convert\Convert.psd1'
+    Copy-Item -Path $manifestSource -Destination $manifestTarget
+    git add $manifestTarget
 
     git status
-    git commit -s -m "skip ci - Module Manifest updated"
+
+    # Retrieve the new Module Version
+    $manifestVersion = (Test-ModuleManifest -Path $manifestTarget).Version.ToString()
+    git commit -s -m "skip ci - Module Version bumped to $manifestVersion"
     git push origin master
 }
