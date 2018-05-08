@@ -25,12 +25,17 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
     $manifestSource = ".\Artifact\$moduleName.psd1"
     $manifestTarget = ".\$moduleName\$moduleName.psd1"
     Copy-Item -Path $manifestSource -Destination $manifestTarget
+    
     git add $manifestTarget
-
     git status
 
     # Retrieve the new Module Version
     $manifestVersion = (Test-ModuleManifest -Path $manifestTarget).Version.ToString()
     git commit -s -m "Module Version bumped to $manifestVersion [skip ci]"
+
+    'Adding generated docs'
+    git add .\docs
+    git commit -s -m "Added newly generated docs [skip ci]"
+
     git push origin master
 }
