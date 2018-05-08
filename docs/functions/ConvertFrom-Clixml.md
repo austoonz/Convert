@@ -1,7 +1,7 @@
 # ConvertFrom-Clixml
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Converts Clixml to a string.
 
 ## SYNTAX
 
@@ -10,21 +10,74 @@ ConvertFrom-Clixml [-String] <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Converts Clixml to a string.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
+```
+$xml = @"
 ```
 
-{{ Add example description here }}
+\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
+\<S\>ThisIsMyString\</S\>
+\</Objs\>
+"@
+PS C:\\\> ConvertFrom-Clixml -String $xml
+ThisIsMyString
+
+### EXAMPLE 2
+```
+$xml = @"
+```
+
+\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
+\<S\>ThisIsMyString\</S\>
+\</Objs\>
+"@
+PS C:\\\> $xml | ConvertFrom-Clixml
+ThisIsMyString
+
+### EXAMPLE 3
+```
+$xml = @"
+```
+
+\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
+\<S\>ThisIsMyString\</S\>
+\</Objs\>
+"@
+PS C:\\\> $xml2 = @"
+\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
+\<S\>This is another string\</S\>
+\</Objs\>
+"@
+PS C:\\\> ConvertFrom-Clixml -String $xml,$xml2
+ThisIsMyString
+This is another string
+
+### EXAMPLE 4
+```
+$xml = @"
+```
+
+\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
+\<S\>ThisIsMyString\</S\>
+\</Objs\>
+"@
+PS C:\\\> $xml2 = @"
+\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
+\<S\>This is another string\</S\>
+\</Objs\>
+"@
+PS C:\\\> $xml,$xml2 | ConvertFrom-Clixml
+ThisIsMyString
+This is another string
 
 ## PARAMETERS
 
 ### -String
-{{Fill String Description}}
+Clixml as a string object.
 
 ```yaml
 Type: String[]
@@ -32,7 +85,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
@@ -44,12 +97,9 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## INPUTS
 
-### System.String[]
-
-
 ## OUTPUTS
 
-### System.Object
+### String
 
 ## NOTES
 
