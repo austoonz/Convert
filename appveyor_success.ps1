@@ -29,6 +29,6 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
 
     # Retrieve the new Module Version
     $manifestVersion = (Test-ModuleManifest -Path $manifestTarget).Version.ToString()
-    git commit -s -m "skip ci - Module Version bumped to $manifestVersion"
+    git commit -s -m "Module Version bumped to $manifestVersion [skip ci]"
     git push origin master
 }
