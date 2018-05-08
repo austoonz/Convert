@@ -1,20 +1,83 @@
+<#
+    .SYNOPSIS
+        Converts Clixml to a string.
+    
+    .DESCRIPTION
+        Converts Clixml to a string.
+    
+    .PARAMETER String
+        Clixml as a string object.
+    
+    .EXAMPLE
+        PS C:\> $xml = @"
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>ThisIsMyString</S>
+</Objs>
+"@
+        PS C:\> ConvertFrom-Clixml -String $xml
+        ThisIsMyString
+    
+    .EXAMPLE
+        PS C:\> $xml = @"
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>ThisIsMyString</S>
+</Objs>
+"@
+        PS C:\> $xml | ConvertFrom-Clixml
+        ThisIsMyString
+    
+    .EXAMPLE
+        PS C:\> $xml = @"
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>ThisIsMyString</S>
+</Objs>
+"@
+        PS C:\> $xml2 = @"
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>This is another string</S>
+</Objs>
+"@
+        PS C:\> ConvertFrom-Clixml -String $xml,$xml2
+        ThisIsMyString
+        This is another string
+        
+    .EXAMPLE
+        PS C:\> $xml = @"
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>ThisIsMyString</S>
+</Objs>
+"@
+        PS C:\> $xml2 = @"
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>This is another string</S>
+</Objs>
+"@
+        PS C:\> $xml,$xml2 | ConvertFrom-Clixml
+        ThisIsMyString
+        This is another string
+
+    .OUTPUTS
+        String
+#>
 function ConvertFrom-Clixml
 {
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
-        [String[]]
-        $String
+        [String[]] $String
     )
 
-    Begin
+    begin
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
     
-    Process
+    process
     {
         foreach ($s in $String)
         {

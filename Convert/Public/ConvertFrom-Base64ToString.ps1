@@ -55,12 +55,12 @@ function ConvertFrom-Base64ToString
         [String] $Encoding = 'UTF8'
     )
     
-    Begin
+    begin
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    Process
+    process
     {
         foreach ($s in $String)
         {
