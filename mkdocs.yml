@@ -1,0 +1,22 @@
+site_name: Convert - PowerShell Module for object conversions
+repo_url: https://github.com/austoonz/Convert
+site_author: Andrew Pearce
+edit_uri: edit/master/docs/
+theme: readthedocs
+copyright: "Convert is licensed under the <a href='https://github.com/austoonz/Convert/blob/master/LICENSE'>MIT license"
+pages:
+  - Home: index.md
+  - Release Notes: RELEASE.md
+  - Change Log: CHANGELOG.md
+  - Functions:
+    - ConvertFrom-Base64ToString: functions/ConvertFrom-Base64ToString.md
+    - ConvertFrom-Clixml: functions/ConvertFrom-Clixml.md
+    - ConvertFrom-MemoryStreamToBase64: functions/ConvertFrom-MemoryStreamToBase64.md
+    - ConvertFrom-MemoryStreamToString: functions/ConvertFrom-MemoryStreamToString.md
+    - ConvertFrom-StringToBase64: functions/ConvertFrom-StringToBase64.md
+    - ConvertFrom-StringToMemoryStream: functions/ConvertFrom-StringToMemoryStream.md
+    - ConvertTo-Base64: functions/ConvertTo-Base64.md
+    - ConvertTo-Clixml: functions/ConvertTo-Clixml.md
+    - ConvertTo-MemoryStream: functions/ConvertTo-MemoryStream.md
+    - ConvertTo-String: functions/ConvertTo-String.md
+
