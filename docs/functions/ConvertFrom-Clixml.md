@@ -17,62 +17,57 @@ Converts Clixml to a string.
 ### EXAMPLE 1
 ```
 $xml = @"
-```
-
-\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
-\<S\>ThisIsMyString\</S\>
-\</Objs\>
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>ThisIsMyString</S>
+</Objs>
 "@
-PS C:\\\> ConvertFrom-Clixml -String $xml
+PS C:\> ConvertFrom-Clixml -String $xml
 ThisIsMyString
+```
 
 ### EXAMPLE 2
 ```
 $xml = @"
-```
-
-\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
-\<S\>ThisIsMyString\</S\>
-\</Objs\>
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>ThisIsMyString</S>
+</Objs>
 "@
-PS C:\\\> $xml | ConvertFrom-Clixml
+PS C:\> $xml | ConvertFrom-Clixml
 ThisIsMyString
+```
 
 ### EXAMPLE 3
 ```
 $xml = @"
-```
-
-\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
-\<S\>ThisIsMyString\</S\>
-\</Objs\>
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>ThisIsMyString</S>
+</Objs>
 "@
-PS C:\\\> $xml2 = @"
-\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
-\<S\>This is another string\</S\>
-\</Objs\>
+PS C:\> $xml2 = @"
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>This is another string</S>
+</Objs>
 "@
-PS C:\\\> ConvertFrom-Clixml -String $xml,$xml2
+PS C:\> ConvertFrom-Clixml -String $xml,$xml2
 ThisIsMyString
 This is another string
+```
 
 ### EXAMPLE 4
 ```
 $xml = @"
-```
-
-\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
-\<S\>ThisIsMyString\</S\>
-\</Objs\>
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>ThisIsMyString</S>
+</Objs>
 "@
-PS C:\\\> $xml2 = @"
-\<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
-\<S\>This is another string\</S\>
-\</Objs\>
+PS C:\> $xml2 = @"
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+<S>This is another string</S>
+</Objs>
 "@
-PS C:\\\> $xml,$xml2 | ConvertFrom-Clixml
+PS C:\> $xml,$xml2 | ConvertFrom-Clixml
 ThisIsMyString
-This is another string
+This is another string```
 
 ## PARAMETERS
 
