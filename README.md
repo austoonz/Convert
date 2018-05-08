@@ -1,6 +1,6 @@
-| AppVeyor (Windows)        | Travis CI (Linux / macOS) |
-|---------------------------|---------------------------|
-| [![av-image][]][av-site]  | [![tv-image][]][tv-site]  |
+| AppVeyor (Windows)        | Travis CI (Linux / macOS) | Read the Docs             |
+|---------------------------|---------------------------|---------------------------|
+| [![av-image][]][av-site]  | [![tv-image][]][tv-site]  | [![rd-image][]][rd-site]  |
 
 # Convert
 A PowerShell Module to simplify object conversions.
@@ -12,3 +12,5 @@ Convert is a PowerShell Module that simplifies object conversion by exposing com
 [av-site]: https://ci.appveyor.com/project/austoonz/convert
 [tv-image]: https://travis-ci.org/austoonz/Convert.svg?branch=master
 [tv-site]: https://travis-ci.org/austoonz/Convert
+[rd-image]: https://readthedocs.org/projects/convert/badge/?version=latest
+[rd-site]: https://readthedocs.org/projects/convert/
