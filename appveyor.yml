@@ -24,7 +24,11 @@ pull_requests:
 skip_commits:
   author: AppVeyorCI
   files:
+    - .gitignore
+    - CHANGELOG.md
+    - docs/*
     - README.md
+    - RELEASE.md
   message: /updated readme.*|update readme.*s|update docs.*|update version.*|update appveyor.*|skip ci/
 
 init:
