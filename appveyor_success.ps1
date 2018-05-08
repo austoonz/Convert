@@ -8,8 +8,8 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
     'Setting git credentials'
     git config --global credential.helper store
     Add-Content "$HOME\.git-credentials" "https://$($env:GitHubKey):x-oauth-basic@github.com`n"
-    git config --global user.name "Andrew Pearce"
-    git config --global user.email "andrew@austoonz.net"
+    git config --global user.name "AppVeyorCI"
+    git config --global user.email "appveyorci-does-not-exist@austoonz.net"
 
     # Set up a path to the git.exe cmd, import posh-git to give us control over git, and then push changes to GitHub
     # Note that "update version" is included in the appveyor.yml file's "skip a build" regex to avoid a loop
