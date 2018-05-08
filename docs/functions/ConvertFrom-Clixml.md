@@ -99,8 +99,11 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## OUTPUTS
 
-### String
+### [String[]]
 
 ## NOTES
 
 ## RELATED LINKS
+
+[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/)
+

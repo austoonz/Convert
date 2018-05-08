@@ -92,3 +92,6 @@ System.IO.MemoryStream[]
 ## NOTES
 
 ## RELATED LINKS
+
+[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/)
+

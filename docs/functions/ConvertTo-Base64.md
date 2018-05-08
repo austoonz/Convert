@@ -92,3 +92,6 @@ System.IO.MemoryStream[]
 ## NOTES
 
 ## RELATED LINKS
+
+[http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/)
+

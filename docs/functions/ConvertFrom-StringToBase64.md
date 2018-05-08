@@ -1,7 +1,7 @@
 # ConvertFrom-StringToBase64
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Converts a string to a base64 encoded string.
 
 ## SYNTAX
 
@@ -10,37 +10,86 @@ ConvertFrom-StringToBase64 [-String] <String[]> [[-Encoding] <String>] [<CommonP
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Converts a string to a base64 encoded string.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
+```
+$string = 'A string'
 ```
 
-{{ Add example description here }}
+PS C:\\\> ConvertFrom-StringToBase64 -String $string
+QSBzdHJpbmc=
+
+### EXAMPLE 2
+```
+$string = 'A string'
+```
+
+PS C:\\\> $string | ConvertFrom-StringToBase64
+QSBzdHJpbmc=
+
+### EXAMPLE 3
+```
+$string = 'A string'
+```
+
+PS C:\\\> ConvertFrom-StringToBase64 -String $string -Encoding Unicode
+QQAgAHMAdAByAGkAbgBnAA==
+
+### EXAMPLE 4
+```
+$string = 'A string'
+```
+
+PS C:\\\> $string | ConvertFrom-StringToBase64 -Encoding Unicode
+QQAgAHMAdAByAGkAbgBnAA==
+
+### EXAMPLE 5
+```
+$string1 = 'A string'
+```
+
+PS C:\\\> $string2 = 'Another string'
+PS C:\\\> ConvertFrom-StringToBase64 -String $string1,$string2
+QSBzdHJpbmc=
+QW5vdGhlciBzdHJpbmc=
+
+### EXAMPLE 6
+```
+$string1 = 'A string'
+```
+
+PS C:\\\> $string2 = 'Another string'
+PS C:\\\> $string1,$string2 | ConvertFrom-StringToBase64
+QSBzdHJpbmc=
+QW5vdGhlciBzdHJpbmc=
+
+### EXAMPLE 7
+```
+$string1 = 'A string'
+```
+
+PS C:\\\> $string2 = 'Another string'
+PS C:\\\> ConvertFrom-StringToBase64 -String $string1,$string2 -Encoding Unicode
+QQAgAHMAdAByAGkAbgBnAA==
+QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
+
+### EXAMPLE 8
+```
+$string1 = 'A string'
+```
+
+PS C:\\\> $string2 = 'Another string'
+PS C:\\\> $string1,$string2 | ConvertFrom-StringToBase64 -Encoding Unicode
+QQAgAHMAdAByAGkAbgBnAA==
+QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 
 ## PARAMETERS
 
-### -Encoding
-{{Fill Encoding Description}}
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-Accepted values: ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, UTF8
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -String
-{{Fill String Description}}
+A string object for conversion.
 
 ```yaml
 Type: String[]
@@ -48,9 +97,26 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Encoding
+The encoding to use for conversion.
+Defaults to UTF8.
+Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 2
+Default value: UTF8
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -60,13 +126,13 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## INPUTS
 
-### System.String[]
-
-
 ## OUTPUTS
 
-### System.Object
+### [String[]]
 
 ## NOTES
 
 ## RELATED LINKS
+
+[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/)
+
