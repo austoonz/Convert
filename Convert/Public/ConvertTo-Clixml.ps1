@@ -1,20 +1,23 @@
 function ConvertTo-Clixml
 {
-    [CmdletBinding()]
+    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/')]
     param
     (
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
         [PSObject]
         $InputObject
     )
 
-    Begin
+    begin
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
     
-    Process
+    process
     {
         try
         {

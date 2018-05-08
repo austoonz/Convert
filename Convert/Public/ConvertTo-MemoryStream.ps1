@@ -1,30 +1,38 @@
 function ConvertTo-MemoryStream
 {
-    [CmdletBinding(DefaultParameterSetName='String')]
+    [CmdletBinding(
+        DefaultParameterSetName = 'String',
+        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/')]
     param
     (
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,ParameterSetName='String')]
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'String')]
         [ValidateNotNullOrEmpty()]
         [String[]]
         $String
     )
 
-    Begin
+    begin
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
     
-    Process
+    process
     {
         switch ($PSCmdlet.ParameterSetName)
         {
-            'String' {
+            'String'
+            {
                 $InputObject = $String
                 $Function = 'ConvertFrom-StringToMemoryStream'
                 break
             }
 
-            default {
+            default
+            {
                 Write-Error -Message 'Invalid ParameterSetName' -ErrorAction $userErrorActionPreference
                 break
             }

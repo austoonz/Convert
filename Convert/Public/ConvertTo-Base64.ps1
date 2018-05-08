@@ -1,33 +1,44 @@
 function ConvertTo-Base64
 {
-    [CmdletBinding(DefaultParameterSetName='String')]
+    [CmdletBinding(
+        DefaultParameterSetName = 'String',
+        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/')]
     param
     (
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,ParameterSetName='String')]
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'String')]
         [ValidateNotNullOrEmpty()]
         [String[]]
         $String,
 
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,ParameterSetName='MemoryStream')]
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'MemoryStream')]
         [ValidateNotNullOrEmpty()]
         [System.IO.MemoryStream[]]
         $MemoryStream,
 
-        [ValidateSet('ASCII','BigEndianUnicode','Default','Unicode','UTF32','UTF7','UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [String]
         $Encoding = 'UTF8'
     )
 
-    Begin
+    begin
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
     
-    Process
+    process
     {
         switch ($PSCmdlet.ParameterSetName)
         {
-            'String' {
+            'String'
+            {
                 $InputObject = $String
                 $Function = 'ConvertFrom-StringToBase64'
                 $splat = @{
@@ -36,7 +47,8 @@ function ConvertTo-Base64
                 break
             }
 
-            'MemoryStream' {
+            'MemoryStream'
+            {
                 $InputObject = $MemoryStream
                 $Function = 'ConvertFrom-MemoryStreamToBase64'
                 $splat = @{
@@ -45,7 +57,8 @@ function ConvertTo-Base64
                 break
             }
 
-            default {
+            default
+            {
                 Write-Error -Message 'Invalid ParameterSetName' -ErrorAction $userErrorActionPreference
                 break
             }

@@ -36,11 +36,14 @@
         QQAgAHMAdAByAGkAbgBnAA==
         
     .OUTPUTS
-        String
+        [String[]]
+
+    .LINK
+        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/
 #>
 function ConvertFrom-Base64ToString
 {
-    [CmdletBinding()]
+    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/')]
     [OutputType('String')]
     param
     (
@@ -49,10 +52,12 @@ function ConvertFrom-Base64ToString
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
-        [String[]] $String,
+        [String[]]
+        $String,
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
-        [String] $Encoding = 'UTF8'
+        [String]
+        $Encoding = 'UTF8'
     )
     
     begin

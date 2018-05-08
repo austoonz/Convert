@@ -57,11 +57,14 @@
         This is another string
 
     .OUTPUTS
-        String
+        [String[]]
+
+    .LINK
+        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/
 #>
 function ConvertFrom-Clixml
 {
-    [CmdletBinding()]
+    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/')]
     param
     (
         [Parameter(
@@ -69,7 +72,8 @@ function ConvertFrom-Clixml
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
-        [String[]] $String
+        [String[]]
+        $String
     )
 
     begin
