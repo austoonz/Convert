@@ -21,6 +21,10 @@ Enter-Build {
     $script:ArtifactsPath = Join-Path -Path $BuildRoot -ChildPath 'Artifact'
     $script:ArchivePath = Join-Path -Path $BuildRoot -ChildPath 'Archive'
     $script:PesterTestResultsFile = Join-Path -Path $script:ArchivePath -ChildPath 'TestsResults.xml'
+
+    $script:DocsPath = Join-Path -Path $BuildRoot -ChildPath 'docs'
+    $script:ChangeLog = Join-Path -Path $BuildRoot -ChildPath 'CHANGELOG.md'
+    $script:ReleaseNotes = Join-Path -Path $BuildRoot -ChildPath 'RELEASE.md'
 }
 
 # Synopsis: Installs Invoke-Build Dependencies
@@ -126,6 +130,73 @@ task Test {
 # Synopsis: Builds the Module to the Artifacts folder
 task Build {
     Copy-Item -Path $script:ModuleFiles -Destination $script:ArtifactsPath -Recurse -ErrorAction Stop
+}
+
+task BuildDocs -After Build {
+    # Only build the docs if running an AppVeyor Job and branch is master
+    if ($env:APPVEYOR_JOB_ID -and $env:APPVEYOR_REPO_BRANCH -eq 'master') {
+        # This step is converted from Mark Kraus' PSMSGraph psake build file
+
+        "Loading Module from $($script:ModuleManifestFile)"
+        Remove-Module $script:ModuleManifestFile -Force -ErrorAction SilentlyContinue
+        # platyPS + AppVeyor requires the module to be loaded in Global scope
+        Import-Module $script:ModuleManifestFile -Force -Global
+        
+        # Build YAMLText starting with the header
+        $YMLtext = (Get-Content "$BuildRoot\header-mkdocs.yml") -join "`n"
+        $YMLtext = "$YMLtext`n"
+        
+        $parameters = @{
+            Path = $script:ReleaseNotes
+            ErrorAction = 'SilentlyContinue'
+        }
+        $ReleaseText = (Get-Content @parameters) -join "`n"
+        if ($ReleaseText) {
+            $ReleaseText | Set-Content "$BuildRoot\docs\RELEASE.md"
+            $YMLText = "$YMLtext  - Release Notes: RELEASE.md`n"
+        }
+        
+        $parameters = @{
+            Path = $script:ChangeLog
+            ErrorAction = 'SilentlyContinue'
+        }
+        $ChangeLogText = (Get-Content @parameters) -join "`n"
+        if ($ChangeLogText) {
+            $ChangeLogText | Set-Content "$BuildRoot\docs\CHANGELOG.md"
+            $YMLText = "$YMLtext  - Change Log: CHANGELOG.md`n"
+        }
+
+        $YMLText = "$YMLtext  - Functions:`n"
+
+        # Remove previous function docs
+        $parameters = @{
+            Recurse = $true
+            Force = $true
+            Path = "$BuildRoot\docs\functions"
+            ErrorAction = 'SilentlyContinue'
+        }
+        $null = Remove-Item @parameters
+        $Params = @{
+            Path = "$BuildRoot\docs\functions"
+            type = 'directory'
+            ErrorAction = 'SilentlyContinue'
+        }
+        $null = New-Item @Params
+
+        $Params = @{
+            Module = $script:ModuleName
+            Force = $true
+            OutputFolder = "$BuildRoot\docs\functions"
+            NoMetadata = $true
+        }
+        New-MarkdownHelp @Params | foreach-object {
+            $Function = $_.Name -replace '\.md', ''
+            $Part = "    - {0}: functions/{1}" -f $Function, $_.Name
+            $YMLText = "{0}{1}`n" -f $YMLText, $Part
+            $Part
+        }
+        $YMLtext | Set-Content -Path "$BuildRoot\mkdocs.yml"
+    }
 }
 
 # Synopsis: Increments the Module Manifest version
