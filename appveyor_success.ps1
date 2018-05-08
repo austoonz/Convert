@@ -1,3 +1,5 @@
+$moduleName = 'Convert'
+
 Get-ChildItem .\Archive | ForEach-Object { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 "Working on GIT branch: $($env:APPVEYOR_REPO_BRANCH)"
@@ -20,8 +22,8 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
     git checkout master
 
     'Adding new Module Manifest'
-    $manifestSource = '.\Artifact\Convert.psd1'
-    $manifestTarget = '.\Convert\Convert.psd1'
+    $manifestSource = ".\Artifact\$moduleName.psd1"
+    $manifestTarget = ".\$moduleName\$moduleName.psd1"
     Copy-Item -Path $manifestSource -Destination $manifestTarget
     git add $manifestTarget
 
