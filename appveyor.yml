@@ -25,7 +25,7 @@ skip_commits:
   author: AppVeyorCI
   files:
     - README.md
-  message: /updated readme.*|update readme.*s|update docs.*|update version.*|update appveyor.*/
+  message: /updated readme.*|update readme.*s|update docs.*|update version.*|update appveyor.*|skip ci/
 
 init:
   - git config --global core.autocrlf true
