@@ -3,7 +3,7 @@ Get-ChildItem .\Archive | ForEach-Object { Push-AppveyorArtifact $_.FullName -Fi
 "Working on GIT branch: $($env:APPVEYOR_REPO_BRANCH)"
 if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
 {
-    $ErrorActionPreference = 'Continue'
+    $ErrorActionPreference = 'SilentlyContinue'
     
     'Setting git credentials'
     git config --global credential.helper store
