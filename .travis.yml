@@ -20,7 +20,7 @@ matrix:
             - powershell
 
 install:
-  - pwsh -c 'Install-Module -Name InvokeBuild,posh-git,PSDepend -Scope CurrentUser -Force'
+  - pwsh -c 'Install-Module -Name InvokeBuild,Pester,PSScriptAnalyzer -Scope CurrentUser -Force'
 
 script:
-  - pwsh -c 'Invoke-Build -Task InstallDependencies, Clean, Analyze, Test'
+  - pwsh -c 'Invoke-Build -Task Clean, Analyze, Test'
