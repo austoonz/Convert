@@ -37,7 +37,7 @@ if ($env:APPVEYOR_REPO_BRANCH -eq 'master')
     Copy-Item -Path '.\CHANGELOG.md' -Destination '.\docs\CHANGELOG.md' -Force
     Copy-Item -Path '.\RELEASE.md' -Destination '.\docs\RELEASE.md' -Force
     git add .\docs
-    git commit -s -m "Added newly generated docs"
+    git commit -s -m "Added newly generated docs [skip ci]"
 
     git push origin master
 }
