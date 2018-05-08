@@ -20,8 +20,7 @@ matrix:
             - powershell
 
 install:
-  - pwsh -c 'Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null'
-  - pwsh -c 'Install-Module -Name InvokeBuild,posh-git,PSDepend -Force'
+  - pwsh -c 'Install-Module -Name InvokeBuild,posh-git,PSDepend -Scope CurrentUser -Force'
 
 script:
   - pwsh -c 'Invoke-Build -Task Analyze, Test'
