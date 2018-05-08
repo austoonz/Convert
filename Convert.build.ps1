@@ -132,9 +132,13 @@ task Build {
     Copy-Item -Path $script:ModuleFiles -Destination $script:ArtifactsPath -Recurse -ErrorAction Stop
 }
 
-task BuildDocs -After Build {
+task BuildDocs {
     # Only build the docs if running an AppVeyor Job and branch is master
-    if ($env:APPVEYOR_JOB_ID -and $env:APPVEYOR_REPO_BRANCH -eq 'master') {
+    # Temporary commenting this out due to a PlatyPS issue: https://github.com/PowerShell/platyPS/issues/180
+    #if (($env:APPVEYOR_JOB_ID -and $env:APPVEYOR_REPO_BRANCH -eq 'master') -or $env:USERNAME -eq 'andrew') {
+    
+    # Allow this to build on my workstation and not on a build service
+    if ($env:USERNAME -eq 'andrew') {
         # This step is converted from Mark Kraus' PSMSGraph psake build file
 
         "Loading Module from $($script:ModuleManifestFile)"
