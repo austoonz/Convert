@@ -19,22 +19,22 @@ Converts an object to Clixml.
 $string = 'A string'
 
 ConvertTo-Clixml -InputObject $string
-```
 
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <S>A string</S>
 </Objs>
+```
 
 ### EXAMPLE 2
 ```
 $string = 'A string'
 
 $string | ConvertTo-Clixml
-```
 
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <S>A string</S>
 </Objs>
+```
 
 ### EXAMPLE 3
 ```
@@ -42,7 +42,6 @@ $string1 = 'A string'
 
 $string2 = 'Another string'
 ConvertTo-Clixml -InputObject $string1,$string2
-```
 
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <S>A string</S>
@@ -50,6 +49,7 @@ ConvertTo-Clixml -InputObject $string1,$string2
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <S>Another string</S>
 </Objs>
+```
 
 ### EXAMPLE 4
 ```
@@ -57,7 +57,6 @@ $string1 = 'A string'
 
 $string2 = 'Another string'
 $string1,$string2 | ConvertTo-Clixml
-```
 
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <S>A string</S>
@@ -65,6 +64,7 @@ $string1,$string2 | ConvertTo-Clixml
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <S>Another string</S>
 </Objs>
+```
 
 ## PARAMETERS
 

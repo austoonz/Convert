@@ -17,62 +17,62 @@ Converts a string to a base64 encoded string.
 ### EXAMPLE 1
 ```
 ConvertFrom-StringToBase64 -String 'A string'
-```
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 2
 ```
 'A string' | ConvertFrom-StringToBase64
-```
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 3
 ```
 ConvertFrom-StringToBase64 -String 'A string' -Encoding Unicode
-```
 
 QQAgAHMAdAByAGkAbgBnAA==
+```
 
 ### EXAMPLE 4
 ```
 'A string' | ConvertFrom-StringToBase64 -Encoding Unicode
-```
 
 QQAgAHMAdAByAGkAbgBnAA==
+```
 
 ### EXAMPLE 5
 ```
 ConvertFrom-StringToBase64 -String 'A string','Another string'
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 6
 ```
 'A string','Another string' | ConvertFrom-StringToBase64
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 7
 ```
 ConvertFrom-StringToBase64 -String 'A string','Another string' -Encoding Unicode
-```
 
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
+```
 
 ### EXAMPLE 8
 ```
 'A string','Another string' | ConvertFrom-StringToBase64 -Encoding Unicode
-```
 
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
+```
 
 ## PARAMETERS
 

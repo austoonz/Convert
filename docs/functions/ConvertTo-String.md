@@ -23,32 +23,32 @@ Converts a base64 encoded string to a string.
 ### EXAMPLE 1
 ```
 ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc='
-```
 
 A string
+```
 
 ### EXAMPLE 2
 ```
 ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc='
-```
 
 A string
 Another string
+```
 
 ### EXAMPLE 3
 ```
 'QSBzdHJpbmc=' | ConvertTo-String
-```
 
 A string
+```
 
 ### EXAMPLE 4
 ```
 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertTo-String
-```
 
 A string
 Another string
+```
 
 ### EXAMPLE 5
 ```
@@ -66,10 +66,10 @@ $writer2.Write($string2)
 $writer2.Flush()
 
 ConvertTo-String -MemoryStream $stream1,$stream2
-```
 
 A string
 Another string
+```
 
 ### EXAMPLE 6
 ```
@@ -87,10 +87,10 @@ $writer2.Write($string2)
 $writer2.Flush()
 
 $stream1,$stream2 | ConvertTo-String
-```
 
 A string
 Another string
+```
 
 ## PARAMETERS
 

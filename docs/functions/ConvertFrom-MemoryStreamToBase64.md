@@ -24,9 +24,9 @@ $writer.Write($string)
 $writer.Flush()
 
 ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
-```
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 2
 ```
@@ -38,9 +38,9 @@ $writer.Write($string)
 $writer.Flush()
 
 $stream | ConvertFrom-MemoryStreamToBase64
-```
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 3
 ```
@@ -58,10 +58,10 @@ $writer2.Write($string2)
 $writer2.Flush()
 
 ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream1,$stream2
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 4
 ```
@@ -79,10 +79,10 @@ $writer2.Write($string2)
 $writer2.Flush()
 
 $stream1,$stream2 | ConvertFrom-MemoryStreamToBase64
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ## PARAMETERS
 

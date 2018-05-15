@@ -23,62 +23,62 @@ Converts a string to a base64 encoded string.
 ### EXAMPLE 1
 ```
 ConvertTo-Base64 -String 'A string'
-```
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 2
 ```
 'A string' | ConvertTo-Base64
-```
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 3
 ```
 ConvertTo-Base64 -String 'A string' -Encoding Unicode
-```
 
 QQAgAHMAdAByAGkAbgBnAA==
+```
 
 ### EXAMPLE 4
 ```
 'A string' | ConvertTo-Base64 -Encoding Unicode
-```
 
 QQAgAHMAdAByAGkAbgBnAA==
+```
 
 ### EXAMPLE 5
 ```
 ConvertTo-Base64 -String 'A string','Another string'
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 6
 ```
 'A string','Another string' | ConvertTo-Base64
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 7
 ```
 ConvertTo-Base64 -String 'A string','Another string' -Encoding Unicode
-```
 
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
+```
 
 ### EXAMPLE 8
 ```
 'A string','Another string' | ConvertTo-Base64 -Encoding Unicode
-```
 
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
+```
 
 ### EXAMPLE 9
 ```
@@ -90,9 +90,9 @@ $writer.Write($string)
 $writer.Flush()
 
 ConvertTo-Base64 -MemoryStream $stream
-```
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 10
 ```
@@ -104,9 +104,9 @@ $writer.Write($string)
 $writer.Flush()
 
 $stream | ConvertTo-Base64
-```
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 11
 ```
@@ -124,10 +124,10 @@ $writer2.Write($string2)
 $writer2.Flush()
 
 ConvertTo-Base64 -MemoryStream $stream1,$stream2
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 12
 ```
@@ -145,10 +145,10 @@ $writer2.Write($string2)
 $writer2.Flush()
 
 $stream1,$stream2 | ConvertTo-Base64
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ## PARAMETERS
 
