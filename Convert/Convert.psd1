@@ -112,7 +112,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = '
-v1.0:
+v0.1.0.9:
   - Initial release'
 
         # External dependent modules of this module
