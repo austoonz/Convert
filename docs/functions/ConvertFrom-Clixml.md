@@ -1,7 +1,7 @@
 # ConvertFrom-Clixml
 
 ## SYNOPSIS
-Converts Clixml to a string.
+Converts Clixml to an object.
 
 ## SYNTAX
 
@@ -10,7 +10,7 @@ ConvertFrom-Clixml [-String] <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Converts Clixml to a string.
+Converts Clixml to an object.
 
 ## EXAMPLES
 
@@ -21,9 +21,10 @@ $xml = @"
 <S>ThisIsMyString</S>
 </Objs>
 "@
-PS C:\> ConvertFrom-Clixml -String $xml
-ThisIsMyString
+ConvertFrom-Clixml -String $xml
 ```
+
+ThisIsMyString
 
 ### EXAMPLE 2
 ```
@@ -32,42 +33,46 @@ $xml = @"
 <S>ThisIsMyString</S>
 </Objs>
 "@
-PS C:\> $xml | ConvertFrom-Clixml
-ThisIsMyString
+$xml | ConvertFrom-Clixml
 ```
+
+ThisIsMyString
 
 ### EXAMPLE 3
 ```
-$xml = @"
+$xml1 = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
 </Objs>
 "@
-PS C:\> $xml2 = @"
+$xml2 = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>This is another string</S>
 </Objs>
 "@
-PS C:\> ConvertFrom-Clixml -String $xml,$xml2
+ConvertFrom-Clixml -String $xml,$xml2
+```
+
 ThisIsMyString
 This is another string
-```
 
 ### EXAMPLE 4
 ```
-$xml = @"
+$xml1 = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
 </Objs>
 "@
-PS C:\> $xml2 = @"
+$xml2 = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>This is another string</S>
 </Objs>
 "@
-PS C:\> $xml,$xml2 | ConvertFrom-Clixml
+$xml,$xml2 | ConvertFrom-Clixml
+```
+
 ThisIsMyString
-This is another string```
+This is another string
 
 ## PARAMETERS
 
@@ -94,7 +99,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## OUTPUTS
 
-### [String[]]
+### [Object[]]
 
 ## NOTES
 

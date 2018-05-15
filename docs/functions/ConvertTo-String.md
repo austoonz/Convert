@@ -1,7 +1,7 @@
 # ConvertTo-String
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Converts a base64 encoded string to a string.
 
 ## SYNTAX
 
@@ -16,16 +16,81 @@ ConvertTo-String -MemoryStream <MemoryStream[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Converts a base64 encoded string to a string.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
+```
+ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc='
 ```
 
-{{ Add example description here }}
+A string
+
+### EXAMPLE 2
+```
+ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc='
+```
+
+A string
+Another string
+
+### EXAMPLE 3
+```
+'QSBzdHJpbmc=' | ConvertTo-String
+```
+
+A string
+
+### EXAMPLE 4
+```
+'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertTo-String
+```
+
+A string
+Another string
+
+### EXAMPLE 5
+```
+$string1 = 'A string'
+
+$stream1 = [System.IO.MemoryStream]::new()
+$writer1 = [System.IO.StreamWriter]::new($stream1)
+$writer1.Write($string1)
+$writer1.Flush()
+
+$string2 = 'Another string'
+$stream2 = [System.IO.MemoryStream]::new()
+$writer2 = [System.IO.StreamWriter]::new($stream2)
+$writer2.Write($string2)
+$writer2.Flush()
+
+ConvertTo-String -MemoryStream $stream1,$stream2
+```
+
+A string
+Another string
+
+### EXAMPLE 6
+```
+$string1 = 'A string'
+
+$stream1 = [System.IO.MemoryStream]::new()
+$writer1 = [System.IO.StreamWriter]::new($stream1)
+$writer1.Write($string1)
+$writer1.Flush()
+
+$string2 = 'Another string'
+$stream2 = [System.IO.MemoryStream]::new()
+$writer2 = [System.IO.StreamWriter]::new($stream2)
+$writer2.Write($string2)
+$writer2.Flush()
+
+$stream1,$stream2 | ConvertTo-String
+```
+
+A string
+Another string
 
 ## PARAMETERS
 
@@ -44,22 +109,6 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
-### -Encoding
-{{Fill Encoding Description}}
-
-```yaml
-Type: String
-Parameter Sets: Base64String
-Aliases:
-Accepted values: ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, UTF8
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -MemoryStream
 {{Fill MemoryStream Description}}
 
@@ -75,23 +124,36 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
+### -Encoding
+The encoding to use for conversion.
+Defaults to UTF8.
+Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+
+```yaml
+Type: String
+Parameter Sets: Base64String
+Aliases:
+
+Required: False
+Position: Named
+Default value: UTF8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
 For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-### System.String[]
-System.IO.MemoryStream[]
-
-
 ## OUTPUTS
 
-### System.Object
+### [String[]]
 
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/)
+[http://convert.readthedocs.io/en/latest/functions/ConvertTo-String/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-String/)
 

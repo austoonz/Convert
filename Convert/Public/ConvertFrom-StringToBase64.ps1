@@ -14,50 +14,38 @@
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
     
     .EXAMPLE
-        $string = 'A string'
-        ConvertFrom-StringToBase64 -String $string
+        ConvertFrom-StringToBase64 -String 'A string'
         QSBzdHJpbmc=
 
     .EXAMPLE
-        $string = 'A string'
-        $string | ConvertFrom-StringToBase64
+        'A string' | ConvertFrom-StringToBase64
         QSBzdHJpbmc=
 
     .EXAMPLE
-        $string = 'A string'
-        ConvertFrom-StringToBase64 -String $string -Encoding Unicode
+        ConvertFrom-StringToBase64 -String 'A string' -Encoding Unicode
         QQAgAHMAdAByAGkAbgBnAA==
 
     .EXAMPLE
-        $string = 'A string'
-        $string | ConvertFrom-StringToBase64 -Encoding Unicode
+        'A string' | ConvertFrom-StringToBase64 -Encoding Unicode
         QQAgAHMAdAByAGkAbgBnAA==
 
     .EXAMPLE
-        $string1 = 'A string'
-        $string2 = 'Another string'
-        ConvertFrom-StringToBase64 -String $string1,$string2
+        ConvertFrom-StringToBase64 -String 'A string','Another string'
         QSBzdHJpbmc=
         QW5vdGhlciBzdHJpbmc=
 
     .EXAMPLE
-        $string1 = 'A string'
-        $string2 = 'Another string'
-        $string1,$string2 | ConvertFrom-StringToBase64
+        'A string','Another string' | ConvertFrom-StringToBase64
         QSBzdHJpbmc=
         QW5vdGhlciBzdHJpbmc=
 
     .EXAMPLE
-        $string1 = 'A string'
-        $string2 = 'Another string'
-        ConvertFrom-StringToBase64 -String $string1,$string2 -Encoding Unicode
+        ConvertFrom-StringToBase64 -String 'A string','Another string' -Encoding Unicode
         QQAgAHMAdAByAGkAbgBnAA==
         QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 
     .EXAMPLE
-        $string1 = 'A string'
-        $string2 = 'Another string'
-        $string1,$string2 | ConvertFrom-StringToBase64 -Encoding Unicode
+        'A string','Another string' | ConvertFrom-StringToBase64 -Encoding Unicode
         QQAgAHMAdAByAGkAbgBnAA==
         QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 

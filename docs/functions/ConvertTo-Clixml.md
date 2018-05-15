@@ -1,7 +1,7 @@
 # ConvertTo-Clixml
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Converts an object to Clixml.
 
 ## SYNTAX
 
@@ -10,21 +10,66 @@ ConvertTo-Clixml [-InputObject] <PSObject> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Converts an object to Clixml.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
+```
+$string = 'A string'
+
+ConvertTo-Clixml -InputObject $string
 ```
 
-{{ Add example description here }}
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <S>A string</S>
+</Objs>
+
+### EXAMPLE 2
+```
+$string = 'A string'
+
+$string | ConvertTo-Clixml
+```
+
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <S>A string</S>
+</Objs>
+
+### EXAMPLE 3
+```
+$string1 = 'A string'
+
+$string2 = 'Another string'
+ConvertTo-Clixml -InputObject $string1,$string2
+```
+
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <S>A string</S>
+</Objs>
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <S>Another string</S>
+</Objs>
+
+### EXAMPLE 4
+```
+$string1 = 'A string'
+
+$string2 = 'Another string'
+$string1,$string2 | ConvertTo-Clixml
+```
+
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <S>A string</S>
+</Objs>
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <S>Another string</S>
+</Objs>
 
 ## PARAMETERS
 
 ### -InputObject
-{{Fill InputObject Description}}
+An object for conversion.
 
 ```yaml
 Type: PSObject
@@ -32,7 +77,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
@@ -44,12 +89,9 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## INPUTS
 
-### System.Management.Automation.PSObject
-
-
 ## OUTPUTS
 
-### System.Object
+### [String[]]
 
 ## NOTES
 

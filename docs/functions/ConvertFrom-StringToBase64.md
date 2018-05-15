@@ -16,75 +16,63 @@ Converts a string to a base64 encoded string.
 
 ### EXAMPLE 1
 ```
-$string = 'A string'
-
-ConvertFrom-StringToBase64 -String $string
-QSBzdHJpbmc=
+ConvertFrom-StringToBase64 -String 'A string'
 ```
+
+QSBzdHJpbmc=
 
 ### EXAMPLE 2
 ```
-$string = 'A string'
-
-$string | ConvertFrom-StringToBase64
-QSBzdHJpbmc=
+'A string' | ConvertFrom-StringToBase64
 ```
+
+QSBzdHJpbmc=
 
 ### EXAMPLE 3
 ```
-$string = 'A string'
-
-ConvertFrom-StringToBase64 -String $string -Encoding Unicode
-QQAgAHMAdAByAGkAbgBnAA==
+ConvertFrom-StringToBase64 -String 'A string' -Encoding Unicode
 ```
+
+QQAgAHMAdAByAGkAbgBnAA==
 
 ### EXAMPLE 4
 ```
-$string = 'A string'
-
-$string | ConvertFrom-StringToBase64 -Encoding Unicode
-QQAgAHMAdAByAGkAbgBnAA==
+'A string' | ConvertFrom-StringToBase64 -Encoding Unicode
 ```
+
+QQAgAHMAdAByAGkAbgBnAA==
 
 ### EXAMPLE 5
 ```
-$string1 = 'A string'
+ConvertFrom-StringToBase64 -String 'A string','Another string'
+```
 
-$string2 = 'Another string'
-ConvertFrom-StringToBase64 -String $string1,$string2
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 6
 ```
-$string1 = 'A string'
+'A string','Another string' | ConvertFrom-StringToBase64
+```
 
-$string2 = 'Another string'
-$string1,$string2 | ConvertFrom-StringToBase64
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 7
 ```
-$string1 = 'A string'
+ConvertFrom-StringToBase64 -String 'A string','Another string' -Encoding Unicode
+```
 
-$string2 = 'Another string'
-ConvertFrom-StringToBase64 -String $string1,$string2 -Encoding Unicode
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
-```
 
 ### EXAMPLE 8
 ```
-$string1 = 'A string'
+'A string','Another string' | ConvertFrom-StringToBase64 -Encoding Unicode
+```
 
-$string2 = 'Another string'
-$string1,$string2 | ConvertFrom-StringToBase64 -Encoding Unicode
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
-```
 
 ## PARAMETERS
 

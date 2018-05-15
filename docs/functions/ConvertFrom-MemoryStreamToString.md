@@ -24,8 +24,9 @@ $writer.Write($string)
 $writer.Flush()
 
 ConvertFrom-MemoryStreamToString -MemoryStream $stream
-A string
 ```
+
+A string
 
 ### EXAMPLE 2
 ```
@@ -37,8 +38,9 @@ $writer.Write($string)
 $writer.Flush()
 
 $stream | ConvertFrom-MemoryStreamToString
-A string
 ```
+
+A string
 
 ### EXAMPLE 3
 ```
@@ -56,9 +58,10 @@ $writer2.Write($string2)
 $writer2.Flush()
 
 ConvertFrom-MemoryStreamToString -MemoryStream $stream1,$stream2
+```
+
 A string
 Another string
-```
 
 ### EXAMPLE 4
 ```
@@ -76,9 +79,10 @@ $writer2.Write($string2)
 $writer2.Flush()
 
 $stream1,$stream2 | ConvertFrom-MemoryStreamToString
+```
+
 A string
 Another string
-```
 
 ## PARAMETERS
 

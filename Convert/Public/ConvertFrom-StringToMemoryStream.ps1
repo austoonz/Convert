@@ -9,8 +9,7 @@
         A string object for conversion.
     
     .EXAMPLE
-        $string = 'A string'
-        $stream = ConvertFrom-StringToMemoryStream -String $string
+        $stream = ConvertFrom-StringToMemoryStream -String 'A string'
         $stream.GetType()
 
         IsPublic IsSerial Name                                     BaseType
@@ -18,8 +17,7 @@
         True     True     MemoryStream                             System.IO.Stream
 
     .EXAMPLE
-        $string = 'A string'
-        $stream = $string | ConvertFrom-StringToMemoryStream
+        $stream = 'A string' | ConvertFrom-StringToMemoryStream
         $stream.GetType()
 
         IsPublic IsSerial Name                                     BaseType
@@ -27,10 +25,7 @@
         True     True     MemoryStream                             System.IO.Stream
 
     .EXAMPLE
-        $string1 = 'A string'
-        $string2 = 'Another string'
-        
-        $streams = ConvertFrom-StringToMemoryStream -String $string1,$string2
+        $streams = ConvertFrom-StringToMemoryStream -String 'A string','Another string'
         $streams.GetType()
 
         IsPublic IsSerial Name                                     BaseType
@@ -43,11 +38,8 @@
         -------- -------- ----                                     --------
         True     True     MemoryStream                             System.IO.Stream
 
-    .EXAMPLE
-        $string1 = 'A string'
-        $string2 = 'Another string'
-        
-        $streams = $string1,$string2 | ConvertFrom-StringToMemoryStream
+    .EXAMPLE        
+        $streams = 'A string','Another string' | ConvertFrom-StringToMemoryStream
         $streams.GetType()
 
         IsPublic IsSerial Name                                     BaseType
