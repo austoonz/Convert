@@ -95,7 +95,7 @@ Another string
 ## PARAMETERS
 
 ### -Base64EncodedString
-{{Fill Base64EncodedString Description}}
+A Base64 Encoded String.
 
 ```yaml
 Type: String[]
@@ -110,7 +110,7 @@ Accept wildcard characters: False
 ```
 
 ### -MemoryStream
-{{Fill MemoryStream Description}}
+A MemoryStream object for conversion.
 
 ```yaml
 Type: MemoryStream[]

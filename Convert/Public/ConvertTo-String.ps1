@@ -5,8 +5,11 @@
     .DESCRIPTION
         Converts a base64 encoded string to a string.
     
-    .PARAMETER String
+    .PARAMETER Base64EncodedString
         A Base64 Encoded String
+    
+    .PARAMETER MemoryStream
+        A MemoryStream object for conversion.
     
     .PARAMETER Encoding
         The encoding to use for conversion.
