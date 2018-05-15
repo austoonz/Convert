@@ -14,27 +14,27 @@
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
     
     .EXAMPLE
-        PS C:\> ConvertFrom-Base64ToString -String 'QSBzdHJpbmc='
+        ConvertFrom-Base64ToString -String 'QSBzdHJpbmc='
+
         A string
     
     .EXAMPLE
-        PS C:\> ConvertTo-Base64 -String 'A string','Another string'
+        ConvertTo-Base64 -String 'A string','Another string'
+
         QSBzdHJpbmc=
         QW5vdGhlciBzdHJpbmc=
     
     .EXAMPLE
-        PS C:\> 'QSBzdHJpbmc=' | ConvertFrom-Base64ToString
+        'QSBzdHJpbmc=' | ConvertFrom-Base64ToString
+
         A string
 
     .EXAMPLE
-        PS C:\> 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64ToString
+        'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64ToString
+
         A string
         Another string
     
-    .EXAMPLE
-        PS C:\> ConvertTo-Base64 -String 'A string' -Encoding Unicode
-        QQAgAHMAdAByAGkAbgBnAA==
-        
     .OUTPUTS
         [String[]]
 

@@ -14,50 +14,50 @@
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
     
     .EXAMPLE
-        PS C:\> $string = 'A string'
-        PS C:\> ConvertFrom-StringToBase64 -String $string
+        $string = 'A string'
+        ConvertFrom-StringToBase64 -String $string
         QSBzdHJpbmc=
 
     .EXAMPLE
-        PS C:\> $string = 'A string'
-        PS C:\> $string | ConvertFrom-StringToBase64
+        $string = 'A string'
+        $string | ConvertFrom-StringToBase64
         QSBzdHJpbmc=
 
     .EXAMPLE
-        PS C:\> $string = 'A string'
-        PS C:\> ConvertFrom-StringToBase64 -String $string -Encoding Unicode
+        $string = 'A string'
+        ConvertFrom-StringToBase64 -String $string -Encoding Unicode
         QQAgAHMAdAByAGkAbgBnAA==
 
     .EXAMPLE
-        PS C:\> $string = 'A string'
-        PS C:\> $string | ConvertFrom-StringToBase64 -Encoding Unicode
+        $string = 'A string'
+        $string | ConvertFrom-StringToBase64 -Encoding Unicode
         QQAgAHMAdAByAGkAbgBnAA==
 
     .EXAMPLE
-        PS C:\> $string1 = 'A string'
-        PS C:\> $string2 = 'Another string'
-        PS C:\> ConvertFrom-StringToBase64 -String $string1,$string2
+        $string1 = 'A string'
+        $string2 = 'Another string'
+        ConvertFrom-StringToBase64 -String $string1,$string2
         QSBzdHJpbmc=
         QW5vdGhlciBzdHJpbmc=
 
     .EXAMPLE
-        PS C:\> $string1 = 'A string'
-        PS C:\> $string2 = 'Another string'
-        PS C:\> $string1,$string2 | ConvertFrom-StringToBase64
+        $string1 = 'A string'
+        $string2 = 'Another string'
+        $string1,$string2 | ConvertFrom-StringToBase64
         QSBzdHJpbmc=
         QW5vdGhlciBzdHJpbmc=
 
     .EXAMPLE
-        PS C:\> $string1 = 'A string'
-        PS C:\> $string2 = 'Another string'
-        PS C:\> ConvertFrom-StringToBase64 -String $string1,$string2 -Encoding Unicode
+        $string1 = 'A string'
+        $string2 = 'Another string'
+        ConvertFrom-StringToBase64 -String $string1,$string2 -Encoding Unicode
         QQAgAHMAdAByAGkAbgBnAA==
         QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 
     .EXAMPLE
-        PS C:\> $string1 = 'A string'
-        PS C:\> $string2 = 'Another string'
-        PS C:\> $string1,$string2 | ConvertFrom-StringToBase64 -Encoding Unicode
+        $string1 = 'A string'
+        $string2 = 'Another string'
+        $string1,$string2 | ConvertFrom-StringToBase64 -Encoding Unicode
         QQAgAHMAdAByAGkAbgBnAA==
         QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 

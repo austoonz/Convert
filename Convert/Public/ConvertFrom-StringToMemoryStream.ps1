@@ -9,52 +9,52 @@
         A string object for conversion.
     
     .EXAMPLE
-        PS C:\> $string = 'A string'
-        PS C:\> $stream = ConvertFrom-StringToMemoryStream -String $string
-        PS C:\> $stream.GetType()
+        $string = 'A string'
+        $stream = ConvertFrom-StringToMemoryStream -String $string
+        $stream.GetType()
 
         IsPublic IsSerial Name                                     BaseType
         -------- -------- ----                                     --------
         True     True     MemoryStream                             System.IO.Stream
 
     .EXAMPLE
-        PS C:\> $string = 'A string'
-        PS C:\> $stream = $string | ConvertFrom-StringToMemoryStream
-        PS C:\> $stream.GetType()
+        $string = 'A string'
+        $stream = $string | ConvertFrom-StringToMemoryStream
+        $stream.GetType()
 
         IsPublic IsSerial Name                                     BaseType
         -------- -------- ----                                     --------
         True     True     MemoryStream                             System.IO.Stream
 
     .EXAMPLE
-        PS C:\> $string1 = 'A string'
-        PS C:\> $string2 = 'Another string'
+        $string1 = 'A string'
+        $string2 = 'Another string'
         
-        PS C:\> $streams = ConvertFrom-StringToMemoryStream -String $string1,$string2
-        PS C:\> $streams.GetType()
+        $streams = ConvertFrom-StringToMemoryStream -String $string1,$string2
+        $streams.GetType()
 
         IsPublic IsSerial Name                                     BaseType
         -------- -------- ----                                     --------
         True     True     Object[]                                 System.Array
 
-        PS C:\> $streams[0].GetType()
+        $streams[0].GetType()
 
         IsPublic IsSerial Name                                     BaseType
         -------- -------- ----                                     --------
         True     True     MemoryStream                             System.IO.Stream
 
     .EXAMPLE
-        PS C:\> $string1 = 'A string'
-        PS C:\> $string2 = 'Another string'
+        $string1 = 'A string'
+        $string2 = 'Another string'
         
-        PS C:\> $streams = $string1,$string2 | ConvertFrom-StringToMemoryStream
-        PS C:\> $streams.GetType()
+        $streams = $string1,$string2 | ConvertFrom-StringToMemoryStream
+        $streams.GetType()
 
         IsPublic IsSerial Name                                     BaseType
         -------- -------- ----                                     --------
         True     True     Object[]                                 System.Array
 
-        PS C:\> $streams[0].GetType()
+        $streams[0].GetType()
 
         IsPublic IsSerial Name                                     BaseType
         -------- -------- ----                                     --------

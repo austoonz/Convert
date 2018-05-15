@@ -14,56 +14,60 @@
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
     
     .EXAMPLE
-        PS C:\> $string = 'A string'
-        PS C:\> $stream = [System.IO.MemoryStream]::new()
-        PS C:\> $writer = [System.IO.StreamWriter]::new($stream)
-        PS C:\> $writer.Write($string)
-        PS C:\> $writer.Flush()
+        $string = 'A string'
+        $stream = [System.IO.MemoryStream]::new()
+        $writer = [System.IO.StreamWriter]::new($stream)
+        $writer.Write($string)
+        $writer.Flush()
 
-        PS C:\> ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
+        ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
+        
         QSBzdHJpbmc=
 
     .EXAMPLE
-        PS C:\> $string = 'A string'
-        PS C:\> $stream = [System.IO.MemoryStream]::new()
-        PS C:\> $writer = [System.IO.StreamWriter]::new($stream)
-        PS C:\> $writer.Write($string)
-        PS C:\> $writer.Flush()
+        $string = 'A string'
+        $stream = [System.IO.MemoryStream]::new()
+        $writer = [System.IO.StreamWriter]::new($stream)
+        $writer.Write($string)
+        $writer.Flush()
 
-        PS C:\> $stream | ConvertFrom-MemoryStreamToBase64
+        $stream | ConvertFrom-MemoryStreamToBase64
+
         QSBzdHJpbmc=
 
     .EXAMPLE
-        PS C:\> $string1 = 'A string'
-        PS C:\> $stream1 = [System.IO.MemoryStream]::new()
-        PS C:\> $writer1 = [System.IO.StreamWriter]::new($stream1)
-        PS C:\> $writer1.Write($string1)
-        PS C:\> $writer1.Flush()
+        $string1 = 'A string'
+        $stream1 = [System.IO.MemoryStream]::new()
+        $writer1 = [System.IO.StreamWriter]::new($stream1)
+        $writer1.Write($string1)
+        $writer1.Flush()
 
-        PS C:\> $string2 = 'Another string'
-        PS C:\> $stream2 = [System.IO.MemoryStream]::new()
-        PS C:\> $writer2 = [System.IO.StreamWriter]::new($stream2)
-        PS C:\> $writer2.Write($string2)
-        PS C:\> $writer2.Flush()
+        $string2 = 'Another string'
+        $stream2 = [System.IO.MemoryStream]::new()
+        $writer2 = [System.IO.StreamWriter]::new($stream2)
+        $writer2.Write($string2)
+        $writer2.Flush()
 
-        PS C:\> ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream1,$stream2
+        ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream1,$stream2
+
         QSBzdHJpbmc=
         QW5vdGhlciBzdHJpbmc=
 
     .EXAMPLE
-        PS C:\> $string1 = 'A string'
-        PS C:\> $stream1 = [System.IO.MemoryStream]::new()
-        PS C:\> $writer1 = [System.IO.StreamWriter]::new($stream1)
-        PS C:\> $writer1.Write($string1)
-        PS C:\> $writer1.Flush()
+        $string1 = 'A string'
+        $stream1 = [System.IO.MemoryStream]::new()
+        $writer1 = [System.IO.StreamWriter]::new($stream1)
+        $writer1.Write($string1)
+        $writer1.Flush()
 
-        PS C:\> $string2 = 'Another string'
-        PS C:\> $stream2 = [System.IO.MemoryStream]::new()
-        PS C:\> $writer2 = [System.IO.StreamWriter]::new($stream2)
-        PS C:\> $writer2.Write($string2)
-        PS C:\> $writer2.Flush()
+        $string2 = 'Another string'
+        $stream2 = [System.IO.MemoryStream]::new()
+        $writer2 = [System.IO.StreamWriter]::new($stream2)
+        $writer2.Write($string2)
+        $writer2.Flush()
 
-        PS C:\> $stream1,$stream2 | ConvertFrom-MemoryStreamToBase64
+        $stream1,$stream2 | ConvertFrom-MemoryStreamToBase64
+
         QSBzdHJpbmc=
         QW5vdGhlciBzdHJpbmc=
 

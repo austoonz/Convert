@@ -1,63 +1,67 @@
 <#
     .SYNOPSIS
-        Converts Clixml to a string.
+        Converts Clixml to an object.
     
     .DESCRIPTION
-        Converts Clixml to a string.
+        Converts Clixml to an object.
     
     .PARAMETER String
         Clixml as a string object.
     
     .EXAMPLE
-        PS C:\> $xml = @"
+        $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
 </Objs>
 "@
-        PS C:\> ConvertFrom-Clixml -String $xml
+        ConvertFrom-Clixml -String $xml
+
         ThisIsMyString
     
     .EXAMPLE
-        PS C:\> $xml = @"
+        $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
 </Objs>
 "@
-        PS C:\> $xml | ConvertFrom-Clixml
+        $xml | ConvertFrom-Clixml
+
         ThisIsMyString
     
     .EXAMPLE
-        PS C:\> $xml = @"
+        $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
 </Objs>
 "@
-        PS C:\> $xml2 = @"
+        $xml2 = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>This is another string</S>
 </Objs>
 "@
-        PS C:\> ConvertFrom-Clixml -String $xml,$xml2
+        ConvertFrom-Clixml -String $xml,$xml2
+
         ThisIsMyString
         This is another string
         
     .EXAMPLE
-        PS C:\> $xml = @"
+        $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
 </Objs>
 "@
-        PS C:\> $xml2 = @"
+        $xml2 = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>This is another string</S>
 </Objs>
 "@
-        PS C:\> $xml,$xml2 | ConvertFrom-Clixml
+        $xml,$xml2 | ConvertFrom-Clixml
+
         ThisIsMyString
         This is another string
 
     .OUTPUTS
-        [String[]]
+        [Object[]]
 
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/
