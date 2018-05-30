@@ -7,12 +7,12 @@ Converts a string to a base64 encoded string.
 
 ### String (Default)
 ```
-ConvertTo-Base64 -String <String[]> [-Encoding <String>] [<CommonParameters>]
+ConvertTo-Base64 -String <String[]> [-Encoding <String>] [-Compress] [<CommonParameters>]
 ```
 
 ### MemoryStream
 ```
-ConvertTo-Base64 -MemoryStream <MemoryStream[]> [-Encoding <String>] [<CommonParameters>]
+ConvertTo-Base64 -MemoryStream <MemoryStream[]> [-Encoding <String>] [-Compress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -22,43 +22,52 @@ Converts a string to a base64 encoded string.
 
 ### EXAMPLE 1
 ```
-ConvertTo-Base64 -String 'A string'
+$string = 'A string'
+ConvertTo-Base64 -String $string
 
 QSBzdHJpbmc=
 ```
 
 ### EXAMPLE 2
 ```
-'A string' | ConvertTo-Base64
+(Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64).Length
 
-QSBzdHJpbmc=
+1057480
+
+(Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64 -Compress).Length
+
+110876
 ```
 
 ### EXAMPLE 3
 ```
-ConvertTo-Base64 -String 'A string' -Encoding Unicode
+$string = 'A string'
+$string | ConvertTo-Base64
 
-QQAgAHMAdAByAGkAbgBnAA==
+QSBzdHJpbmc=
 ```
 
 ### EXAMPLE 4
 ```
-'A string' | ConvertTo-Base64 -Encoding Unicode
+$string = 'A string'
+ConvertTo-Base64 -String $string -Encoding Unicode
 
 QQAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 5
 ```
-ConvertTo-Base64 -String 'A string','Another string'
+$string = 'A string'
+$string | ConvertTo-Base64 -Encoding Unicode
 
-QSBzdHJpbmc=
-QW5vdGhlciBzdHJpbmc=
+QQAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 6
 ```
-'A string','Another string' | ConvertTo-Base64
+$string1 = 'A string'
+$string2 = 'Another string'
+ConvertTo-Base64 -String $string1,$string2
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
@@ -66,15 +75,19 @@ QW5vdGhlciBzdHJpbmc=
 
 ### EXAMPLE 7
 ```
-ConvertTo-Base64 -String 'A string','Another string' -Encoding Unicode
+$string1 = 'A string'
+$string2 = 'Another string'
+$string1,$string2 | ConvertTo-Base64
 
-QQAgAHMAdAByAGkAbgBnAA==
-QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
+QSBzdHJpbmc=
+QW5vdGhlciBzdHJpbmc=
 ```
 
 ### EXAMPLE 8
 ```
-'A string','Another string' | ConvertTo-Base64 -Encoding Unicode
+$string1 = 'A string'
+$string2 = 'Another string'
+ConvertTo-Base64 -String $string1,$string2 -Encoding Unicode
 
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
@@ -82,8 +95,17 @@ QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 
 ### EXAMPLE 9
 ```
-$string = 'A string'
+$string1 = 'A string'
+$string2 = 'Another string'
+$string1,$string2 | ConvertTo-Base64 -Encoding Unicode
 
+QQAgAHMAdAByAGkAbgBnAA==
+QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
+```
+
+### EXAMPLE 10
+```
+$string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
@@ -94,10 +116,9 @@ ConvertTo-Base64 -MemoryStream $stream
 QSBzdHJpbmc=
 ```
 
-### EXAMPLE 10
+### EXAMPLE 11
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
@@ -108,7 +129,7 @@ $stream | ConvertTo-Base64
 QSBzdHJpbmc=
 ```
 
-### EXAMPLE 11
+### EXAMPLE 12
 ```
 $string1 = 'A string'
 
@@ -129,7 +150,7 @@ QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
 ```
 
-### EXAMPLE 12
+### EXAMPLE 13
 ```
 $string1 = 'A string'
 
@@ -195,6 +216,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: UTF8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Compress
+{{Fill Compress Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
