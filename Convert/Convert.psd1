@@ -12,7 +12,7 @@
 RootModule = 'Convert.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.0.9'
+ModuleVersion = '0.1.1.9'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,11 +69,20 @@ PowerShellVersion = '5.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'ConvertFrom-Base64ToString', 'ConvertFrom-Clixml', 
-               'ConvertFrom-MemoryStreamToBase64', 
-               'ConvertFrom-MemoryStreamToString', 'ConvertFrom-StringToBase64', 
-               'ConvertFrom-StringToMemoryStream', 'ConvertTo-Base64', 
-               'ConvertTo-Clixml', 'ConvertTo-MemoryStream', 'ConvertTo-String'
+FunctionsToExport = @(
+    'ConvertFrom-Base64ToString',
+    'ConvertFrom-ByteArrayToBase64',
+    'ConvertFrom-Clixml',
+    'ConvertFrom-MemoryStreamToBase64',
+    'ConvertFrom-MemoryStreamToString',
+    'ConvertFrom-StringToBase64',
+    'ConvertFrom-StringToCompressedByteArray',
+    'ConvertFrom-StringToMemoryStream',
+    'ConvertTo-Base64',
+    'ConvertTo-Clixml',
+    'ConvertTo-MemoryStream',
+    'ConvertTo-String'
+)
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -112,14 +121,16 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = '
-v0.1.0.9:
-  - Initial release'
+v0.1.1.x:
+  - Added support for gzip compression.
+v0.1.0.x:
+  - Initial release.'
 
         # External dependent modules of this module
         # ExternalModuleDependencies = ''
 
     } # End of PSData hashtable
-    
+
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module

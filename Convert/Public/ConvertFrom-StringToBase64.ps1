@@ -1,18 +1,18 @@
 <#
     .SYNOPSIS
         Converts a string to a base64 encoded string.
-    
+
     .DESCRIPTION
         Converts a string to a base64 encoded string.
-    
+
     .PARAMETER String
         A string object for conversion.
-    
+
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
-    
+
     .EXAMPLE
         ConvertFrom-StringToBase64 -String 'A string'
         QSBzdHJpbmc=
@@ -70,21 +70,33 @@ function ConvertFrom-StringToBase64
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [String]
-        $Encoding = 'UTF8'
+        $Encoding = 'UTF8',
+
+        [Parameter(Mandatory = $false)]
+        [Switch]
+        $Compress
     )
 
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
-    
+
     process
     {
         foreach ($s in $String)
         {
             try
             {
-                $bytes = [System.Text.Encoding]::$Encoding.GetBytes($s)
+                if ($Compress)
+                {
+                    $bytes = ConvertFrom-StringToCompressedByteArray -String $s -Encoding $Encoding
+                }
+                else
+                {
+                    $bytes = [System.Text.Encoding]::$Encoding.GetBytes($s)
+                }
+
                 [System.Convert]::ToBase64String($bytes)
             }
             catch

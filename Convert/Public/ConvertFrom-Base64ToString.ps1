@@ -1,29 +1,29 @@
 <#
     .SYNOPSIS
         Converts a base64 encoded string to a string.
-    
+
     .DESCRIPTION
         Converts a base64 encoded string to a string.
-    
+
     .PARAMETER String
         A Base64 Encoded String
-    
+
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
-    
+
     .EXAMPLE
         ConvertFrom-Base64ToString -String 'QSBzdHJpbmc='
 
         A string
-    
+
     .EXAMPLE
         ConvertTo-Base64 -String 'A string','Another string'
 
         QSBzdHJpbmc=
         QW5vdGhlciBzdHJpbmc=
-    
+
     .EXAMPLE
         'QSBzdHJpbmc=' | ConvertFrom-Base64ToString
 
@@ -34,7 +34,7 @@
 
         A string
         Another string
-    
+
     .OUTPUTS
         [String[]]
 
@@ -57,9 +57,13 @@ function ConvertFrom-Base64ToString
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [String]
-        $Encoding = 'UTF8'
+        $Encoding = 'UTF8',
+
+        [Parameter(Mandatory = $false)]
+        [Switch]
+        $Decompress
     )
-    
+
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
@@ -72,7 +76,15 @@ function ConvertFrom-Base64ToString
             try
             {
                 $bytes = [System.Convert]::FromBase64String($s)
-                [System.Text.Encoding]::$Encoding.GetString($bytes)    
+
+                if ($Decompress)
+                {
+                    ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
+                }
+                else
+                {
+                    [System.Text.Encoding]::$Encoding.GetString($bytes)
+                }
             }
             catch
             {

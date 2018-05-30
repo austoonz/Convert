@@ -1,13 +1,13 @@
 <#
     .SYNOPSIS
         Converts a string to a base64 encoded string.
-    
+
     .DESCRIPTION
         Converts a string to a base64 encoded string.
-    
+
     .PARAMETER String
         A string object for conversion.
-    
+
     .PARAMETER MemoryStream
         A MemoryStream object for conversion.
 
@@ -15,11 +15,18 @@
         The encoding to use for conversion.
         Defaults to UTF8.
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
-    
+
     .EXAMPLE
         $string = 'A string'
         ConvertTo-Base64 -String $string
         QSBzdHJpbmc=
+
+    .EXAMPLE
+        (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64).Length
+        1057480
+
+        (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64 -Compress).Length
+        110876
 
     .EXAMPLE
         $string = 'A string'
@@ -72,7 +79,7 @@
         $writer.Flush()
 
         ConvertTo-Base64 -MemoryStream $stream
-        
+
         QSBzdHJpbmc=
 
     .EXAMPLE
@@ -155,40 +162,57 @@ function ConvertTo-Base64
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [String]
-        $Encoding = 'UTF8'
+        $Encoding = 'UTF8',
+
+        [Parameter(Mandatory = $false)]
+        [Switch]
+        $Compress
     )
 
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
+
+        $convertSplat = @{
+            Encoding = $Encoding
+            ErrorAction = $userErrorActionPreference
+        }
     }
-    
+
     process
     {
         switch ($PSCmdlet.ParameterSetName)
         {
             'String'
             {
-                $splat = @{
-                    Encoding = $Encoding
-                    ErrorAction = $userErrorActionPreference
-                }
                 foreach ($s in $string)
                 {
-                    ConvertFrom-StringToBase64 -String $s @splat
+                    if ($Compress)
+                    {
+                        ConvertFrom-StringToBase64 -String $s @convertSplat -Compress
+                    }
+                    else
+                    {
+                        ConvertFrom-StringToBase64 -String $s @convertSplat
+                    }
                 }
                 break
             }
 
             'MemoryStream'
             {
-                $splat = @{
-                    Encoding = $Encoding
-                    ErrorAction = $userErrorActionPreference
-                }
                 foreach ($m in $MemoryStream)
                 {
-                    ConvertFrom-MemoryStreamToBase64 -MemoryStream $m @splat
+                    if ($Compress)
+                    {
+                        $string = ConvertFrom-MemoryStreamToString -MemoryStream $m @convertSplat
+                        $byteArray = ConvertFrom-StringToCompressedByteArray -String $s @convertSplat
+                        ConvertFrom-ByteArrayToBase64 -ByteArray $byteArray @convertSplat
+                    }
+                    else
+                    {
+                        ConvertFrom-MemoryStreamToBase64 -MemoryStream $m @convertSplat
+                    }
                 }
                 break
             }

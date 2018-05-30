@@ -1,32 +1,32 @@
 <#
     .SYNOPSIS
         Converts a base64 encoded string to a string.
-    
+
     .DESCRIPTION
         Converts a base64 encoded string to a string.
-    
+
     .PARAMETER Base64EncodedString
         A Base64 Encoded String
-    
+
     .PARAMETER MemoryStream
         A MemoryStream object for conversion.
-    
+
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
-    
+
     .EXAMPLE
         ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc='
-        
+
         A string
-    
+
     .EXAMPLE
         ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc='
 
         A string
         Another string
-    
+
     .EXAMPLE
         'QSBzdHJpbmc=' | ConvertTo-String
 
@@ -104,18 +104,22 @@ function ConvertTo-String
         [ValidateNotNullOrEmpty()]
         [System.IO.MemoryStream[]]
         $MemoryStream,
-        
+
         [Parameter(ParameterSetName = 'Base64String')]
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [String]
-        $Encoding = 'UTF8'
+        $Encoding = 'UTF8',
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'Base64String')]
+        [Switch]
+        $Decompress
     )
 
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
-    
+
     process
     {
         switch ($PSCmdlet.ParameterSetName)
@@ -127,6 +131,10 @@ function ConvertTo-String
                 $splat = @{
                     Encoding = $Encoding
                 }
+                if ($Decompress)
+                {
+                    $splat.Add('Decompress', $true)
+                }
                 break
             }
 
@@ -134,8 +142,7 @@ function ConvertTo-String
             {
                 $InputObject = $MemoryStream
                 $Function = 'ConvertFrom-MemoryStreamToString'
-                $splat = @{
-                }
+                $splat = @{}
                 break
             }
 
