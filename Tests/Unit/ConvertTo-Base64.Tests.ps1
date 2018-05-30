@@ -1,4 +1,4 @@
-$function = 'ConvertTo-Clixml'
+$function = 'ConvertTo-Base64'
 if (Get-Module -Name 'Convert') {Remove-Module -Name 'Convert'}
 Import-Module "$PSScriptRoot/../../Convert/Convert.psd1"
 
@@ -38,9 +38,9 @@ $string = 'ThisIsMyString'
 
         It -Name 'Convert an object to compressed base64 string' -Test {
             $string = 'ThisIsMyString'
-            $assertion = ConvertTo-Base64 -String $string -Encoding UTF8 -Compress
+            $assertion = ConvertTo-Base64 -String $string -Encoding Unicode -Compress
 
-            $expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            $expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             $assertion | Should -BeExactly $expected
         }
     }

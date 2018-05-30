@@ -37,8 +37,8 @@ $string = 'ThisIsMyString'
         }
 
         It -Name 'Converts from compressed base64 string' -Test {
-            $base64 = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            $assertion = ConvertTo-String -Base64EncodedString $base64 -Encoding UTF8 -Decompress
+            $base64 = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            $assertion = ConvertTo-String -Base64EncodedString $base64 -Encoding Unicode -Decompress
 
             $expected = 'ThisIsMyString'
             $assertion | Should -BeExactly $expected

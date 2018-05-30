@@ -13,14 +13,14 @@ environment:
 os: WMF 5
 
 # Version number
-version: 0.1.0.{build}
+version: 0.1.1.{build}
 
 # There's no need to alter the build number for a Pull Request (PR) since they don't modify anything
 pull_requests:
   do_not_increment_build_number: true
 
 # Skip on updates to the readme.
-# We can force this by adding [skip ci] or [ci skip] anywhere in commit message 
+# We can force this by adding [skip ci] or [ci skip] anywhere in commit message
 skip_commits:
   author: AppVeyorCI
   files:
