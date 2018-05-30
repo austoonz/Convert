@@ -35,6 +35,14 @@ $string = 'ThisIsMyString'
 
             $assertion | Should -HaveCount 2
         }
+
+        It -Name 'Convert an object to compressed base64 string' -Test {
+            $string = 'ThisIsMyString'
+            $assertion = ConvertTo-Base64 -String $string -Encoding UTF8 -Compress
+
+            $expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            $assertion | Should -BeExactly $expected
+        }
     }
 
     Context -Name 'MemoryStream input' -Fixture {
