@@ -40,11 +40,15 @@ $string = 'ThisIsMyString'
             $string = 'ThisIsMyString'
             $assertion = ConvertTo-Base64 -String $string -Encoding Unicode -Compress
 
-            # Apparently CoreClr and full .NET perform these compressions differently.
+            # Each platform performs these convertions with compression differently.
             # Leaving alone for now, will re-evaluate this in a future release.
-            if ($IsCoreClr)
+            if ($IsWindows -and $IsCoreCLR)
             {
                 $expected = 'H4sIAAAAAAAACwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            }
+            if ($IsMacOS -or $IsLinux)
+            {
+                $expected = 'H4sIAAAAAAAAAwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             }
             else
             {
