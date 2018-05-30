@@ -40,7 +40,16 @@ $string = 'ThisIsMyString'
             $string = 'ThisIsMyString'
             $assertion = ConvertTo-Base64 -String $string -Encoding Unicode -Compress
 
-            $expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            # Apparently CoreClr and full .NET perform these compressions differently.
+            # Leaving alone for now, will re-evaluate this in a future release.
+            if ($IsCoreClr)
+            {
+                $expected = 'H4sIAAAAAAAACwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            }
+            else
+            {
+                $expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            }
             $assertion | Should -BeExactly $expected
         }
     }
