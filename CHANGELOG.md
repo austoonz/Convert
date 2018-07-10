@@ -1,5 +1,8 @@
-# Version 0.1.1.x (2018-05-29)
+# Version 0.1.2.x (2018-07-10)
 ## Functions
+
+### ConvertFrom-Base64StringToByteArray
+* Initial Release
 
 ### ConvertFrom-Base64ToString
 * Added "-Decompress" support
@@ -7,11 +10,23 @@
 ### ConvertFrom-ByteArrayToBase64
 * Initial Release
 
+### ConvertFrom-ByteArrayToMemoryStream
+* Initial Release
+
 ### ConvertFrom-CompressedByteArrayToString
+* Initial Release
+
+### ConvertFrom-IOStreamToString
 * Initial Release
 
 ### ConvertFrom-StringToBase64
 * Added "-Compress" support
+
+### ConvertFrom-MemoryStreamToDecryptRequest
+* Initial Release
+
+### ConvertFrom-MemoryStreamToSecureString
+* Initial Release
 
 ### ConvertFrom-StringToCompressedByteArray
 * Initial Release

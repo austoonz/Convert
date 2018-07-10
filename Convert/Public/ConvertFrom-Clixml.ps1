@@ -1,13 +1,13 @@
 <#
     .SYNOPSIS
         Converts Clixml to an object.
-    
+
     .DESCRIPTION
         Converts Clixml to an object.
-    
+
     .PARAMETER String
         Clixml as a string object.
-    
+
     .EXAMPLE
         $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -17,7 +17,7 @@
         ConvertFrom-Clixml -String $xml
 
         ThisIsMyString
-    
+
     .EXAMPLE
         $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -27,7 +27,7 @@
         $xml | ConvertFrom-Clixml
 
         ThisIsMyString
-    
+
     .EXAMPLE
         $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -43,7 +43,7 @@
 
         ThisIsMyString
         This is another string
-        
+
     .EXAMPLE
         $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
@@ -76,6 +76,7 @@ function ConvertFrom-Clixml
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
+        [Alias('CliXml')]
         [String[]]
         $String
     )
@@ -84,7 +85,7 @@ function ConvertFrom-Clixml
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
-    
+
     process
     {
         foreach ($s in $String)
