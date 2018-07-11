@@ -4,29 +4,38 @@
 ### ConvertFrom-Base64StringToByteArray
 * Initial Release
 
-### ConvertFrom-Base64ToString
-* Added "-Decompress" support
-
 ### ConvertFrom-ByteArrayToBase64
+* Added alias
+
+### ConvertFrom-ByteArrayToMemoryStream.ps1
 * Initial Release
 
-### ConvertFrom-ByteArrayToMemoryStream
-* Initial Release
-
-### ConvertFrom-CompressedByteArrayToString
-* Initial Release
+### ConvertFrom-Clixml
+* Added parameter alias
 
 ### ConvertFrom-IOStreamToString
 * Initial Release
-
-### ConvertFrom-StringToBase64
-* Added "-Compress" support
 
 ### ConvertFrom-MemoryStreamToDecryptRequest
 * Initial Release
 
 ### ConvertFrom-MemoryStreamToSecureString
 * Initial Release
+
+# Version 0.1.1.x (2018-05-29)
+## Functions
+
+### ConvertFrom-Base64ToString
+* Added "-Decompress" support
+
+### ConvertFrom-ByteArrayToBase64
+* Initial Release
+
+### ConvertFrom-CompressedByteArrayToString
+* Initial Release
+
+### ConvertFrom-StringToBase64
+* Added "-Compress" support
 
 ### ConvertFrom-StringToCompressedByteArray
 * Initial Release
