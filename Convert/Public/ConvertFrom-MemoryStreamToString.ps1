@@ -7,6 +7,9 @@
     
     .PARAMETER MemoryStream
         A MemoryStream object for conversion.
+
+    .PARAMETER IOStream
+        An IO Stream to be converted
     
     .EXAMPLE
         $string = 'A string'
@@ -74,31 +77,59 @@
 #>
 function ConvertFrom-MemoryStreamToString
 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/')]
+    [CmdletBinding(
+        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/',
+        DefaultParameterSetName = 'MemoryStream')]
+    [Alias(
+        'ConvertFrom-IOStreamToString',
+        'ConvertFrom-StreamToString')]
     param
     (
         [Parameter(
             Mandatory = $true,
             ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true)]
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'MemoryStream')]
         [ValidateNotNullOrEmpty()]
         [System.IO.MemoryStream[]]
-        $MemoryStream
+        $MemoryStream,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'IOStream'
+        )]
+        [System.IO.Stream]
+        $IOStream
     )
     
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
+
+        switch ($PSCmdlet.ParameterSetName) 
+        {
+            'MemoryStream' 
+            { 
+                $stream = $MemoryStream
+                break
+            }
+            'IOStream'
+            {
+                $stream = $IOStream
+                break
+            }
+        }
     }
 
     process
     {
-        foreach ($m in $MemoryStream)
+        foreach ($s in $stream)
         {
             try
             {
-                $reader = [System.IO.StreamReader]::new($m)
-                $m.Position = 0
+                $reader = [System.IO.StreamReader]::new($s)
+                $s.Position = 0
                 $reader.ReadToEnd()
             }
             catch

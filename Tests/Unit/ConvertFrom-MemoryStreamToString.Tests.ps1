@@ -19,6 +19,10 @@ Describe -Name $function -Fixture {
             $stream.Dispose()
             $writer.Dispose()
         }
+
+        It -Name 'Converts an IO Stream to a string' -Test {
+
+        }
     }
 
     Context -Name 'Pipeline' -Fixture {
