@@ -1,13 +1,3 @@
-# Version 0.2.0.x (2018-07-16)
-## Functions
-
-### ConvertFrom-MemoryStreamToString
-* Added "Stream" parameter
-* Added alias "ConvertFrom-StreamToString"
-
-### ConvertTo-String
-* Added "Stream" parameter
-
 # Version 0.1.1.x (2018-05-29)
 ## Functions
 
