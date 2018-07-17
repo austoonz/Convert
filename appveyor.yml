@@ -13,7 +13,7 @@ environment:
 os: WMF 5
 
 # Version number
-version: 0.1.1.{build}
+version: 0.2.0.{build}
 
 # There's no need to alter the build number for a Pull Request (PR) since they don't modify anything
 pull_requests:
