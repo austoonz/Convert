@@ -11,6 +11,9 @@
     .PARAMETER MemoryStream
         A MemoryStream object for conversion.
 
+    .PARAMETER Stream
+        A System.IO.Stream object for conversion.
+
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
@@ -105,6 +108,15 @@ function ConvertTo-String
         [System.IO.MemoryStream[]]
         $MemoryStream,
 
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'Stream')]
+        [ValidateNotNullOrEmpty()]
+        [System.IO.Stream[]]
+        $Stream,
+
         [Parameter(ParameterSetName = 'Base64String')]
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [String]
@@ -141,6 +153,14 @@ function ConvertTo-String
             'MemoryStream'
             {
                 $InputObject = $MemoryStream
+                $Function = 'ConvertFrom-MemoryStreamToString'
+                $splat = @{}
+                break
+            }
+
+            'Stream'
+            {
+                $InputObject = $Stream
                 $Function = 'ConvertFrom-MemoryStreamToString'
                 $splat = @{}
                 break

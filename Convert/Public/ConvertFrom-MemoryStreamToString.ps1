@@ -1,13 +1,16 @@
 <#
     .SYNOPSIS
         Converts MemoryStream to a string.
-    
+
     .DESCRIPTION
         Converts MemoryStream to a string.
-    
+
     .PARAMETER MemoryStream
         A MemoryStream object for conversion.
-    
+
+    .PARAMETER Stream
+        A System.IO.Stream object for conversion.
+
     .EXAMPLE
         $string = 'A string'
         $stream = [System.IO.MemoryStream]::new()
@@ -16,7 +19,7 @@
         $writer.Flush()
 
         ConvertFrom-MemoryStreamToString -MemoryStream $stream
-        
+
         A string
 
     .EXAMPLE
@@ -75,17 +78,28 @@
 function ConvertFrom-MemoryStreamToString
 {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/')]
+    [Alias('ConvertFrom-StreamToString')]
     param
     (
         [Parameter(
             Mandatory = $true,
             ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true)]
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'MemoryStream')]
         [ValidateNotNullOrEmpty()]
         [System.IO.MemoryStream[]]
-        $MemoryStream
+        $MemoryStream,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'Stream')]
+        [ValidateNotNullOrEmpty()]
+        [System.IO.Stream[]]
+        $Stream
     )
-    
+
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
@@ -93,12 +107,25 @@ function ConvertFrom-MemoryStreamToString
 
     process
     {
-        foreach ($m in $MemoryStream)
+        switch ($PSCmdlet.ParameterSetName)
+        {
+            'MemoryStream' {
+                $inputObject = $MemoryStream
+            }
+            'Stream' {
+                $inputObject = $Stream
+            }
+        }
+
+        foreach ($object in $inputObject)
         {
             try
             {
-                $reader = [System.IO.StreamReader]::new($m)
-                $m.Position = 0
+                $reader = [System.IO.StreamReader]::new($object)
+                if ($PSCmdlet.ParameterSetName-eq 'MemoryStream')
+                {
+                    $object.Position = 0
+                }
                 $reader.ReadToEnd()
             }
             catch

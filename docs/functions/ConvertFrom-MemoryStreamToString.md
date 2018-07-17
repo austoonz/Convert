@@ -5,8 +5,14 @@ Converts MemoryStream to a string.
 
 ## SYNTAX
 
+### MemoryStream
 ```
-ConvertFrom-MemoryStreamToString [-MemoryStream] <MemoryStream[]> [<CommonParameters>]
+ConvertFrom-MemoryStreamToString -MemoryStream <MemoryStream[]> [<CommonParameters>]
+```
+
+### Stream
+```
+ConvertFrom-MemoryStreamToString -Stream <Stream[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -91,11 +97,26 @@ A MemoryStream object for conversion.
 
 ```yaml
 Type: MemoryStream[]
-Parameter Sets: (All)
+Parameter Sets: MemoryStream
 Aliases:
 
 Required: True
-Position: 1
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Stream
+A System.IO.Stream object for conversion.
+
+```yaml
+Type: Stream[]
+Parameter Sets: Stream
+Aliases:
+
+Required: True
+Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
