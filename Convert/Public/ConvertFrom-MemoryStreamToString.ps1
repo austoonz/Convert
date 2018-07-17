@@ -92,7 +92,6 @@ function ConvertFrom-MemoryStreamToString
 
         [Parameter(
             Mandatory = $true,
-            ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ParameterSetName = 'Stream')]
         [ValidateNotNullOrEmpty()]

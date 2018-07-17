@@ -110,7 +110,6 @@ function ConvertTo-String
 
         [Parameter(
             Mandatory = $true,
-            ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ParameterSetName = 'Stream')]
         [ValidateNotNullOrEmpty()]
