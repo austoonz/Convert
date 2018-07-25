@@ -72,7 +72,7 @@ PowerShellVersion = '5.0'
 FunctionsToExport = 'ConvertFrom-Base64ToString', 'ConvertFrom-ByteArrayToBase64',
                'ConvertFrom-Clixml', 'ConvertFrom-CompressedByteArrayToString','ConvertFrom-MemoryStreamToBase64',
                'ConvertFrom-MemoryStreamToString', 'ConvertFrom-StringToBase64',
-               'ConvertFrom-StringToCompressedByteArray',
+               'ConvertFrom-StringToByteArray', 'ConvertFrom-StringToCompressedByteArray',
                'ConvertFrom-StringToMemoryStream', 'ConvertTo-Base64',
                'ConvertTo-Clixml', 'ConvertTo-MemoryStream', 'ConvertTo-String'
 
@@ -117,6 +117,7 @@ v0.2.0.x:
   - Added "System.IO.Stream" support to "ConvertFrom-MemoryStreamToString"
   - Added "System.IO.Stream" support to "ConvertTo-String"
   - Added the alias "ConvertFrom-StreamToString" for "ConvertFrom-MemoryStreamToString"
+  - Added "ConvertFrom-CompressedByteArrayToString" and "ConvertFrom-StringToByteArray" functions.
 v0.1.1.x:
   - Added support for gzip compression.
 v0.1.0.x:
