@@ -29,14 +29,14 @@ Describe -Name $function -Fixture {
             $writer = [System.IO.StreamWriter]::new($stream)
             $writer.Write($string)
             $writer.Flush()
-            
+
             $assertion = $stream | ConvertFrom-MemoryStreamToString
             $assertion | Should -BeExactly $string
 
             $stream.Dispose()
             $writer.Dispose()
         }
-        
+
         It -Name 'Supports the Pipeline with array input' -Test {
             $string = 'ThisIsMyString'
 
@@ -51,7 +51,7 @@ Describe -Name $function -Fixture {
             $writer2.Flush()
             $stream2
 
-            $assertion = @($stream,$stream2) | ConvertFrom-MemoryStreamToString
+            $assertion = @($stream, $stream2) | ConvertFrom-MemoryStreamToString
             $assertion | Should -HaveCount 2
 
             $stream.Dispose()
@@ -64,7 +64,7 @@ Describe -Name $function -Fixture {
     Context -Name 'ErrorActionPreference' -Fixture {
         It -Name 'Supports SilentlyContinue' -Test {
             $string = 'ThisIsMyString'
-            
+
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
             $writer.Write($string)
@@ -79,7 +79,7 @@ Describe -Name $function -Fixture {
 
         It -Name 'Supports Stop' -Test {
             $string = 'ThisIsMyString'
-            
+
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
             $writer.Write($string)
@@ -93,7 +93,7 @@ Describe -Name $function -Fixture {
 
         It -Name 'Supports Continue' -Test {
             $string = 'ThisIsMyString'
-            
+
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
             $writer.Write($string)

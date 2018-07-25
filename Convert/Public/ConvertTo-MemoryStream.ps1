@@ -1,13 +1,21 @@
 <#
     .SYNOPSIS
         Converts an object to a MemoryStream object.
-    
+
     .DESCRIPTION
         Converts an object to a MemoryStream object.
-    
+
     .PARAMETER String
         A string object for conversion.
-    
+
+    .PARAMETER Encoding
+        The encoding to use for conversion.
+        Defaults to UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+
+    .PARAMETER Compress
+        If supplied, the output will be compressed using Gzip.
+
     .EXAMPLE
         $string = 'A string'
         $stream = ConvertTo-MemoryStream -String $string
@@ -29,7 +37,7 @@
     .EXAMPLE
         $string1 = 'A string'
         $string2 = 'Another string'
-        
+
         $streams = ConvertTo-MemoryStream -String $string1,$string2
         $streams.GetType()
 
@@ -46,7 +54,7 @@
     .EXAMPLE
         $string1 = 'A string'
         $string2 = 'Another string'
-        
+
         $streams = $string1,$string2 | ConvertTo-MemoryStream
         $streams.GetType()
 
@@ -80,14 +88,24 @@ function ConvertTo-MemoryStream
             ParameterSetName = 'String')]
         [ValidateNotNullOrEmpty()]
         [String[]]
-        $String
+        $String,
+
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [String]
+        $Encoding = 'UTF8',
+
+        [Switch]
+        $Compress
     )
 
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
+        $eaSplat = @{
+            ErrorAction = $userErrorActionPreference
+        }
     }
-    
+
     process
     {
         switch ($PSCmdlet.ParameterSetName)
@@ -96,14 +114,21 @@ function ConvertTo-MemoryStream
             {
                 foreach ($s in $string)
                 {
-                    ConvertFrom-StringToMemoryStream -String $s -ErrorAction $userErrorActionPreference
+                    if ($Compress)
+                    {
+                        ConvertFrom-StringToMemoryStream -String $s -Compress @eaSplat
+                    }
+                    else
+                    {
+                        ConvertFrom-StringToMemoryStream -String $s @eaSplat
+                    }
                 }
                 break
             }
 
             default
             {
-                Write-Error -Message 'Invalid ParameterSetName' -ErrorAction $userErrorActionPreference
+                Write-Error -Message 'Invalid ParameterSetName' @eaSplat
                 break
             }
         }

@@ -10,7 +10,7 @@ Describe -Name $function -Fixture {
   <S>ThisIsMyString</S>
 </Objs>
 "@
-$string = 'ThisIsMyString'
+    $string = 'ThisIsMyString'
 
     Context -Name 'String input' -Fixture {
         It -Name 'Converts to base64 correctly' -Test {
@@ -31,7 +31,7 @@ $string = 'ThisIsMyString'
 
         It -Name 'Converts an array from Pipeline' -Test {
             $string = 'ThisIsMyString'
-            $assertion = $string,$string | ConvertTo-Base64 -Encoding UTF8
+            $assertion = $string, $string | ConvertTo-Base64 -Encoding UTF8
 
             $assertion | Should -HaveCount 2
         }
@@ -42,11 +42,15 @@ $string = 'ThisIsMyString'
 
             # Each platform performs these convertions with compression differently.
             # Leaving alone for now, will re-evaluate this in a future release.
-            if ($IsWindows -and $IsCoreCLR)
+            if ($PSEdition -eq 'Desktop')
+            {
+                $expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            }
+            elseif ($IsWindows -and $IsCoreCLR)
             {
                 $expected = 'H4sIAAAAAAAACwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             }
-            if ($IsMacOS -or $IsLinux)
+            elseif ($IsMacOS -or $IsLinux)
             {
                 $expected = 'H4sIAAAAAAAAAwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             }
@@ -106,7 +110,7 @@ $string = 'ThisIsMyString'
             $writer2.Write($string)
             $writer2.Flush()
 
-            $assertion = @($stream,$stream2) | ConvertTo-Base64 -Encoding UTF8
+            $assertion = @($stream, $stream2) | ConvertTo-Base64 -Encoding UTF8
 
             $assertion | Should -HaveCount 2
 

@@ -31,8 +31,32 @@ Describe -Name $function -Fixture {
 
         It -Name 'Supports array Pipeline input' -Test {
             $string = 'ThisIsMyString'
-            $assertion = @($string,$string) | ConvertTo-MemoryStream
+            $assertion = @($string, $string) | ConvertTo-MemoryStream
             $assertion | Should -HaveCount 2
+        }
+    }
+
+    Context -Name 'Compressed stream' -Fixture {
+        $string = 'ThisIsMyString'
+        $assertion = ConvertTo-MemoryStream -String $string -Compress
+
+        It -Name 'Returns a gzip compressed MemoryStream' -Test {
+            $assertion.GetType().Name | Should -BeExactly 'MemoryStream'
+        }
+
+        It -Name 'Returned a MemoryStream that can still be read' -Test {
+            $assertion.CanRead | Should -BeTrue
+        }
+
+        It -Name 'Returned a MemoryStream with the correct compressed length' -Test {
+            $assertion.Length | Should -BeExactly 10
+        }
+
+        It -Name 'Compressed stream is shorter than the non-compressed stream' -Test {
+            $string = 'This string has multiple string values'
+            $nonCompressed = ConvertTo-MemoryStream -String $string
+            $compressed = ConvertTo-MemoryStream -String $string -Compress
+            $compressed.Length | Should -BeLessThan $nonCompressed.Length
         }
     }
 }

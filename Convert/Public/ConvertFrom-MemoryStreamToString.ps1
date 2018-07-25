@@ -108,10 +108,12 @@ function ConvertFrom-MemoryStreamToString
     {
         switch ($PSCmdlet.ParameterSetName)
         {
-            'MemoryStream' {
+            'MemoryStream'
+            {
                 $inputObject = $MemoryStream
             }
-            'Stream' {
+            'Stream'
+            {
                 $inputObject = $Stream
             }
         }
@@ -121,7 +123,7 @@ function ConvertFrom-MemoryStreamToString
             try
             {
                 $reader = [System.IO.StreamReader]::new($object)
-                if ($PSCmdlet.ParameterSetName-eq 'MemoryStream')
+                if ($PSCmdlet.ParameterSetName -eq 'MemoryStream')
                 {
                     $object.Position = 0
                 }

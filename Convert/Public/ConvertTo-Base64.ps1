@@ -16,6 +16,9 @@
         Defaults to UTF8.
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
 
+    .PARAMETER Compress
+        If supplied, the output will be compressed using Gzip.
+
     .EXAMPLE
         $string = 'A string'
         ConvertTo-Base64 -String $string
@@ -174,7 +177,7 @@ function ConvertTo-Base64
         $userErrorActionPreference = $ErrorActionPreference
 
         $convertSplat = @{
-            Encoding = $Encoding
+            Encoding    = $Encoding
             ErrorAction = $userErrorActionPreference
         }
     }

@@ -13,6 +13,9 @@
         Defaults to UTF8.
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
 
+    .PARAMETER Compress
+        If supplied, the output will be compressed using Gzip.
+
     .EXAMPLE
         ConvertFrom-StringToBase64 -String 'A string'
         QSBzdHJpbmc=

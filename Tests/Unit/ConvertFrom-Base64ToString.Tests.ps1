@@ -8,31 +8,31 @@ Describe -Name $function -Fixture {
     $encodings = @(
         @{
             'Encoding' = 'ASCII'
-            'Base64' = 'VGhpc0lzTXlTdHJpbmc='
+            'Base64'   = 'VGhpc0lzTXlTdHJpbmc='
         }
         @{
             'Encoding' = 'BigEndianUnicode'
-            'Base64' = 'AFQAaABpAHMASQBzAE0AeQBTAHQAcgBpAG4AZw=='
+            'Base64'   = 'AFQAaABpAHMASQBzAE0AeQBTAHQAcgBpAG4AZw=='
         }
         @{
             'Encoding' = 'Default'
-            'Base64' = 'VGhpc0lzTXlTdHJpbmc='
+            'Base64'   = 'VGhpc0lzTXlTdHJpbmc='
         }
         @{
             'Encoding' = 'Unicode'
-            'Base64' = 'VABoAGkAcwBJAHMATQB5AFMAdAByAGkAbgBnAA=='
+            'Base64'   = 'VABoAGkAcwBJAHMATQB5AFMAdAByAGkAbgBnAA=='
         }
         @{
             'Encoding' = 'UTF32'
-            'Base64' = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
+            'Base64'   = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
         }
         @{
             'Encoding' = 'UTF7'
-            'Base64' = 'VGhpc0lzTXlTdHJpbmc='
+            'Base64'   = 'VGhpc0lzTXlTdHJpbmc='
         }
         @{
             'Encoding' = 'UTF8'
-            'Base64' = 'VGhpc0lzTXlTdHJpbmc='
+            'Base64'   = 'VGhpc0lzTXlTdHJpbmc='
         }
     )
 
@@ -41,7 +41,7 @@ Describe -Name $function -Fixture {
         Context -Name $encoding.Encoding -Fixture {
             It -Name "Converts a $($encoding.Encoding) Encoded string to a string" -Test {
                 $splat = @{
-                    String = $encoding.Base64
+                    String   = $encoding.Base64
                     Encoding = $encoding.Encoding
                 }
                 $assertion = ConvertFrom-Base64ToString @splat
@@ -55,7 +55,7 @@ Describe -Name $function -Fixture {
 
             It -Name 'Supports ErrorActionPreference SilentlyContinue' -Test {
                 $splat = @{
-                    String = 'a'
+                    String   = 'a'
                     Encoding = $encoding.Encoding
                 }
                 $assertion = ConvertFrom-Base64ToString @splat -ErrorAction SilentlyContinue
@@ -64,7 +64,7 @@ Describe -Name $function -Fixture {
 
             It -Name 'Supports ErrorActionPreference Stop' -Test {
                 $splat = @{
-                    String = 'a'
+                    String   = 'a'
                     Encoding = $encoding.Encoding
                 }
                 { ConvertFrom-Base64ToString @splat -ErrorAction Stop } | Should -Throw
@@ -72,11 +72,21 @@ Describe -Name $function -Fixture {
 
             It -Name 'Supports ErrorActionPreference Continue' -Test {
                 $splat = @{
-                    String = 'a'
+                    String   = 'a'
                     Encoding = $encoding.Encoding
                 }
                 $assertion = ConvertFrom-Base64ToString @splat -ErrorAction Continue 2>&1
-                $assertion.Exception.Message | Should -BeExactly 'Exception calling "FromBase64String" with "1" argument(s): "Invalid length for a Base-64 char array or string."'
+
+                if ($PSEdition -eq 'Desktop' -or $IsMacOS)
+                {
+                    $expected = 'Invalid length for a Base-64 char array or string.'
+                }
+                else
+                {
+                    $expected = 'The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.'
+                }
+
+                $assertion.Exception.InnerException.Message | Should -BeExactly $expected
             }
         }
     }

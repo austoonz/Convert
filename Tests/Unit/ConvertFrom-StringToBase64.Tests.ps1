@@ -42,7 +42,7 @@ Describe -Name $function -Fixture {
             Context -Name $encoding.Encoding -Fixture {
                 It -Name "Converts a string to a $($encoding.Encoding) Encoded string" -Test {
                     $splat = @{
-                        String = $string
+                        String   = $string
                         Encoding = $encoding.Encoding
                     }
                     $assertion = ConvertFrom-StringToBase64 @splat
@@ -57,9 +57,9 @@ Describe -Name $function -Fixture {
             $assertion = $string | ConvertFrom-StringToBase64 -Encoding 'UTF8'
             $assertion | Should -BeExactly 'VGhpc0lzTXlTdHJpbmc='
         }
-        
+
         It -Name 'Supports the Pipeline with array input' -Test {
-            $assertion = @($string,$string) | ConvertFrom-StringToBase64 -Encoding 'UTF8'
+            $assertion = @($string, $string) | ConvertFrom-StringToBase64 -Encoding 'UTF8'
             $assertion | Should -HaveCount 2
         }
     }

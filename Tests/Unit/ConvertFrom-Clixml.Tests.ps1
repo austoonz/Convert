@@ -23,9 +23,9 @@ Describe -Name $function -Fixture {
             $assertion = $xml | ConvertFrom-Clixml
             $assertion | Should -BeExactly $expected
         }
-        
+
         It -Name 'Supports the Pipeline with array input' -Test {
-            $assertion = $xml,$xml | ConvertFrom-Clixml
+            $assertion = $xml, $xml | ConvertFrom-Clixml
             $assertion | Should -HaveCount 2
         }
     }

@@ -10,6 +10,6 @@ try
 }
 catch
 {
-    Write-Warning ('{0}: {1}' -f $Function,$_.Exception.Message)
+    Write-Warning ('{0}: {1}' -f $Function, $_.Exception.Message)
     continue
 }
