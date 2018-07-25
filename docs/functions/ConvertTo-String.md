@@ -7,7 +7,7 @@ Converts a base64 encoded string to a string.
 
 ### Base64String (Default)
 ```
-ConvertTo-String -Base64EncodedString <String[]> [-Encoding <String>] [<CommonParameters>]
+ConvertTo-String -Base64EncodedString <String[]> [-Encoding <String>] [-Decompress] [<CommonParameters>]
 ```
 
 ### MemoryStream
@@ -17,7 +17,7 @@ ConvertTo-String -MemoryStream <MemoryStream[]> [<CommonParameters>]
 
 ### Stream
 ```
-ConvertFrom-MemoryStreamToString -Stream <Stream[]> [<CommonParameters>]
+ConvertTo-String -Stream <Stream[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -100,7 +100,7 @@ Another string
 ## PARAMETERS
 
 ### -Base64EncodedString
-A Base64 Encoded String.
+A Base64 Encoded String
 
 ```yaml
 Type: String[]
@@ -140,7 +140,7 @@ Aliases:
 Required: True
 Position: Named
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
@@ -157,6 +157,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: UTF8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Decompress
+{{Fill Decompress Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Base64String
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

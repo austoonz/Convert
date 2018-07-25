@@ -6,7 +6,7 @@ Converts a string to a base64 encoded string.
 ## SYNTAX
 
 ```
-ConvertFrom-StringToBase64 [-String] <String[]> [[-Encoding] <String>] [<CommonParameters>]
+ConvertFrom-StringToBase64 [-String] <String[]> [[-Encoding] <String>] [-Compress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -104,6 +104,21 @@ Aliases:
 Required: False
 Position: 2
 Default value: UTF8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Compress
+{{Fill Compress Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

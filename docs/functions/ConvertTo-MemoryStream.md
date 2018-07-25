@@ -17,7 +17,6 @@ Converts an object to a MemoryStream object.
 ### EXAMPLE 1
 ```
 $string = 'A string'
-
 $stream = ConvertTo-MemoryStream -String $string
 $stream.GetType()
 
@@ -29,7 +28,6 @@ True     True     MemoryStream                             System.IO.Stream
 ### EXAMPLE 2
 ```
 $string = 'A string'
-
 $stream = $string | ConvertTo-MemoryStream
 $stream.GetType()
 
@@ -41,7 +39,6 @@ True     True     MemoryStream                             System.IO.Stream
 ### EXAMPLE 3
 ```
 $string1 = 'A string'
-
 $string2 = 'Another string'
 
 $streams = ConvertTo-MemoryStream -String $string1,$string2

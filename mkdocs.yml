@@ -12,6 +12,7 @@ pages:
     - ConvertFrom-Base64ToString: functions/ConvertFrom-Base64ToString.md
     - ConvertFrom-ByteArrayToBase64: functions/ConvertFrom-ByteArrayToBase64.md
     - ConvertFrom-Clixml: functions/ConvertFrom-Clixml.md
+    - ConvertFrom-CompressedByteArrayToString: functions/ConvertFrom-CompressedByteArrayToString.md
     - ConvertFrom-MemoryStreamToBase64: functions/ConvertFrom-MemoryStreamToBase64.md
     - ConvertFrom-MemoryStreamToString: functions/ConvertFrom-MemoryStreamToString.md
     - ConvertFrom-StringToBase64: functions/ConvertFrom-StringToBase64.md

@@ -1,4 +1,4 @@
-# ConvertFrom-StringToCompressedByteArray
+# ConvertFrom-CompressedByteArrayToString
 
 ## SYNOPSIS
 Converts a string to a byte array object.
@@ -6,7 +6,7 @@ Converts a string to a byte array object.
 ## SYNTAX
 
 ```
-ConvertFrom-StringToCompressedByteArray [-String] <String[]> [[-Encoding] <String>] [<CommonParameters>]
+ConvertFrom-CompressedByteArrayToString [-ByteArray] <Byte[]> [[-Encoding] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -16,27 +16,28 @@ Converts a string to a byte array object.
 
 ### EXAMPLE 1
 ```
-$bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
+$bytes = ConvertFrom-CompressedByteArrayToString -String 'A string
+```
+
 $bytes.GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
-True     True     Byte[]                                   System.Array
+True     True     Object[]                                 System.Array
 
 $bytes[0].GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte                                     System.ValueType
-```
 
 ## PARAMETERS
 
-### -String
-A string object for conversion.
+### -ByteArray
+{{Fill ByteArray Description}}
 
 ```yaml
-Type: String[]
+Type: Byte[]
 Parameter Sets: (All)
 Aliases:
 
@@ -48,9 +49,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-The encoding to use for conversion.
-Defaults to UTF8.
-Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+{{Fill Encoding Description}}
 
 ```yaml
 Type: String
@@ -72,11 +71,11 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## OUTPUTS
 
-### [System.Collections.Generic.List[Byte[]]]
+### [Byte[]]
 
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/)
+[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/)
 

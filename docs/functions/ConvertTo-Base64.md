@@ -31,11 +31,9 @@ QSBzdHJpbmc=
 ### EXAMPLE 2
 ```
 (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64).Length
-
 1057480
 
 (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64 -Compress).Length
-
 110876
 ```
 
@@ -67,6 +65,7 @@ QQAgAHMAdAByAGkAbgBnAA==
 ```
 $string1 = 'A string'
 $string2 = 'Another string'
+
 ConvertTo-Base64 -String $string1,$string2
 
 QSBzdHJpbmc=
@@ -77,6 +76,7 @@ QW5vdGhlciBzdHJpbmc=
 ```
 $string1 = 'A string'
 $string2 = 'Another string'
+
 $string1,$string2 | ConvertTo-Base64
 
 QSBzdHJpbmc=
@@ -87,6 +87,7 @@ QW5vdGhlciBzdHJpbmc=
 ```
 $string1 = 'A string'
 $string2 = 'Another string'
+
 ConvertTo-Base64 -String $string1,$string2 -Encoding Unicode
 
 QQAgAHMAdAByAGkAbgBnAA==
@@ -97,6 +98,7 @@ QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ```
 $string1 = 'A string'
 $string2 = 'Another string'
+
 $string1,$string2 | ConvertTo-Base64 -Encoding Unicode
 
 QQAgAHMAdAByAGkAbgBnAA==
@@ -106,6 +108,7 @@ QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ### EXAMPLE 10
 ```
 $string = 'A string'
+
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
@@ -119,6 +122,7 @@ QSBzdHJpbmc=
 ### EXAMPLE 11
 ```
 $string = 'A string'
+
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)

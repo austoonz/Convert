@@ -40,7 +40,7 @@ ThisIsMyString
 
 ### EXAMPLE 3
 ```
-$xml1 = @"
+$xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
 </Objs>
@@ -58,7 +58,7 @@ This is another string
 
 ### EXAMPLE 4
 ```
-$xml1 = @"
+$xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
 </Objs>

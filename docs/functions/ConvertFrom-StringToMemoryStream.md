@@ -41,7 +41,7 @@ $streams.GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
-True     True     Object\[\]                                 System.Array
+True     True     Object[]                                 System.Array
 
 $streams[0].GetType()
 
@@ -52,7 +52,6 @@ True     True     MemoryStream                             System.IO.Stream
 
 ### EXAMPLE 4
 ```
-'A string','Another string'
 $streams = 'A string','Another string' | ConvertFrom-StringToMemoryStream
 $streams.GetType()
 

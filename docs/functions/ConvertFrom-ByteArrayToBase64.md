@@ -17,7 +17,6 @@ Converts a byte array to a base64 encoded string.
 ### EXAMPLE 1
 ```
 $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
-
 ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
 
 H4sIAAAAAAAAC3NUKC4pysxLBwCMN9RgCAAAAA==
