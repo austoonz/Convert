@@ -1,9 +1,9 @@
 <#
     .SYNOPSIS
-        Converts a string to a compressed byte array object.
+        Converts a string to a byte array object.
 
     .DESCRIPTION
-        Converts a string to a compressed byte array object.
+        Converts a string to a byte array object.
 
     .PARAMETER String
         A string object for conversion.
@@ -14,7 +14,7 @@
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
 
     .EXAMPLE
-        $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
+        $bytes = ConvertFrom-StringToByteArray -String 'A string'
         $bytes.GetType()
 
         IsPublic IsSerial Name                                     BaseType
@@ -27,15 +27,33 @@
         -------- -------- ----                                     --------
         True     True     Byte                                     System.ValueType
 
+    .EXAMPLE
+        $bytes = 'A string','Another string' | ConvertFrom-StringToByteArray
+
+        $bytes.Count
+        2
+
+        $bytes.GetType()
+
+        IsPublic IsSerial Name                                     BaseType
+        -------- -------- ----                                     --------
+        True     True     Object[]                                 System.Array
+
+        $bytes[0].GetType()
+
+        IsPublic IsSerial Name                                     BaseType
+        -------- -------- ----                                     --------
+        True     True     Byte[]                                   System.Array
+
     .OUTPUTS
         [System.Collections.Generic.List[Byte[]]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/
+        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/
 #>
-function ConvertFrom-StringToCompressedByteArray
+function ConvertFrom-StringToByteArray
 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/')]
+    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/')]
     param
     (
         [Parameter(
@@ -67,14 +85,7 @@ function ConvertFrom-StringToCompressedByteArray
             try
             {
                 $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
-
-                [System.IO.MemoryStream] $output = [System.IO.MemoryStream]::new()
-                $gzipStream = [System.IO.Compression.GzipStream]::new($output, ([IO.Compression.CompressionMode]::Compress))
-                $gzipStream.Write( $byteArray, 0, $byteArray.Length )
-                $gzipStream.Close()
-                $output.Close()
-
-                $null = $byteArrayObject.Add($output.ToArray())
+                $null = $byteArrayObject.Add($byteArray)
                 $byteArrayObject
             }
             catch

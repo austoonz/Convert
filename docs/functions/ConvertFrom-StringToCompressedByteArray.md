@@ -1,7 +1,7 @@
 # ConvertFrom-StringToCompressedByteArray
 
 ## SYNOPSIS
-Converts a string to a byte array object.
+Converts a string to a compressed byte array object.
 
 ## SYNTAX
 
@@ -10,7 +10,7 @@ ConvertFrom-StringToCompressedByteArray [-String] <String[]> [[-Encoding] <Strin
 ```
 
 ## DESCRIPTION
-Converts a string to a byte array object.
+Converts a string to a compressed byte array object.
 
 ## EXAMPLES
 

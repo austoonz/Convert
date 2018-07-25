@@ -38,7 +38,7 @@ Describe -Name $function -Fixture {
 
     foreach ($encoding in $encodings)
     {
-        Context -Name $encoding.Encoding -Tag 'High' -Fixture {
+        Context -Name $encoding.Encoding -Fixture {
             It -Name "Converts a $($encoding.Encoding) Encoded string to a string" -Test {
                 $splat = @{
                     String = $encoding.Base64
