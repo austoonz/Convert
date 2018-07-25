@@ -8,13 +8,18 @@
     .PARAMETER String
         A string object for conversion.
 
+    .PARAMETER Encoding
+        The encoding to use for conversion.
+        Defaults to UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+
     .EXAMPLE
-        $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string
+        $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
         $bytes.GetType()
 
         IsPublic IsSerial Name                                     BaseType
         -------- -------- ----                                     --------
-        True     True     Object[]                                 System.Array
+        True     True     Byte[]                                   System.Array
 
         $bytes[0].GetType()
 
@@ -23,7 +28,7 @@
         True     True     Byte                                     System.ValueType
 
     .OUTPUTS
-        [Byte[]]
+        [System.Collections.Generic.List[Byte[]]]
 
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/
@@ -55,6 +60,10 @@ function ConvertFrom-StringToCompressedByteArray
     {
         foreach ($s in $String)
         {
+            # Creating a generic list to ensure an array of string being handed in
+            # outputs an array of Byte arrays, rather than a single array with both
+            # Byte arrays merged.
+            $byteArrayObject = [System.Collections.Generic.List[Byte[]]]::new()
             try
             {
                 $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
@@ -65,7 +74,8 @@ function ConvertFrom-StringToCompressedByteArray
                 $gzipStream.Close()
                 $output.Close()
 
-                $output.ToArray()
+                $null = $byteArrayObject.Add($output.ToArray())
+                $byteArrayObject
             }
             catch
             {

@@ -69,11 +69,11 @@ PowerShellVersion = '5.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'ConvertFrom-Base64ToString', 'ConvertFrom-ByteArrayToBase64', 
-               'ConvertFrom-Clixml', 'ConvertFrom-MemoryStreamToBase64', 
-               'ConvertFrom-MemoryStreamToString', 'ConvertFrom-StringToBase64', 
-               'ConvertFrom-StringToCompressedByteArray', 
-               'ConvertFrom-StringToMemoryStream', 'ConvertTo-Base64', 
+FunctionsToExport = 'ConvertFrom-Base64ToString', 'ConvertFrom-ByteArrayToBase64',
+               'ConvertFrom-Clixml', 'ConvertFrom-CompressedByteArrayToString','ConvertFrom-MemoryStreamToBase64',
+               'ConvertFrom-MemoryStreamToString', 'ConvertFrom-StringToBase64',
+               'ConvertFrom-StringToCompressedByteArray',
+               'ConvertFrom-StringToMemoryStream', 'ConvertTo-Base64',
                'ConvertTo-Clixml', 'ConvertTo-MemoryStream', 'ConvertTo-String'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -126,7 +126,7 @@ v0.1.0.x:
         # ExternalModuleDependencies = ''
 
     } # End of PSData hashtable
-    
+
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
