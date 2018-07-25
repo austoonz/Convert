@@ -42,13 +42,13 @@ $bytes.GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
-True     True     Object\[\]                                 System.Array
+True     True     Object[]                                 System.Array
 
-$bytes\[0\].GetType()
+$bytes[0].GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
-True     True     Byte\[\]                                   System.Array
+True     True     Byte[]                                   System.Array
 ```
 
 ## PARAMETERS
