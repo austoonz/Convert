@@ -17,7 +17,6 @@ Converts a string to a byte array object.
 ### EXAMPLE 1
 ```
 $bytes = ConvertFrom-CompressedByteArrayToString -String 'A string
-```
 
 $bytes.GetType()
 
@@ -30,6 +29,7 @@ $bytes[0].GetType()
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte                                     System.ValueType
+```
 
 ## PARAMETERS
 
