@@ -1,3 +1,25 @@
+# Version v0.2.0.x (2018-07-24)
+## Functions
+
+### ConvertFrom-CompressedByteArrayToString
+* Initial Release
+
+### ConvertFrom-MemoryStreamToString
+* Added "System.IO.Stream" support
+* Added the alias "ConvertFrom-StreamToString"
+
+### ConvertFrom-StringToByteArray
+* Initial Release
+
+### ConvertFrom-StringToMemoryStream
+* Added compression support
+
+### ConvertTo-MemoryStream
+* Added compression support
+
+### ConvertTo-String
+* Added "System.IO.Stream" support
+
 # Version 0.1.1.x (2018-05-29)
 ## Functions
 
