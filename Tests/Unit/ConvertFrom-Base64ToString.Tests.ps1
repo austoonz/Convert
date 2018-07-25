@@ -77,13 +77,18 @@ Describe -Name $function -Fixture {
                 }
                 $assertion = ConvertFrom-Base64ToString @splat -ErrorAction Continue 2>&1
 
-                if ($PSEdition -eq 'Desktop' -or $IsMacOS)
-                {
-                    $expected = 'Invalid length for a Base-64 char array or string.'
-                }
-                else
+                if ($IsWindows)
                 {
                     $expected = 'The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.'
+                }
+                #if ($PSEdition -eq 'Desktop' -or $IsMacOS)
+                # {
+                #     $expected = 'Invalid length for a Base-64 char array or string.'
+                # }
+                else
+                {
+                    $expected = 'Invalid length for a Base-64 char array or string.'
+                    #$expected = 'The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.'
                 }
 
                 $assertion.Exception.InnerException.Message | Should -BeExactly $expected
