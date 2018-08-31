@@ -1,4 +1,4 @@
-$function = 'ConvertFrom-Base64ToString'
+$function = 'ConvertFrom-Base64'
 if (Get-Module -Name 'Convert') {Remove-Module -Name 'Convert'}
 Import-Module "$PSScriptRoot/../../Convert/Convert.psd1"
 
@@ -38,44 +38,48 @@ Describe -Name $function -Fixture {
 
     foreach ($encoding in $encodings)
     {
-        Context -Name $encoding.Encoding -Fixture {
+        Context -Name "-ToString : $($encoding.Encoding)" -Fixture {
             It -Name "Converts a $($encoding.Encoding) Encoded string to a string" -Test {
                 $splat = @{
-                    String   = $encoding.Base64
+                    Base64   = $encoding.Base64
                     Encoding = $encoding.Encoding
+                    ToString = $true
                 }
-                $assertion = ConvertFrom-Base64ToString @splat
+                $assertion = ConvertFrom-Base64 @splat
                 $assertion | Should -BeExactly $expected
             }
 
             It -Name 'Supports the Pipeline' -Test {
-                $assertion = $encoding.Base64 | ConvertFrom-Base64ToString -Encoding $encoding.Encoding
+                $assertion = $encoding.Base64 | ConvertFrom-Base64 -Encoding $encoding.Encoding -ToString
                 $assertion | Should -BeExactly $expected
             }
 
             It -Name 'Supports ErrorActionPreference SilentlyContinue' -Test {
                 $splat = @{
-                    String   = 'a'
+                    Base64   = 'a'
                     Encoding = $encoding.Encoding
+                    ToString = $true
                 }
-                $assertion = ConvertFrom-Base64ToString @splat -ErrorAction SilentlyContinue
+                $assertion = ConvertFrom-Base64 @splat -ErrorAction SilentlyContinue
                 $assertion | Should -BeNullOrEmpty
             }
 
             It -Name 'Supports ErrorActionPreference Stop' -Test {
                 $splat = @{
-                    String   = 'a'
+                    Base64   = 'a'
                     Encoding = $encoding.Encoding
+                    ToString = $true
                 }
-                { ConvertFrom-Base64ToString @splat -ErrorAction Stop } | Should -Throw
+                { ConvertFrom-Base64 @splat -ErrorAction Stop } | Should -Throw
             }
 
             It -Name 'Supports ErrorActionPreference Continue' -Test {
                 $splat = @{
-                    String   = 'a'
+                    Base64   = 'a'
                     Encoding = $encoding.Encoding
+                    ToString = $true
                 }
-                $assertion = ConvertFrom-Base64ToString @splat -ErrorAction Continue 2>&1
+                $assertion = ConvertFrom-Base64 @splat -ErrorAction Continue 2>&1
 
                 $expected = @(
                     'Invalid length for a Base-64 char array or string.',

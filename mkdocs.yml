@@ -9,6 +9,7 @@ pages:
   - Release Notes: RELEASE.md
   - Change Log: CHANGELOG.md
   - Functions:
+    - ConvertFrom-Base64: functions/ConvertFrom-Base64.md
     - ConvertFrom-Base64ToString: functions/ConvertFrom-Base64ToString.md
     - ConvertFrom-ByteArrayToBase64: functions/ConvertFrom-ByteArrayToBase64.md
     - ConvertFrom-Clixml: functions/ConvertFrom-Clixml.md

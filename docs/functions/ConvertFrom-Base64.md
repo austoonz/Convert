@@ -1,4 +1,4 @@
-# ConvertFrom-Base64ToString
+# ConvertFrom-Base64
 
 ## SYNOPSIS
 Converts a base64 encoded string to a string.
@@ -6,7 +6,7 @@ Converts a base64 encoded string to a string.
 ## SYNTAX
 
 ```
-ConvertFrom-Base64ToString [-String] <String[]> [[-Encoding] <String>] [-Decompress] [<CommonParameters>]
+ConvertFrom-Base64 [-Base64] <String[]> [[-Encoding] <String>] [-ToString] [-Decompress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -16,14 +16,14 @@ Converts a base64 encoded string to a string.
 
 ### EXAMPLE 1
 ```
-ConvertFrom-Base64ToString -String 'QSBzdHJpbmc='
+ConvertFrom-Base64 -Base64 'QSBzdHJpbmc=' -ToString
 
 A string
 ```
 
 ### EXAMPLE 2
 ```
-ConvertTo-Base64 -String 'A string','Another string'
+ConvertTo-Base64 -Base64 'A string','Another string' -ToString
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
@@ -31,14 +31,14 @@ QW5vdGhlciBzdHJpbmc=
 
 ### EXAMPLE 3
 ```
-'QSBzdHJpbmc=' | ConvertFrom-Base64ToString
+'QSBzdHJpbmc=' | ConvertFrom-Base64 -ToString
 
 A string
 ```
 
 ### EXAMPLE 4
 ```
-'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64ToString
+'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64 -ToString
 
 A string
 Another string
@@ -46,7 +46,7 @@ Another string
 
 ## PARAMETERS
 
-### -String
+### -Base64
 A Base64 Encoded String.
 
 ```yaml
@@ -78,8 +78,23 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ToString
+Switch parameter to specify a conversion to a string object.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Decompress
-{{Fill Decompress Description}}
+If supplied, the output will be decompressed using Gzip.
 
 ```yaml
 Type: SwitchParameter
@@ -107,5 +122,5 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/)
+[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/)
 
