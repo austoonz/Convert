@@ -1,9 +1,3 @@
-# Version v0.2.1.x (2018-07-24)
-## Functions
-
-### ConvertFrom-Base64
-* Initial Release
-
 # Version v0.2.0.x (2018-07-24)
 ## Functions
 
