@@ -143,7 +143,10 @@
 #>
 function ConvertFrom-MemoryStream
 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/')]
+    [CmdletBinding(
+        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/',
+        DefaultParameterSetName = 'ToString'
+    )]
     param
     (
         [Parameter(
@@ -158,11 +161,11 @@ function ConvertFrom-MemoryStream
         [String]
         $Encoding = 'UTF8',
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'ToString')]
+        [Parameter(ParameterSetName = 'ToString')]
         [Switch]
         $ToString,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'ToBase64')]
+        [Parameter(ParameterSetName = 'ToBase64')]
         [Switch]
         $ToBase64
     )
@@ -178,7 +181,7 @@ function ConvertFrom-MemoryStream
         {
             try
             {
-                $string = ConvertFrom-MemoryStream -MemoryStream $m -ErrorAction Stop
+                $string = ConvertFrom-MemoryStreamToString -MemoryStream $m -ErrorAction Stop
 
                 switch ($PSCmdlet.ParameterSetName)
                 {
