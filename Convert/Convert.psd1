@@ -12,7 +12,7 @@
 RootModule = 'Convert.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.1.6'
+ModuleVersion = '0.2.1.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
