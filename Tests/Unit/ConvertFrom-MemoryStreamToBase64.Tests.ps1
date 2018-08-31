@@ -65,8 +65,8 @@ Describe -Name $function -Fixture {
             $writer.Write($string)
             $writer.Flush()
 
-            $assertion = $stream | ConvertFrom-MemoryStreamToString
-            $assertion | Should -BeExactly $string
+            $assertion = $stream | ConvertFrom-MemoryStreamToBase64
+            $assertion | Should -BeExactly 'VGhpc0lzTXlTdHJpbmc='
 
             $stream.Dispose()
             $writer.Dispose()
