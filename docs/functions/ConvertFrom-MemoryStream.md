@@ -5,7 +5,7 @@ Converts MemoryStream to a base64 encoded string.
 
 ## SYNTAX
 
-### ToString
+### ToString (Default)
 ```
 ConvertFrom-MemoryStream -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ToString] [<CommonParameters>]
 ```
@@ -202,7 +202,7 @@ Type: SwitchParameter
 Parameter Sets: ToString
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: False
 Accept pipeline input: False
@@ -217,7 +217,7 @@ Type: SwitchParameter
 Parameter Sets: ToBase64
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: False
 Accept pipeline input: False
