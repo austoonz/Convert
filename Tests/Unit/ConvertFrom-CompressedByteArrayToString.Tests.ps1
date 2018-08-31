@@ -78,16 +78,12 @@ Describe -Name $function -Fixture {
                 }
                 $assertion = ConvertFrom-CompressedByteArrayToString @splat -ErrorAction Continue 2>&1
 
-                if ($PSEdition -eq 'Desktop')
-                {
-                    $expected = 'The magic number in GZip header is not correct. Make sure you are passing in a GZip stream.'
-                }
-                else
-                {
-                    $expected = 'The archive entry was compressed using an unsupported compression method.'
-                }
+                $expected = @(
+                    'The archive entry was compressed using an unsupported compression method.',
+                    'The magic number in GZip header is not correct. Make sure you are passing in a GZip stream.'
+                )
 
-                $assertion.Exception.InnerException.Message | Should -BeExactly $expected
+                $assertion.Exception.InnerException.Message | Should -BeIn $expected
             }
         }
     }
