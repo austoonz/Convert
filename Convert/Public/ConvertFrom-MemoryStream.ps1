@@ -185,14 +185,14 @@ function ConvertFrom-MemoryStream
 
                 switch ($PSCmdlet.ParameterSetName)
                 {
-                    'ToBase64'
-                    {
-                        ConvertFrom-StringToBase64 -String $string -Encoding $Encoding
-                    }
-
                     'ToString'
                     {
                         $string
+                    }
+
+                    'ToBase64'
+                    {
+                        ConvertFrom-StringToBase64 -String $string -Encoding $Encoding
                     }
                 }
             }
