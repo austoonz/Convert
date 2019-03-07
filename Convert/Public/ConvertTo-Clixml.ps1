@@ -1,13 +1,16 @@
 <#
     .SYNOPSIS
         Converts an object to Clixml.
-    
+
     .DESCRIPTION
         Converts an object to Clixml.
-    
+
     .PARAMETER InputObject
-        An object for conversion.
-    
+        The input object to serialize
+
+    .PARAMETER Depth
+        The depth of the members to serialize
+
     .EXAMPLE
         $string = 'A string'
         ConvertTo-Clixml -InputObject $string
@@ -15,7 +18,7 @@
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <S>A string</S>
 </Objs>
-    
+
     .EXAMPLE
         $string = 'A string'
         $string | ConvertTo-Clixml
@@ -23,7 +26,7 @@
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
   <S>A string</S>
 </Objs>
-    
+
     .EXAMPLE
         $string1 = 'A string'
         $string2 = 'Another string'
@@ -65,21 +68,26 @@ function ConvertTo-Clixml
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
         [PSObject]
-        $InputObject
+        $InputObject,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateRange(1, [Int32]::MaxValue)]
+        [Int32]
+        $Depth = 1
     )
 
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
     }
-    
+
     process
     {
         foreach ($io in $InputObject)
         {
             try
             {
-                [System.Management.Automation.PSSerializer]::Serialize($io)
+                [System.Management.Automation.PSSerializer]::Serialize($io, $Depth)
             }
             catch
             {

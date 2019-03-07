@@ -12,7 +12,7 @@
 RootModule = 'Convert.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.1.1'
+ModuleVersion = '0.3.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,14 +69,14 @@ PowerShellVersion = '5.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'ConvertFrom-Base64', 'ConvertFrom-Base64ToString', 
-               'ConvertFrom-ByteArrayToBase64', 'ConvertFrom-Clixml', 
-               'ConvertFrom-CompressedByteArrayToString', 
-               'ConvertFrom-MemoryStream', 'ConvertFrom-MemoryStreamToBase64', 
-               'ConvertFrom-MemoryStreamToString', 'ConvertFrom-StringToBase64', 
-               'ConvertFrom-StringToByteArray', 
-               'ConvertFrom-StringToCompressedByteArray', 
-               'ConvertFrom-StringToMemoryStream', 'ConvertTo-Base64', 
+FunctionsToExport = 'ConvertFrom-Base64', 'ConvertFrom-Base64ToString',
+               'ConvertFrom-ByteArrayToBase64', 'ConvertFrom-Clixml',
+               'ConvertFrom-CompressedByteArrayToString',
+               'ConvertFrom-MemoryStream', 'ConvertFrom-MemoryStreamToBase64',
+               'ConvertFrom-MemoryStreamToString', 'ConvertFrom-StringToBase64',
+               'ConvertFrom-StringToByteArray',
+               'ConvertFrom-StringToCompressedByteArray',
+               'ConvertFrom-StringToMemoryStream', 'ConvertTo-Base64',
                'ConvertTo-Clixml', 'ConvertTo-MemoryStream', 'ConvertTo-String'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -116,6 +116,8 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = '
+v0.3.x:
+  - Added Depth parameter to "ConvertTo-CliXml"
 v0.2.1.x:
   - Added "ConvertFrom-Base64" and "ConvertFrom-MemoryStream"
 v0.2.0.x:
@@ -133,7 +135,7 @@ v0.1.0.x:
         # ExternalModuleDependencies = ''
 
     } # End of PSData hashtable
-    
+
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
