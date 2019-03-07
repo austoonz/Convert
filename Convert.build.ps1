@@ -17,10 +17,13 @@ Enter-Build {
 
     $script:TestsPath = Join-Path -Path $BuildRoot -ChildPath 'Tests'
     $script:UnitTestsPath = Join-Path -Path $script:TestsPath -ChildPath 'Unit'
-    
+
     $script:ArtifactsPath = Join-Path -Path $BuildRoot -ChildPath 'Artifact'
     $script:ArchivePath = Join-Path -Path $BuildRoot -ChildPath 'Archive'
     $script:PesterTestResultsFile = Join-Path -Path $script:ArchivePath -ChildPath 'TestsResults.xml'
+
+    $script:BuildModuleManifestFile = Join-Path -Path $script:ArtifactsPath -ChildPath "$($script:ModuleName).psd1"
+    $script:BuildModuleRootFile = Join-Path -Path $script:ArtifactsPath -ChildPath "$($script:ModuleName).psm1"
 
     $script:DocsPath = Join-Path -Path $BuildRoot -ChildPath 'docs'
     $script:ChangeLog = Join-Path -Path $BuildRoot -ChildPath 'CHANGELOG.md'
@@ -112,14 +115,14 @@ task Test {
             $wc = New-Object -TypeName System.Net.WebClient
             $wc.UploadFile($url, (Resolve-Path -Path $script:PesterTestResultsFile))
         }
-        
+
         # Output results as json for CodeBuild and CloudWatch
         if ($env:CODEBUILD_BUILD_ARN) {
             $testResults.TestResult | ForEach-Object {
                 ConvertTo-Json -InputObject $_ -Compress
             }
         }
-        
+
         # Trying to fail the build
         if ($testResults.FailedCount -gt 0) {
             throw "$($testResults.FailedCount) tests failed."
@@ -130,13 +133,30 @@ task Test {
 # Synopsis: Builds the Module to the Artifacts folder
 task Build {
     Copy-Item -Path $script:ModuleFiles -Destination $script:ArtifactsPath -Recurse -ErrorAction Stop
+
+    Write-Host '    Combining scripts into the module root file' -ForegroundColor Green
+    $scriptContent = [System.Text.StringBuilder]::new()
+
+    # TO DO: Add support for Requires Statements by finding them and placing them at the top of the newly created .psm1
+    $powerShellScripts = Get-ChildItem -Path $script:ArtifactsPath -Filter '*.ps1' -Recurse
+    foreach ($script in $powerShellScripts)
+    {
+        $null = $scriptContent.Append((Get-Content -Path $script.FullName -Raw))
+        $null = $scriptContent.AppendLine('')
+        $null = $scriptContent.AppendLine('')
+    }
+
+    $scriptContent.ToString() | Out-File -FilePath $script:BuildModuleRootFile -Encoding utf8 -Force
+
+    Write-Host '    Clearing temporary files' -ForegroundColor Green
+    Get-Item -Path "$script:ArtifactsPath\Public" -ErrorAction 'SilentlyContinue' | Remove-Item -Recurse -Force -ErrorAction Stop
 }
 
 task BuildDocs {
     # Only build the docs if running an AppVeyor Job and branch is master
     # Temporary commenting this out due to a PlatyPS issue: https://github.com/PowerShell/platyPS/issues/180
     #if (($env:APPVEYOR_JOB_ID -and $env:APPVEYOR_REPO_BRANCH -eq 'master') -or $env:USERNAME -eq 'andrew') {
-    
+
     # Allow this to build on my workstation and not on a build service
     if ($env:USERNAME -eq 'andrew') {
         # This step is converted from Mark Kraus' PSMSGraph psake build file
@@ -145,11 +165,11 @@ task BuildDocs {
         Remove-Module $script:ModuleManifestFile -Force -ErrorAction SilentlyContinue
         # platyPS + AppVeyor requires the module to be loaded in Global scope
         Import-Module $script:ModuleManifestFile -Force -Global
-        
+
         # Build YAMLText starting with the header
         $YMLtext = (Get-Content "$BuildRoot\header-mkdocs.yml") -join "`n"
         $YMLtext = "$YMLtext`n"
-        
+
         $parameters = @{
             Path = $script:ReleaseNotes
             ErrorAction = 'SilentlyContinue'
@@ -159,7 +179,7 @@ task BuildDocs {
             $ReleaseText | Set-Content "$BuildRoot\docs\RELEASE.md"
             $YMLText = "$YMLtext  - Release Notes: RELEASE.md`n"
         }
-        
+
         $parameters = @{
             Path = $script:ChangeLog
             ErrorAction = 'SilentlyContinue'
@@ -206,7 +226,7 @@ task BuildDocs {
 # Synopsis: Increments the Module Manifest version
 task IncrementVersion {
     # Environmental Variables Guide: https://www.appveyor.com/docs/environment-variables/
-    if ($env:APPVEYOR_REPO_BRANCH -ne 'master') 
+    if ($env:APPVEYOR_REPO_BRANCH -ne 'master')
     {
         $script:NewVersion = $script:Version
         Write-Warning -Message "Skipping version increment and publish for branch $env:APPVEYOR_REPO_BRANCH"
@@ -244,11 +264,11 @@ task Archive {
     }
 
     $null = New-Item -Path $archivePath -ItemType Directory -Force
-    
+
     $childPath = '{0}_{1}_{2}.{3}.zip' -f $script:ModuleName, $script:NewVersion.ToString(), ([DateTime]::UtcNow.ToString("yyyyMMdd")), ([DateTime]::UtcNow.ToString("hhmmss"))
     $zipFile = Join-Path -Path $archivePath -ChildPath $childPath
 
     $filesToArchive = Join-Path -Path $script:ArtifactsPath -ChildPath '*'
-    
+
     Compress-Archive -Path $filesToArchive -DestinationPath $zipFile
 }
