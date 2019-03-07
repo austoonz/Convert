@@ -3,6 +3,6 @@ Describe -Name 'Module Manifest' -Fixture {
     It -Name 'Has a valid base version' -Test {
 
         $version = (Test-ModuleManifest -Path $sut.FullName).Version
-        $version.ToString().Split('.') | Should -HaveCount 4
+        $version.ToString().Split('.') | Should -HaveCount 3
     }
 }
