@@ -20,7 +20,7 @@ matrix:
             - powershell
 
 install:
-  - pwsh -c 'Install-Module -Name AWSPowerShell.NetCore,InvokeBuild,Pester,platyPS,PSScriptAnalyzer -Scope CurrentUser -Force'
+  - pwsh -c 'Install-Module -Name AWSPowerShell.NetCore,InvokeBuild,Pester,platyPS,PSScriptAnalyzer -Scope CurrentUser -Force -SkipPublisherCheck'
 
 script:
   - pwsh -c 'Invoke-Build'
