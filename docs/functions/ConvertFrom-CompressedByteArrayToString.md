@@ -34,7 +34,7 @@ True     True     Byte                                     System.ValueType
 ## PARAMETERS
 
 ### -ByteArray
-{{Fill ByteArray Description}}
+The array of bytes to convert.
 
 ```yaml
 Type: Byte[]
@@ -49,7 +49,9 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-{{Fill Encoding Description}}
+The encoding to use for conversion.
+Defaults to UTF8.
+Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
 
 ```yaml
 Type: String

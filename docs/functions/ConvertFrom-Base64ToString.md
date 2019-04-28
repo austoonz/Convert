@@ -79,7 +79,7 @@ Accept wildcard characters: False
 ```
 
 ### -Decompress
-{{Fill Decompress Description}}
+If supplied, the output will be decompressed using Gzip.
 
 ```yaml
 Type: SwitchParameter

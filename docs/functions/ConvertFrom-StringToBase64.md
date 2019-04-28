@@ -109,7 +109,7 @@ Accept wildcard characters: False
 ```
 
 ### -Compress
-{{Fill Compress Description}}
+If supplied, the output will be compressed using Gzip.
 
 ```yaml
 Type: SwitchParameter

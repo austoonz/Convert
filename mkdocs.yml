@@ -6,7 +6,6 @@ theme: readthedocs
 copyright: "Convert is licensed under the <a href='https://github.com/austoonz/Convert/blob/master/LICENSE'>MIT license"
 pages:
   - Home: index.md
-  - Release Notes: RELEASE.md
   - Change Log: CHANGELOG.md
   - Functions:
     - ConvertFrom-Base64: functions/ConvertFrom-Base64.md
