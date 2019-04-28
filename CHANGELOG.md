@@ -1,151 +1,96 @@
-# Version v0.2.1.x (2018-08-30)
-## Functions
+# Changelog
+
+## Version v0.4.0 (2019-04-27)
+
+### Manifest Updates
+- Updated CompatiblePSEditions
+- Added PrivateData Tags to indicate platform compatibility
+
+## Version v0.3.5 (2019-03-07)
+
+### ConvertTo-CliXml
+- Added Depth parameter to "ConvertTo-CliXml"
+
+## Version v0.2.1.x (2018-08-30)
 
 ### ConvertFrom-Base64
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-MemoryStream
-* Initial Release
+- Initial Release
 
-# Version v0.2.0.x (2018-07-24)
-## Functions
+## Version v0.2.0.x (2018-07-24)
 
 ### ConvertFrom-CompressedByteArrayToString
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-MemoryStreamToString
-* Added "System.IO.Stream" support
-* Added the alias "ConvertFrom-StreamToString"
+- Added "System.IO.Stream" support
+- Added the alias "ConvertFrom-StreamToString"
 
 ### ConvertFrom-StringToByteArray
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-StringToMemoryStream
-* Added compression support
+- Added compression support
 
 ### ConvertTo-MemoryStream
-* Added compression support
+- Added compression support
 
 ### ConvertTo-String
-* Added "System.IO.Stream" support
+- Added "System.IO.Stream" support
 
-# Version 0.1.1.x (2018-05-29)
-## Functions
+## Version 0.1.1.x (2018-05-29)
 
 ### ConvertFrom-Base64ToString
-* Added "-Decompress" support
+- Added "-Decompress" support
 
 ### ConvertFrom-ByteArrayToBase64
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-CompressedByteArrayToString
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-StringToBase64
-* Added "-Compress" support
+- Added "-Compress" support
 
 ### ConvertFrom-StringToCompressedByteArray
-* Initial Release
+- Initial Release
 
 ### ConvertTo-Base64
-* Added "-Compress" support
+- Added "-Compress" support
 
 ### ConvertTo-String
-* Added "-Decompress" support
+- Added "-Decompress" support
 
-# Version 0.1.0.0 (2018-05-07)
-## Functions
+## Version 0.1.0.0 (2018-05-07)
+
 ### ConvertFrom-Base64ToString
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-Clixml
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-MemoryStreamToBase64
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-MemoryStreamToString
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-StringToBase64
-* Initial Release
+- Initial Release
 
 ### ConvertFrom-StringToMemoryStream
-* Initial Release
+- Initial Release
 
 ### ConvertTo-Base64
-* Initial Release
+- Initial Release
 
 ### ConvertTo-Clixml
-* Initial Release
+- Initial Release
 
 ### ConvertTo-MemoryStream
-* Initial Release
+- Initial Release
 
 ### ConvertTo-String
-* Initial Release
-
-## Tests
-### ConvertFrom-Base64ToString.Tests.ps1
-* Initial Release
-
-### ConvertFrom-Clixml.Tests.ps1
-* Initial Release
-
-### ConvertFrom-MemoryStreamToBase64.Tests.ps1
-* Initial Release
-
-### ConvertFrom-MemoryStreamToString.Tests.ps1
-* Initial Release
-
-### ConvertFrom-StringToBase64.Tests.ps1
-* Initial Release
-
-### ConvertFrom-StringToMemoryStream.Tests.ps1
-* Initial Release
-
-### ConvertTo-Base64.Tests.ps1
-* Initial Release
-
-### ConvertTo-Clixml.Tests.ps1
-* Initial Release
-
-### ConvertTo-MemoryStream.Tests.ps1
-* Initial Release
-
-### ConvertTo-String.Tests.ps1
-* Initial Release
-
-### Global.Tests.ps1
-* Initial Release
-
-## Documentation
-### ConvertFrom-Base64ToString
-* Initial Release
-
-### ConvertFrom-Clixml
-* Initial Release
-
-### ConvertFrom-MemoryStreamToBase64
-* Initial Release
-
-### ConvertFrom-MemoryStreamToString
-* Initial Release
-
-### ConvertFrom-StringToBase64
-* Initial Release
-
-### ConvertFrom-StringToMemoryStream
-* Initial Release
-
-### ConvertTo-Base64
-* Initial Release
-
-### ConvertTo-Clixml
-* Initial Release
-
-### ConvertTo-MemoryStream
-* Initial Release
-
-### ConvertTo-String
-* Initial Release
+- Initial Release
