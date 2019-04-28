@@ -60,7 +60,7 @@ Describe -Name $function -Fixture {
                 $assertion | Should -BeExactly $expected
             }
 
-            It -Name 'Supports ErrorActionPreference SilentlyContinue' -Test {
+            It -Name 'Supports EAP SilentlyContinue' -Test {
                 $splat = @{
                     Base64   = 'a'
                     Encoding = $encoding.Encoding
@@ -70,7 +70,7 @@ Describe -Name $function -Fixture {
                 $assertion | Should -BeNullOrEmpty
             }
 
-            It -Name 'Supports ErrorActionPreference Stop' -Test {
+            It -Name 'Supports EAP Stop' -Test {
                 $splat = @{
                     Base64   = 'a'
                     Encoding = $encoding.Encoding
@@ -79,7 +79,7 @@ Describe -Name $function -Fixture {
                 { ConvertFrom-Base64 @splat -ErrorAction Stop } | Should -Throw
             }
 
-            It -Name 'Supports ErrorActionPreference Continue' -Test {
+            It -Name 'Supports EAP Continue' -Test {
                 $splat = @{
                     Base64   = 'a'
                     Encoding = $encoding.Encoding

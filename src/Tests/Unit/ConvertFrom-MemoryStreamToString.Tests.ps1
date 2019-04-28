@@ -67,7 +67,7 @@ Describe -Name $function -Fixture {
         }
     }
 
-    Context -Name 'ErrorActionPreference' -Fixture {
+    Context -Name 'EAP' -Fixture {
         It -Name 'Supports SilentlyContinue' -Test {
             $string = 'ThisIsMyString'
 

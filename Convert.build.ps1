@@ -59,6 +59,9 @@ Enter-Build {
     }
     else { Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop' }
 
+    Write-Host '    - Importing the Pester Module...' -ForegroundColor Green
+    Import-Module -Name 'Pester' -ErrorAction 'Stop'
+
     Write-Host '    - Configuring Build Variables...' -ForegroundColor Green
     $script:RepositoryRoot = $BuildRoot
     $script:ModuleName = (Split-Path -Path $BuildFile -Leaf).Split('.')[0]
