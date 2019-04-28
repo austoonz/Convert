@@ -23,4 +23,4 @@ install:
   - pwsh -c 'Install-Module -Name InvokeBuild,Pester,PSScriptAnalyzer -Scope CurrentUser -Force'
 
 script:
-  - pwsh -c 'Invoke-Build -Task Clean, Analyze, Test'
+  - pwsh -c 'Invoke-Build'

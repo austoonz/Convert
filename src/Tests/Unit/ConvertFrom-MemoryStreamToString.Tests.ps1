@@ -1,58 +1,29 @@
-$function = 'ConvertFrom-MemoryStreamToBase64'
-if (Get-Module -Name 'Convert') {Remove-Module -Name 'Convert'}
-Import-Module "$PSScriptRoot/../../Convert/Convert.psd1"
+$moduleName = 'Convert'
+$function = $MyInvocation.MyCommand.Name.Split('.')[0]
+
+$pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
+if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue')
+{
+    Remove-Module -Name $moduleName -Force
+}
+Import-Module $pathToManifest -Force
 
 Describe -Name $function -Fixture {
 
-    $string = 'ThisIsMyString'
-    $encodings = @(
-        @{
-            'Encoding' = 'ASCII'
-            'Expected' = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            'Encoding' = 'BigEndianUnicode'
-            'Expected' = 'AFQAaABpAHMASQBzAE0AeQBTAHQAcgBpAG4AZw=='
-        }
-        @{
-            'Encoding' = 'Default'
-            'Expected' = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            'Encoding' = 'Unicode'
-            'Expected' = 'VABoAGkAcwBJAHMATQB5AFMAdAByAGkAbgBnAA=='
-        }
-        @{
-            'Encoding' = 'UTF32'
-            'Expected' = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
-        }
-        @{
-            'Encoding' = 'UTF7'
-            'Expected' = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            'Encoding' = 'UTF8'
-            'Expected' = 'VGhpc0lzTXlTdHJpbmc='
-        }
-    )
-
     Context -Name 'Input/Output' -Fixture {
-        foreach ($encoding in $encodings)
-        {
-            It -Name "Converts using $($encoding.Encoding) correctly" -Test {
-                $string = 'ThisIsMyString'
+        It -Name "Converts a MemoryStream to a string" -Test {
+            $string = 'ThisIsMyString'
 
-                $stream = [System.IO.MemoryStream]::new()
-                $writer = [System.IO.StreamWriter]::new($stream)
-                $writer.Write($string)
-                $writer.Flush()
+            $stream = [System.IO.MemoryStream]::new()
+            $writer = [System.IO.StreamWriter]::new($stream)
+            $writer.Write($string)
+            $writer.Flush()
 
-                $assertion = ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream -Encoding $encoding.Encoding
-                $assertion | Should -BeExactly $encoding.Expected
+            $assertion = ConvertFrom-MemoryStreamToString -MemoryStream $stream
+            $assertion | Should -BeExactly $string
 
-                $stream.Dispose()
-                $writer.Dispose()
-            }
+            $stream.Dispose()
+            $writer.Dispose()
         }
     }
 
@@ -65,8 +36,8 @@ Describe -Name $function -Fixture {
             $writer.Write($string)
             $writer.Flush()
 
-            $assertion = $stream | ConvertFrom-MemoryStreamToBase64
-            $assertion | Should -BeExactly 'VGhpc0lzTXlTdHJpbmc='
+            $assertion = $stream | ConvertFrom-MemoryStreamToString
+            $assertion | Should -BeExactly $string
 
             $stream.Dispose()
             $writer.Dispose()

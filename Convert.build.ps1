@@ -1,144 +1,440 @@
 <#
-    .SYNOPSIS
-    Holds the primary build tasks for Invoke-Build
+.SYNOPSIS
+    An Invoke-Build Build file.
+.DESCRIPTION
+    This build file is configured with the intent of running AWS CodeBuild builds, but will work locally as well.
+
+    Build steps can include:
+        - Clean
+        - ValidateRequirements
+        - Analyze
+        - Test
+        - CreateHelp
+        - Build
+        - Archive
+        - PrepareForDeployment
+        - SetBadgePassing
+.EXAMPLE
+    Invoke-Build
+
+    This will perform the default build tasks: see below for the default task execution
+.EXAMPLE
+    Invoke-Build -Task Analyze,Test
+
+    This will perform only the Analyze and Test tasks.
 #>
 
-# Default
-task . InstallDependencies, Clean, Analyze, Test, Build, IncrementVersion, Archive
+# Commented the CreateHelp task out due to PlatyPS issues with Examples generation
+# Default Build
+#task . Clean, ValidateRequirements, Analyze, Test, Build, CreateHelp, CreateArtifact
 
-# Pre-build variables to configure
+# Default Build
+task . Clean, ValidateRequirements, Analyze, Test, Build, CreateArtifact
+
+# Local testing build process
+task TestLocal Clean, Analyze, Test
+
+# Local help file creation process
+task HelpLocal CreateHelp, UpdateCBH
+
+# Pre-build variables to be used by other portions of the script
 Enter-Build {
+    Write-Host ''
+    Write-Host '  Build Environment: Setting up...' -ForegroundColor Green
+
+    Write-Host '    - Importing the AWS PowerShell Module...' -ForegroundColor Green
+    if ($PSEdition -eq 'Desktop') {
+        if (Get-Module -Name 'AWSPowerShell' -ListAvailable)
+        {
+            Import-Module -Name 'AWSPowerShell' -ErrorAction 'Stop'
+        }
+        elseif (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable)
+        {
+            Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
+        }
+        else
+        {
+            throw 'The "AWSPowerShell" or "AWSPowerShell.NetCore" module must be available for import.'
+        }
+    }
+    else { Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop' }
+
+    Write-Host '    - Configuring Build Variables...' -ForegroundColor Green
+    $script:RepositoryRoot = $BuildRoot
     $script:ModuleName = (Split-Path -Path $BuildFile -Leaf).Split('.')[0]
-    $script:ModuleSourcePath = Join-Path -Path $BuildRoot -ChildPath $script:ModuleName
+    if (Get-Module -Name $script:ModuleName) { Remove-Module -Name $script:ModuleName }
+
+    $script:SourcePath = Join-Path -Path $BuildRoot -ChildPath 'src'
+    $script:ModuleSourcePath = Join-Path -Path $script:SourcePath -ChildPath $script:ModuleName
     $script:ModuleFiles = Join-Path -Path $script:ModuleSourcePath -ChildPath '*'
 
     $script:ModuleManifestFile = Join-Path -Path $script:ModuleSourcePath -ChildPath "$($script:ModuleName).psd1"
-    $script:Version = (Test-ModuleManifest -Path $script:ModuleManifestFile).Version
+    Import-Module $script:ModuleManifestFile
 
-    $script:TestsPath = Join-Path -Path $BuildRoot -ChildPath 'Tests'
+    $manifestInfo = Import-PowerShellDataFile -Path $script:ModuleManifestFile
+    $script:ModuleVersion = $manifestInfo.ModuleVersion
+    $script:ModuleDescription = $manifestInfo.Description
+    $Script:FunctionsToExport = $manifestInfo.FunctionsToExport
+
+    $script:TestsPath = Join-Path -Path $script:SourcePath -ChildPath 'Tests'
     $script:UnitTestsPath = Join-Path -Path $script:TestsPath -ChildPath 'Unit'
+    $script:IntegrationTestsPath = Join-Path -Path $script:TestsPath -ChildPath 'Integration'
 
-    $script:ArtifactsPath = Join-Path -Path $BuildRoot -ChildPath 'Artifact'
+    $script:ArtifactsPath = Join-Path -Path $BuildRoot -ChildPath 'Artifacts'
     $script:ArchivePath = Join-Path -Path $BuildRoot -ChildPath 'Archive'
-    $script:PesterTestResultsFile = Join-Path -Path $script:ArchivePath -ChildPath 'TestsResults.xml'
+    $script:DeploymentArtifactsPath = Join-Path -Path $BuildRoot -ChildPath 'DeploymentArtifacts'
 
     $script:BuildModuleManifestFile = Join-Path -Path $script:ArtifactsPath -ChildPath "$($script:ModuleName).psd1"
     $script:BuildModuleRootFile = Join-Path -Path $script:ArtifactsPath -ChildPath "$($script:ModuleName).psm1"
 
-    $script:DocsPath = Join-Path -Path $BuildRoot -ChildPath 'docs'
-    $script:ChangeLog = Join-Path -Path $BuildRoot -ChildPath 'CHANGELOG.md'
-    $script:ReleaseNotes = Join-Path -Path $BuildRoot -ChildPath 'RELEASE.md'
+    $script:CodeCoverageThreshold = 75
+
+    $ProgressPreference = 'SilentlyContinue'
+    $Global:ProgressPreference = 'SilentlyContinue'
+
+    Write-Host '  Build Environment: Ready' -ForegroundColor Green
+    Write-Host ''
 }
 
-# Synopsis: Installs Invoke-Build Dependencies
-task InstallDependencies {
-    Invoke-PSDepend -Install -Import -Force
+# Synopsis: Validate system requirements are met
+task ValidateRequirements {
+    Write-Host ''
+    Write-Host '  System Requirements: Validating...' -ForegroundColor Green
+
+    assert ($PSVersionTable.PSVersion.Major.ToString() -ge '5') 'At least Powershell 5 is required for this build to function properly'
+
+    Write-Host '  System Requirements: Passed' -ForegroundColor Green
+    Write-Host ''
 }
 
 # Synopsis: Clean Artifacts Directory
 task Clean {
-    # Clean folders from disk
-    foreach ($path in $script:ArtifactsPath,$script:ArchivePath)
-    {
-        if (Test-Path -Path $path)
-        {
-            $null = Remove-Item -Path $path -Recurse -Force
-        }
+    Write-Host ''
+    Write-Host '  Cleaning the output directories...' -ForegroundColor Green
 
-        $null = New-Item -ItemType Directory -Path $path -Force
-    }
+    $null = Remove-Item $script:ArchivePath -Force -Recurse -ErrorAction SilentlyContinue
+    Write-Host '    - Archive' -ForegroundColor Green
 
-    # Clean test results
-    if (Test-Path -Path $script:PesterTestResultsFile)
-    {
-        $null = Remove-Item -Path $script:PesterTestResultsFile -Force
-    }
+    $null = Remove-Item $script:ArtifactsPath -Force -Recurse -ErrorAction SilentlyContinue
+    Write-Host '    - Artifacts ' -ForegroundColor Green
+
+    $null = Remove-Item $script:DeploymentArtifactsPath -Force -Recurse -ErrorAction SilentlyContinue
+    Write-Host '    - DeploymentArtifacts ' -ForegroundColor Green
+
+    Write-Host '  Re-creating the output directories...' -ForegroundColor Green
+
+    $null = New-Item $script:ArchivePath -ItemType Directory
+    Write-Host '    - Archive ' -ForegroundColor Green
+
+    $null = New-Item $script:ArtifactsPath -ItemType Directory
+    Write-Host '    - Artifacts ' -ForegroundColor Green
+
+    $null = New-Item $script:DeploymentArtifactsPath -ItemType Directory
+    Write-Host '    - DeploymentArtifacts ' -ForegroundColor Green
+
+    Write-Host ''
 }
 
 # Synopsis: Invokes Script Analyzer against the Module source path
 task Analyze {
+    Write-Host ''
+    Write-Host '  PowerShell Module Files: Analyzing...' -ForegroundColor Green
+
     $scriptAnalyzerParams = @{
-        Path = $script:ModuleSourcePath
-        Severity = @('Error', 'Warning')
-        Recurse = $true
-        Verbose = $false
+        Path        = $script:ModuleSourcePath
+        ExcludeRule = @(
+            'PSAvoidGlobalVars'
+        )
+        Severity    = @('Error', 'Warning')
+        Recurse     = $true
+        Verbose     = $false
     }
 
     $scriptAnalyzerResults = Invoke-ScriptAnalyzer @scriptAnalyzerParams
 
-    if ($scriptAnalyzerResults) {
+    if ($scriptAnalyzerResults)
+    {
         $scriptAnalyzerResults | Format-Table
         throw 'One or more PSScriptAnalyzer errors/warnings where found.'
     }
+    else
+    {
+        Write-Host '  PowerShell Module Files: Passed' -ForegroundColor Green
+    }
+    Write-Host ''
 }
 
 # Synopsis: Invokes Script Analyzer against the Tests path if it exists
 task AnalyzeTests -After Analyze {
+    Write-Host ''
+    Write-Host '  Pester Test Files: Analyzing...' -ForegroundColor Green
+    Write-Host ''
+
     if (Test-Path -Path $script:TestsPath)
     {
         $scriptAnalyzerParams = @{
-            Path = $script:TestsPath
-            Severity = @('Error', 'Warning')
-            Recurse = $true
-            Verbose = $false
+            Path        = $script:TestsPath
+            ExcludeRule = @(
+                'PSAvoidUsingConvertToSecureStringWithPlainText',
+                'PSUseShouldProcessForStateChangingFunctions'
+                'PSAvoidGlobalVars'
+            )
+            Severity    = @('Error', 'Warning')
+            Recurse     = $true
+            Verbose     = $false
         }
 
         $scriptAnalyzerResults = Invoke-ScriptAnalyzer @scriptAnalyzerParams
 
-        if ($scriptAnalyzerResults) {
+        if ($scriptAnalyzerResults)
+        {
             $scriptAnalyzerResults | Format-Table
             throw 'One or more PSScriptAnalyzer errors/warnings where found.'
         }
     }
+
+    Write-Host ''
+    Write-Host '  Pester Test Files: Passed' -ForegroundColor Green
+    Write-Host ''
 }
 
 # Synopsis: Invokes all Pester Unit Tests in the Tests\Unit folder (if it exists)
 task Test {
+    Write-Host ''
+
+    $codeCoverageOutputFile = Join-Path -Path $script:RepositoryRoot -ChildPath 'cov.xml'
+    $codeCoverageFiles = (Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse).FullName
+
     if (Test-Path -Path $script:UnitTestsPath)
     {
+        Write-Host ''
+        Write-Host '  Pester Unit Tests: Invoking...' -ForegroundColor Green
+        Write-Host ''
+
         $invokePesterParams = @{
-            Path = $script:UnitTestsPath
-            OutputFormat = 'NUnitXml'
-            OutputFile = $script:PesterTestResultsFile
-            Strict = $true
-            PassThru = $true
-            Verbose = $false
-            EnableExit = $false
+            Path                         = 'src\Tests\Unit'
+            Strict                       = $true
+            PassThru                     = $true
+            Verbose                      = $false
+            EnableExit                   = $false
+            CodeCoverage                 = $codeCoverageFiles
+            CodeCoverageOutputFile       = $codeCoverageOutputFile
+            CodeCoverageOutputFileFormat = 'JaCoCo'
         }
 
         # Publish Test Results as NUnitXml
         $testResults = Invoke-Pester @invokePesterParams
 
-        # Output results for AppVeyor
-        if ($env:APPVEYOR_JOB_ID) {
-            $url = "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)"
-            $wc = New-Object -TypeName System.Net.WebClient
-            $wc.UploadFile($url, (Resolve-Path -Path $script:PesterTestResultsFile))
-        }
-
-        # Output results as json for CodeBuild and CloudWatch
-        if ($env:CODEBUILD_BUILD_ARN) {
+        # Output the details for each failed test (if running in CodeBuild)
+        if ($env:CODEBUILD_BUILD_ARN)
+        {
             $testResults.TestResult | ForEach-Object {
-                ConvertTo-Json -InputObject $_ -Compress
+                if ($_.Result -ne 'Passed')
+                {
+                    $_
+                }
             }
         }
 
-        # Trying to fail the build
-        if ($testResults.FailedCount -gt 0) {
-            throw "$($testResults.FailedCount) tests failed."
+        $numberFails = $testResults.FailedCount
+        assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
+
+        # Ensure our builds fail until if below a minimum defined code test coverage threshold
+        try
+        {
+            $coveragePercent = '{0:N2}' -f ($testResults.CodeCoverage.NumberOfCommandsExecuted / $testResults.CodeCoverage.NumberOfCommandsAnalyzed * 100)
         }
+        catch
+        {
+            $coveragePercent = 0
+        }
+
+        assert([Int]$coveragePercent -ge $script:CodeCoverageThreshold) (
+            ('Failed to meet code coverage threshold of {0}% with only {1}% coverage' -f $script:CodeCoverageThreshold, $coveragePercent)
+        )
+
+        Write-Host ''
+        Write-Host '  Pester Unit Tests: Passed' -ForegroundColor Green
     }
+
+    Write-Host ''
+
+    if (Test-Path -Path $script:IntegrationTestsPath)
+    {
+        Write-Host '  Pester Integration Tests: Invoking...' -ForegroundColor Green
+        Write-Host ''
+
+        $invokePesterParams = @{
+            Path       = $script:IntegrationTestsPath
+            Strict     = $true
+            PassThru   = $true
+            Verbose    = $false
+            EnableExit = $false
+        }
+        Write-Host $invokePesterParams.path
+        # Publish Test Results as NUnitXml
+        $testResults = Invoke-Pester @invokePesterParams
+
+        # This will output a nice json for each failed test (if running in CodeBuild)
+        if ($env:CODEBUILD_BUILD_ARN)
+        {
+            $testResults.TestResult | ForEach-Object {
+                if ($_.Result -ne 'Passed')
+                {
+                    ConvertTo-Json -InputObject $_ -Compress
+                }
+            }
+        }
+
+        $numberFails = $testResults.FailedCount
+        assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
+
+        Write-Host ''
+        Write-Host '  Pester Integration Tests: Passed' -ForegroundColor Green
+    }
+
+    Write-Host ''
+}
+
+# Synopsis: Build help files for module
+task CreateHelp CreateHelpStart, CreateMarkdownHelp, CreateExternalHelp, {
+    Write-Host ''
+    Write-Host '  PowerShell Help Related Actions: Completed' -ForegroundColor Green
+    Write-Host ''
+}
+
+task CreateHelpStart {
+    Write-Host ''
+    Write-Host '  PowerShell Help Related Actions: Starting...' -ForegroundColor Green
+    Write-Host ''
+}
+
+# Synopsis: Build help files for module and fail if help information is missing
+task CreateMarkdownHelp {
+    Write-Host ''
+    Write-Host '  Markdown Documentation: Creating...' -ForegroundColor Green
+    Write-Host ''
+
+    $docsPath = Join-Path -Path $script:ArtifactsPath -ChildPath 'docs'
+    $ModuleDocsPath = Join-Path -Path $docsPath -ChildPath "$ModuleName.md"
+
+    $markdownParams = @{
+        Module         = $ModuleName
+        OutputFolder   = $docsPath
+        Force          = $true
+        WithModulePage = $true
+        Locale         = 'en-US'
+        FwLink         = 'NA'
+        HelpVersion    = $script:ModuleVersion
+    }
+    $null = New-MarkdownHelp @markdownParams
+
+    # Replace each missing element we need for a proper generic module page .md file
+    $ModuleDocsPathFileContent = Get-Content -Path $ModuleDocsPath -Raw
+    $ModuleDocsPathFileContent = $ModuleDocsPathFileContent -replace '{{Manually Enter Description Here}}', $script:ModuleDescription
+
+    Write-Host '    Updating function documentation definitions...' -ForegroundColor Green
+    $Script:FunctionsToExport | Foreach-Object {
+        Write-Host "      - $_" -ForegroundColor Green
+
+        $TextToReplace = ('{{Manually Enter {0} Description Here}}' -f $_)
+        $ReplacementText = (Get-Help -Name $_ -Detailed).Synopsis
+        $ModuleDocsPathFileContent = $ModuleDocsPathFileContent -replace $TextToReplace, $ReplacementText
+    }
+
+    $ModuleDocsPathFileContent | Out-File -FilePath $ModuleDocsPath -Force -Encoding:utf8
+
+    $MissingDocumentation = Select-String -Path (Join-Path -Path $docsPath -ChildPath '\*.md') -Pattern '({{.*}})'
+    if ($MissingDocumentation.Count -gt 0)
+    {
+        Write-Host -ForegroundColor Yellow ''
+        Write-Host -ForegroundColor Yellow '   The documentation that got generated resulted in missing sections which should be filled out.'
+        Write-Host -ForegroundColor Yellow '   Please review the following sections in your comment based help, fill out missing information and rerun this build:'
+        Write-Host -ForegroundColor Yellow '   (Note: This can happen if the .EXTERNALHELP CBH is defined for a function before running this build.)'
+        Write-Host ''
+        Write-Host -ForegroundColor Yellow "Path of files with issues: $($script:ArtifactsPath)\docs\"
+        Write-Host ''
+        $MissingDocumentation | Select-Object FileName, Line, LineNumber | Format-Table -AutoSize
+        Write-Host -ForegroundColor Yellow ''
+
+        throw 'Missing documentation. Please review and rebuild.'
+    }
+
+    Write-Host ''
+    Write-Host '  Markdown Documentation: Complete' -ForegroundColor Green
+    Write-Host ''
+}
+
+# Synopsis: Build the external xml help file from markdown help files with PlatyPS
+task CreateExternalHelp {
+    Write-Host ''
+    Write-Host '  External XML Help Files: Creating...' -ForegroundColor Green
+    Write-Host ''
+
+    $newExternalHelp = @{
+        Path       = Join-Path -Path $script:ArtifactsPath -ChildPath 'docs'
+        OutputPath = Join-Path -Path $script:ArtifactsPath -ChildPath 'en-US'
+        Encoding   = [System.Text.Encoding]::UTF8
+    }
+    $null = New-ExternalHelp @newExternalHelp
+
+    Write-Host ''
+    Write-Host '  External XML Help Files: Complete' -ForegroundColor Green
+    Write-Host ''
+}
+
+# Synopsis: Replace comment based help (CBH) with external help in all public functions for this project
+# Commented out the "-Before Build" state to prevent help comment based help being updated.
+#task UpdateCBH -Before Build {
+task UpdateCBH {
+    Write-Host ''
+    Write-Host '  Comment Based Help: Updating...' -ForegroundColor Green
+    Write-Host ''
+
+    $copyItem = @{
+        Path        = "$script:ModuleSourcePath\*"
+        Destination = $script:ArtifactsPath
+        Exclude     = @('*.psd1', '*.psm1')
+        Recurse     = $true
+        ErrorAction = 'Stop'
+    }
+    Copy-Item @copyItem
+
+    $externalHelp = @"
+<#
+.EXTERNALHELP $($ModuleName)-help.xml
+#>
+"@
+
+    Write-Host '    Replacing Comment Based Help...' -ForegroundColor Green
+
+    $regex = "(?ms)(\<#.*\.SYNOPSIS.*?#>)"
+    $publicFunctionFiles = [System.IO.Path]::Combine($script:ArtifactsPath, 'Public', '*.ps1')
+    Get-ChildItem -Path $publicFunctionFiles -File | ForEach-Object {
+        Write-Host ('      - {0}' -f $_.Name) -ForegroundColor Green
+        $UpdatedFile = (Get-Content -Path $_.FullName -Raw) -replace $regex, $externalHelp
+        $UpdatedFile | Out-File -FilePath $_.FullName -Force -Encoding:utf8
+    }
+
+    Write-Host ''
+    Write-Host '  Comment Based Help: Updated' -ForegroundColor Green
+    Write-Host ''
 }
 
 # Synopsis: Builds the Module to the Artifacts folder
 task Build {
-    Copy-Item -Path $script:ModuleFiles -Destination $script:ArtifactsPath -Recurse -ErrorAction Stop
+    Write-Host ''
+    Write-Host '  Module Build: Starting...' -ForegroundColor Green
+    Write-Host ''
+
+    Write-Host '    Copying files to artifacts folder' -ForegroundColor Green
+    Copy-Item -Path $script:ModuleManifestFile -Destination $script:ArtifactsPath -Recurse -ErrorAction Stop
 
     Write-Host '    Combining scripts into the module root file' -ForegroundColor Green
     $scriptContent = [System.Text.StringBuilder]::new()
 
     # TO DO: Add support for Requires Statements by finding them and placing them at the top of the newly created .psm1
-    $powerShellScripts = Get-ChildItem -Path $script:ArtifactsPath -Filter '*.ps1' -Recurse
+    $powerShellScripts = Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse
     foreach ($script in $powerShellScripts)
     {
         $null = $scriptContent.Append((Get-Content -Path $script.FullName -Raw))
@@ -149,114 +445,20 @@ task Build {
     $scriptContent.ToString() | Out-File -FilePath $script:BuildModuleRootFile -Encoding utf8 -Force
 
     Write-Host '    Clearing temporary files' -ForegroundColor Green
+    Get-Item -Path "$script:ArtifactsPath\Private" -ErrorAction 'SilentlyContinue' | Remove-Item -Recurse -Force -ErrorAction Stop
     Get-Item -Path "$script:ArtifactsPath\Public" -ErrorAction 'SilentlyContinue' | Remove-Item -Recurse -Force -ErrorAction Stop
+
+    Write-Host ''
+    Write-Host '  Module Build: Complete' -ForegroundColor Green
+    Write-Host ''
 }
 
-task BuildDocs {
-    # Only build the docs if running an AppVeyor Job and branch is master
-    # Temporary commenting this out due to a PlatyPS issue: https://github.com/PowerShell/platyPS/issues/180
-    #if (($env:APPVEYOR_JOB_ID -and $env:APPVEYOR_REPO_BRANCH -eq 'master') -or $env:USERNAME -eq 'andrew') {
+# Synopsis: Creates a Module Artifact
+task CreateArtifact {
+    Write-Host ''
+    Write-Host '  Artifact: Creating...' -ForegroundColor Green
+    Write-Host ''
 
-    # Allow this to build on my workstation and not on a build service
-    if ($env:USERNAME -eq 'andrew') {
-        # This step is converted from Mark Kraus' PSMSGraph psake build file
-
-        "Loading Module from $($script:ModuleManifestFile)"
-        Remove-Module $script:ModuleManifestFile -Force -ErrorAction SilentlyContinue
-        # platyPS + AppVeyor requires the module to be loaded in Global scope
-        Import-Module $script:ModuleManifestFile -Force -Global
-
-        # Build YAMLText starting with the header
-        $YMLtext = (Get-Content "$BuildRoot\header-mkdocs.yml") -join "`n"
-        $YMLtext = "$YMLtext`n"
-
-        $parameters = @{
-            Path = $script:ReleaseNotes
-            ErrorAction = 'SilentlyContinue'
-        }
-        $ReleaseText = (Get-Content @parameters) -join "`n"
-        if ($ReleaseText) {
-            $ReleaseText | Set-Content "$BuildRoot\docs\RELEASE.md"
-            $YMLText = "$YMLtext  - Release Notes: RELEASE.md`n"
-        }
-
-        $parameters = @{
-            Path = $script:ChangeLog
-            ErrorAction = 'SilentlyContinue'
-        }
-        $ChangeLogText = (Get-Content @parameters) -join "`n"
-        if ($ChangeLogText) {
-            $ChangeLogText | Set-Content "$BuildRoot\docs\CHANGELOG.md"
-            $YMLText = "$YMLtext  - Change Log: CHANGELOG.md`n"
-        }
-
-        $YMLText = "$YMLtext  - Functions:`n"
-
-        # Remove previous function docs
-        $parameters = @{
-            Recurse = $true
-            Force = $true
-            Path = "$BuildRoot\docs\functions"
-            ErrorAction = 'SilentlyContinue'
-        }
-        $null = Remove-Item @parameters
-        $Params = @{
-            Path = "$BuildRoot\docs\functions"
-            type = 'directory'
-            ErrorAction = 'SilentlyContinue'
-        }
-        $null = New-Item @Params
-
-        $Params = @{
-            Module = $script:ModuleName
-            Force = $true
-            OutputFolder = "$BuildRoot\docs\functions"
-            NoMetadata = $true
-        }
-        New-MarkdownHelp @Params | foreach-object {
-            $Function = $_.Name -replace '\.md', ''
-            $Part = "    - {0}: functions/{1}" -f $Function, $_.Name
-            $YMLText = "{0}{1}`n" -f $YMLText, $Part
-            $Part
-        }
-        $YMLtext | Set-Content -Path "$BuildRoot\mkdocs.yml"
-    }
-}
-
-# Synopsis: Increments the Module Manifest version
-task IncrementVersion {
-    # Environmental Variables Guide: https://www.appveyor.com/docs/environment-variables/
-    if ($env:APPVEYOR_REPO_BRANCH -ne 'master')
-    {
-        $script:NewVersion = $script:Version
-        Write-Warning -Message "Skipping version increment and publish for branch $env:APPVEYOR_REPO_BRANCH"
-    }
-    elseif ($env:APPVEYOR_PULL_REQUEST_NUMBER -gt 0)
-    {
-        $script:NewVersion = $script:Version
-        Write-Warning -Message "Skipping version increment and publish for pull request #$env:APPVEYOR_PULL_REQUEST_NUMBER"
-    }
-    elseif ([string]::IsNullOrWhiteSpace($env:APPVEYOR_BUILD_VERSION)) {
-        $script:NewVersion = $script:Version
-        Write-Warning -Message 'Skipping version increment and publish as no APPVEYOR_BUILD_VERSION environment variable found'
-    }
-    else
-    {
-        $artifactManifest = Join-Path -Path $script:ArtifactsPath -ChildPath ('{0}.psd1' -f $script:ModuleName)
-        if (-not (Test-Path -Path $artifactManifest)) { break }
-
-        # The AppVeyor version from appveyor.yml provides the Module Version
-        $script:NewVersion = $env:APPVEYOR_BUILD_VERSION
-
-        "Current Version $($script:Version)"
-        "New Version $($script:NewVersion)"
-
-        Update-ModuleManifest -Path $artifactManifest -ModuleVersion $script:NewVersion
-    }
-}
-
-# Synopsis: Creates an archive of the built Module
-task Archive {
     $archivePath = Join-Path -Path $BuildRoot -ChildPath 'Archive'
     if (Test-Path -Path $archivePath)
     {
@@ -265,10 +467,55 @@ task Archive {
 
     $null = New-Item -Path $archivePath -ItemType Directory -Force
 
-    $childPath = '{0}_{1}_{2}.{3}.zip' -f $script:ModuleName, $script:NewVersion.ToString(), ([DateTime]::UtcNow.ToString("yyyyMMdd")), ([DateTime]::UtcNow.ToString("hhmmss"))
-    $zipFile = Join-Path -Path $archivePath -ChildPath $childPath
+    if ($env:CODEBUILD_BUILD_ARN -like '*linux*')
+    {
+        $platform = 'linux'
+    }
+    else
+    {
+        $platform = 'windows'
+    }
 
-    $filesToArchive = Join-Path -Path $script:ArtifactsPath -ChildPath '*'
+    Write-Host ('    Module Name:       {0}' -f $script:ModuleName) -ForegroundColor Green
+    Write-Host ('    Module Version:    {0}' -f $script:ModuleVersion) -ForegroundColor Green
+    $ymd = [DateTime]::UtcNow.ToString('yyyyMMdd')
+    $hms = [DateTime]::UtcNow.ToString('hhmmss')
+    $script:ZipFileName = '{0}_{1}_{2}.{3}.zip' -f $script:ModuleName, $script:ModuleVersion, $ymd, $hms
+    $script:ZipFileNameWithPlatform = '{0}_{1}_{2}.{3}.{4}.zip' -f $script:ModuleName, $script:ModuleVersion, $ymd, $hms, $platform
+    $script:ZipFile = Join-Path -Path $archivePath -ChildPath $script:ZipFileName
 
-    Compress-Archive -Path $filesToArchive -DestinationPath $zipFile
+    if ($PSEdition -eq 'Desktop')
+    {
+        Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
+    }
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($script:ArtifactsPath, $script:ZipFile)
+    Write-Host "    Archive FileName:  $script:ZipFileName" -ForegroundColor Green
+
+    if ($env:CODEBUILD_WEBHOOK_HEAD_REF -and $env:CODEBUILD_WEBHOOK_TRIGGER)
+    {
+        Write-Host ('    This was a WebHook triggered build: {0}' -f $env:CODEBUILD_WEBHOOK_TRIGGER)
+        if ($env:CODEBUILD_WEBHOOK_HEAD_REF -eq 'refs/heads/master' -and $env:CODEBUILD_WEBHOOK_TRIGGER -eq 'branch/master')
+        {
+            $s3Bucket = $env:ARTIFACT_BUCKET
+        }
+        else
+        {
+            $s3Bucket = $env:DEVELOPMENT_ARTIFACT_BUCKET
+        }
+
+        $branch = $env:CODEBUILD_WEBHOOK_TRIGGER.Replace('branch/', '')
+
+        $s3Key = '{0}/{1}/{2}' -f $script:ModuleName, $branch, $script:ZipFileNameWithPlatform
+        $writeS3Object = @{
+            BucketName = $s3Bucket
+            Key = $s3Key
+            File = $script:ZipFile
+        }
+        Write-S3Object @writeS3Object
+        Write-Host ('    Published artifact to s3://{0}/{1}' -f $s3Bucket, $s3Key)
+    }
+
+    Write-Host ''
+    Write-Host '  Artifact: Created' -ForegroundColor Green
+    Write-Host ''
 }

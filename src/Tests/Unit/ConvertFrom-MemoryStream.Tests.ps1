@@ -1,6 +1,12 @@
-$function = 'ConvertFrom-MemoryStream'
-if (Get-Module -Name 'Convert') {Remove-Module -Name 'Convert'}
-Import-Module "$PSScriptRoot/../../Convert/Convert.psd1"
+$moduleName = 'Convert'
+$function = $MyInvocation.MyCommand.Name.Split('.')[0]
+
+$pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
+if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue')
+{
+    Remove-Module -Name $moduleName -Force
+}
+Import-Module $pathToManifest -Force
 
 Describe -Name $function -Fixture {
 

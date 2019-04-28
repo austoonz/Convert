@@ -44,5 +44,5 @@ test_script:
   - ps: $ErrorActionPreference = 'Stop'
   - ps: Invoke-Build
 
-on_success:
-  - ps: Invoke-Expression .\appveyor_success.ps1
+#on_success:
+#  - ps: Invoke-Expression .\appveyor_success.ps1
