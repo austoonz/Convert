@@ -36,7 +36,7 @@ init:
 
 install:
   - ps: Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
-  - ps: Install-Module -Name InvokeBuild,posh-git,Pester,platyPS,PSDepend,PSScriptAnalyzer -Force
+  - ps: Install-Module -Name AWSPowerShell,InvokeBuild,posh-git,Pester,platyPS,PSDepend,PSScriptAnalyzer -Force
 
 build: false
 
