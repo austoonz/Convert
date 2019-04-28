@@ -20,7 +20,7 @@ matrix:
             - powershell
 
 install:
-  - pwsh -c 'Install-Module -Name InvokeBuild,Pester,PSScriptAnalyzer -Scope CurrentUser -Force'
+  - pwsh -c 'Install-Module -Name InvokeBuild,Pester,platyPS,PSScriptAnalyzer -Scope CurrentUser -Force'
 
 script:
   - pwsh -c 'Invoke-Build'
