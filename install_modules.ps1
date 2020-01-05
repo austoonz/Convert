@@ -40,7 +40,7 @@ $installModule = @{
 $installedModule = Get-Module -ListAvailable
 
 'Installing NuGet Dependency'
-$null = Install-PackageProvider -Name 'NuGet' -MinimumVersion '2.8.5.201' -Force -Scope 'CurrentUser'
+$null = Install-PackageProvider -Name 'NuGet' -MinimumVersion '2.8.5.201' -Force -Scope 'CurrentUser' -ErrorAction 'SilentlyContinue'
 
 'Installing PowerShell Modules'
 foreach ($module in $modulesToInstall) {
