@@ -52,12 +52,29 @@ Enter-Build {
         {
             Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
         }
+        elseif (Get-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ListAvailable)
+        {
+            Import-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ErrorAction 'Stop'
+        }
         else
         {
-            throw 'The "AWSPowerShell" or "AWSPowerShell.NetCore" module must be available for import.'
+            throw 'One of the AWS Tools for PowerShell modules must be available for import.'
         }
     }
-    else { Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop' }
+    else {
+        if (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable)
+        {
+            Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
+        }
+        elseif (Get-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ListAvailable)
+        {
+            Import-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ErrorAction 'Stop'
+        }
+        else
+        {
+            throw 'One of the AWS Tools for PowerShell modules must be available for import.'
+        }
+    }
 
     Write-Host '    - Importing the Pester Module...' -ForegroundColor Green
     Import-Module -Name 'Pester' -ErrorAction 'Stop'
