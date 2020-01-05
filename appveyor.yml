@@ -49,27 +49,21 @@ for:
     init:
       - ps: $PSVersionTable
       - ps: 'Write-Host "Current Location: $(Get-Location)"'
-      - ps: Write-Host $env:PSModulePath
-      - ps: Get-Module -ListAvailable | Select-Object -Property Name,Version | Format-Table
+      - ps: Get-Module -ListAvailable | Select-Object -Property Name,Version | Sort-Object -Property Name | Format-Table
     install:
-      - ps: Install-Module -Name @('AWSPowerShell','InvokeBuild','Pester','platyPS','PSScriptAnalyzer') -Force -ErrorAction 'Stop' -AllowClobber -Scope 'CurrentUser' -SkipPublisherCheck
+      - ps: '& ./install_modules.ps1'
     test_script:
-      - ps: $ErrorActionPreference = 'Stop'
       - ps: Invoke-Build
 
 build: off
-
 init:
   - pwsh: '& git config --global core.autocrlf true'
   - pwsh: $PSVersionTable
-  - pwsh: Write-Host $env:PSModulePath
-  - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version | Format-Table
-
+  - pwsh: 'Write-Host "Current Location: $(Get-Location)"'
+  - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version | Sort-Object -Property Name | Format-Table
 install:
-  - pwsh: Install-Module -Name @('AWS.Tools.Common','AWS.Tools.S3','InvokeBuild','Pester','platyPS','PSScriptAnalyzer') -Force -ErrorAction 'Stop' -AllowClobber -Scope 'CurrentUser' -SkipPublisherCheck
-
+  - pwsh: '& ./install_modules.ps1'
 test_script:
-  - pwsh: $ErrorActionPreference = 'Stop'
   - pwsh: Invoke-Build
 
 #on_success:
