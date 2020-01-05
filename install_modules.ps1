@@ -4,6 +4,7 @@
     It has a dependency on the PowerShell Gallery.
 #>
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 $VerbosePreference = 'SilentlyContinue'
 
 # List of PowerShell Modules required for the build
