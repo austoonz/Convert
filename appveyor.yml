@@ -47,7 +47,7 @@ for:
         - image: Visual Studio 2017
     init:
       - ps: $PSVersionTable
-      - ps: "Current Location: $(Get-Location)"
+      - ps: 'Write-Host "Current Location: $(Get-Location)"'
       - ps: Get-Module -ListAvailable | Select-Object -Property Name,Version,Path
     install:
       - ps: if ($PSVersionTable.PSEdition -eq 'Desktop') {$env:CLONE_FOLDER = 'C:\projects\convert'}
@@ -63,7 +63,7 @@ for:
 init:
   - pwsh: '& git config --global core.autocrlf true'
   - pwsh: $PSVersionTable
-  - pwsh: "Current Location: $(Get-Location)"
+  - pwsh: 'Write-Host "Current Location: $(Get-Location)"'
   - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version,Path
 
 install:
