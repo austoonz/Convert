@@ -47,24 +47,38 @@ for:
         - image: Visual Studio 2017
     init:
       - ps: $PSVersionTable
+      - ps: "Current Location: $(Get-Location)"
       - ps: Get-Module -ListAvailable | Select-Object -Property Name,Version,Path
     install:
+      - ps: if ($PSVersionTable.PSEdition -eq 'Desktop') {$env:CLONE_FOLDER = 'C:\projects\convert'}
+      - ps: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.Platform -eq 'Win32NT') {$env:CLONE_FOLDER = 'C:\projects\convert'}
+      - ps: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.OS -like 'Linux*') {$env:CLONE_FOLDER = '/home/appveyor/projects/convert'}
+      - ps: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.OS -like 'Darwin*') {$env:CLONE_FOLDER = '/Users/appveyor/projects/convert'}
+      - ps: Set-Location -Path $env:CLONE_FOLDER
       - ps: '& install_modules.ps1'
-    build_script:
+    test_script:
+      - ps: Set-Location -Path $env:CLONE_FOLDER
       - ps: Invoke-Build
 
 init:
   - pwsh: '& git config --global core.autocrlf true'
   - pwsh: $PSVersionTable
+  - pwsh: "Current Location: $(Get-Location)"
   - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version,Path
 
 install:
+  - pwsh: if ($PSVersionTable.PSEdition -eq 'Desktop') {$env:CLONE_FOLDER = 'C:\projects\convert'}
+  - pwsh: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.Platform -eq 'Win32NT') {$env:CLONE_FOLDER = 'C:\projects\convert'}
+  - pwsh: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.OS -like 'Linux*') {$env:CLONE_FOLDER = '/home/appveyor/projects/convert'}
+  - pwsh: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.OS -like 'Darwin*') {$env:CLONE_FOLDER = '/Users/appveyor/projects/convert'}
+  - pwsh: Set-Location -Path $env:CLONE_FOLDER
   - pwsh: '& install_modules.ps1'
 
 #build: off
 
 test_script:
   - pwsh: $ErrorActionPreference = 'Stop'
+  - pwsh: Set-Location -Path $env:CLONE_FOLDER
   - pwsh: Invoke-Build
 
 #on_success:
