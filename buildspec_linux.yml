@@ -4,6 +4,7 @@ phases:
 
   install:
     commands:
+      - pwsh -command '$PSVersionTable'
       - pwsh -command './configure_aws_credential.ps1'
       - pwsh -command './install_modules.ps1'
 

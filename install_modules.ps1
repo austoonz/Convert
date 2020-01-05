@@ -37,24 +37,29 @@ $installModule = @{
     SkipPublisherCheck = $true
 }
 
-$installedModule = Get-Module -ListAvailable
+$installedModules = Get-Module -ListAvailable
 
-'Installing NuGet Dependency'
 $null = Install-PackageProvider -Name 'NuGet' -MinimumVersion '2.8.5.201' -Force -Scope 'CurrentUser' -ErrorAction 'SilentlyContinue'
 
-'Installing PowerShell Modules'
 foreach ($module in $modulesToInstall) {
     Write-Host ('  - {0} {1}' -f $module.ModuleName, $module.ModuleVersion)
 
-    if ($module.ModuleName -like 'AWS.Tools.*' -and $installedModule.Where({$_.Name -like 'AWSPowerShell*'})) {
+    if ($module.ModuleName -like 'AWS.Tools.*' -and $installedModules.Where({$_.Name -like 'AWSPowerShell*'})) {
         Write-Host '      A legacy AWS PowerShell module is installed. Skipping...'
         continue
     }
 
-    if ($installedModule.Where({$_.Name -eq $module.ModuleName -and $_.Version -eq $module.ModuleVersion})) {
+    if ($installedModules.Where({$_.Name -eq $module.ModuleName -and $_.Version -eq $module.ModuleVersion})) {
         Write-Host ('      Already installed. Skipping...' -f $module.ModuleName)
         continue
     }
 
-    Install-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion @installModule
+    # Override AWS Tools for PowerShell on Desktop edition
+    if ($PSVersionTable.PSEdition -eq 'Desktop' -and $module.ModuleName -like 'AWS.Tools.*') {
+        Install-Module -Name 'AWSPowerShell' -RequiredVersion $module.ModuleVersion @installModule
+        $installedModules = Get-Module -ListAvailable
+    }
+    else {
+        Install-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion @installModule
+    }
 }
