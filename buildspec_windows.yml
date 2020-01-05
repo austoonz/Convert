@@ -1,9 +1,5 @@
 version: 0.2
 
-env:
-  variables:
-    POWERSHELL_MSI: PowerShell-6.2.3-win-x64.msi
-
 phases:
 
   install:
@@ -13,8 +9,8 @@ phases:
       - powershell -command '.\install_modules.ps1'
 
       # Install PowerShell Core
-      - aws s3 cp s3://austoonz-software/$POWERSHELL_MSI $POWERSHELL_MSI --quiet
-      - powershell -command "Start-Process -FilePath .\$env:POWERSHELL_MSI -ArgumentList '/qn /norestart' -Wait"
+      - aws s3 cp s3://austoonz-software/PowerShell-6.2.3-win-x64.msi PowerShell-6.2.3-win-x64.msi --quiet
+      - powershell -command "Start-Process -FilePath .\PowerShell-6.2.3-win-x64.msi -ArgumentList '/qn /norestart' -Wait"
       - '& "C:\Program Files\PowerShell\6\pwsh.exe" -command ''$PSVersionTable'''
       - '& "C:\Program Files\PowerShell\6\pwsh.exe" -command ''.\install_modules.ps1'''
 
