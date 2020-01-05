@@ -56,9 +56,13 @@ Describe -Name $function -Fixture {
             {
                 $expected = 'H4sIAAAAAAAACwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             }
-            elseif ($IsMacOS -or $IsLinux)
+            elseif ($IsLinux)
             {
                 $expected = 'H4sIAAAAAAAAAwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            }
+            elseif ($IsMacOS)
+            {
+                $expected = 'H4sIAAAAAAAAEwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             }
             else
             {
