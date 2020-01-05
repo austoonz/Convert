@@ -4,12 +4,6 @@
 
 # Secure Keys
 environment:
-  AWS_REGION:
-    secure: TpI8eZAA7xTwppMUnUWS4Q==
-  AWS_ACCESS_KEY_ID:
-    secure: yJis6I3pszTK31O9zFy0CyF5olds8dOSezJlo1Zw+ck=
-  AWS_SECRET_ACCESS_KEY:
-    secure: OFWhVroAO+2nqG6zGnS1a/1QueNA6ZRf80eqHy64FbOZ3poeSsjS/zD05/vzSyee
   GitHubKey:
     secure: 8rcm5QQdAIatmWWsxw1Evd3mw4p3GkjcVyIMShjY2mmIrOS546w0coB95z5FGLh0
   NuGetApiKey:
