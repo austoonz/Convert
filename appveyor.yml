@@ -10,10 +10,14 @@ environment:
     secure: 8rcm5QQdAIatmWWsxw1Evd3mw4p3GkjcVyIMShjY2mmIrOS546w0coB95z5FGLh0
 
 # Allow WMF5 (i.e. PowerShellGallery functionality)
-os: WMF 5
+image:
+  - Visual Studio 2017
+  - Visual Studio 2019
+  - Ubuntu1804
+  - macos
 
 # Version number
-version: 0.3.{build}
+version: 0.4.{build}
 
 # There's no need to alter the build number for a Pull Request (PR) since they don't modify anything
 pull_requests:
@@ -31,18 +35,31 @@ skip_commits:
     - RELEASE.md
   message: /updated readme.*|update readme.*s|update docs.*|update version.*|update appveyor.*|skip ci/
 
+for:
+  - matrix:
+      only:
+        - image: Visual Studio 2017
+    init:
+      - ps: $PSVersionTable
+    install:
+      - ps: Install-PackageProvider -Name 'NuGet' -MinimumVersion '2.8.5.201' -Force | Out-Null
+      - ps: Install-Module -Name AWSPowerShell,InvokeBuild,posh-git,Pester,platyPS,PSScriptAnalyzer -Force -SkipPublisherCheck
+    build_script:
+      - ps: Invoke-Build -File .\src\<%=$PLASTER_PARAM_ModuleName%>.build.ps1
+
 init:
-  - git config --global core.autocrlf true
+  - pwsh: '& git config --global core.autocrlf true'
+  - pwsh: $PSVersionTable
 
 install:
-  - ps: Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
-  - ps: Install-Module -Name AWSPowerShell,InvokeBuild,posh-git,Pester,platyPS,PSScriptAnalyzer -Force -SkipPublisherCheck
+  - ps: Install-PackageProvider -Name 'NuGet' -MinimumVersion '2.8.5.201' -Force | Out-Null
+  - ps: Install-Module -Name AWSPowerShell.NetCore,InvokeBuild,posh-git,Pester,platyPS,PSScriptAnalyzer -Force -SkipPublisherCheck
 
-build: false
+#build: off
 
 test_script:
-  - ps: $ErrorActionPreference = 'Stop'
-  - ps: Invoke-Build
+  - pwsh: $ErrorActionPreference = 'Stop'
+  - pwsh: Invoke-Build
 
 #on_success:
 #  - ps: Invoke-Expression .\appveyor_success.ps1
