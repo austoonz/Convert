@@ -49,6 +49,30 @@ $null = $modulesToInstall.Add(([PSCustomObject]@{
     KeyPrefix     = ''
 }))
 
+
+if ($PSEdition -eq 'Desktop')
+{
+    'Environment: Windows PowerShell'
+    $moduleInstallPath = [System.IO.Path]::Combine($env:ProgramFiles, 'WindowsPowerShell', 'Modules')
+}
+else
+{
+    if ($PSVersionTable.Platform -eq 'Win32NT')
+    {
+        'Environment: PowerShell Core on Windows'
+        $moduleInstallPath = [System.IO.Path]::Combine($env:ProgramFiles, 'PowerShell', 'Modules')
+    }
+    elseif ($PSVersionTable.Platform -eq 'Unix')
+    {
+        'Environment: Unix'
+        $moduleInstallPath = [System.IO.Path]::Combine('/', 'usr', 'local', 'share', 'powershell', 'Modules')
+    }
+    else
+    {
+        throw 'Unsupported PowerShell Environment'
+    }
+}
+
 'Installing PowerShell Modules'
 foreach ($module in $modulesToInstall) {
     '  - {0} {1}' -f $module.ModuleName, $module.ModuleVersion
