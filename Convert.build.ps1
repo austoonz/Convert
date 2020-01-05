@@ -42,22 +42,9 @@ Enter-Build {
     Write-Host ''
     Write-Host '  Build Environment: Setting up...' -ForegroundColor Green
 
-    Write-Host '    - Importing the AWS PowerShell Module...' -ForegroundColor Green
-    if ($PSEdition -eq 'Desktop') {
-        if (Get-Module -Name 'AWSPowerShell' -ListAvailable)
-        {
-            Import-Module -Name 'AWSPowerShell' -ErrorAction 'Stop'
-        }
-        elseif (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable)
-        {
-            Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
-        }
-        else
-        {
-            throw 'The "AWSPowerShell" or "AWSPowerShell.NetCore" module must be available for import.'
-        }
-    }
-    else { Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop' }
+    Write-Host '    - Importing the AWS Tools for PowerShell...' -ForegroundColor Green
+    Import-Module -Name 'AWS.Tools.Common' -ErrorAction 'Stop'
+    Import-Module -Name 'AWS.Tools.S3' -ErrorAction 'Stop'
 
     Write-Host '    - Importing the Pester Module...' -ForegroundColor Green
     Import-Module -Name 'Pester' -ErrorAction 'Stop'
