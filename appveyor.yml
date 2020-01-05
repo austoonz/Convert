@@ -45,39 +45,32 @@ for:
   - matrix:
       only:
         - image: Visual Studio 2017
+    build: off
     init:
       - ps: $PSVersionTable
       - ps: 'Write-Host "Current Location: $(Get-Location)"'
       - ps: Write-Host $env:PSModulePath
-      - ps: Get-Module -ListAvailable | Select-Object -Property Name,Version,Path
+      - ps: Get-Module -ListAvailable | Select-Object -Property Name,Version | Format-Table
     install:
-      - ps: Install-Module -Name @('AWSPowerShell','InvokeBuild','Pester','platyPS','PSScriptAnalyzer') -Force -ErrorAction 'Stop' -AllowClobber -Scope 'CurrentUser'
+      - ps: Install-Module -Name @('AWSPowerShell','InvokeBuild','Pester','platyPS','PSScriptAnalyzer') -Force -ErrorAction 'Stop' -AllowClobber -Scope 'CurrentUser' -SkipPublisherCheck
     test_script:
-      - ps: if ($PSVersionTable.PSEdition -eq 'Desktop') {$env:CLONE_FOLDER = 'C:\projects\convert'}
-      - ps: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.Platform -eq 'Win32NT') {$env:CLONE_FOLDER = 'C:\projects\convert'}
-      - ps: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.OS -like 'Linux*') {$env:CLONE_FOLDER = '/home/appveyor/projects/convert'}
-      - ps: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.OS -like 'Darwin*') {$env:CLONE_FOLDER = '/Users/appveyor/projects/convert'}
-      - ps: 'Set-Location -Path $env:CLONE_FOLDER; Invoke-Build'
+      - ps: $ErrorActionPreference = 'Stop'
+      - ps: Invoke-Build
+
+build: off
 
 init:
   - pwsh: '& git config --global core.autocrlf true'
   - pwsh: $PSVersionTable
-  - pwsh: 'Write-Host "Current Location: $(Get-Location)"'
   - pwsh: Write-Host $env:PSModulePath
-  - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version,Path
+  - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version | Format-Table
 
 install:
-  - pwsh: Install-Module -Name @('AWSPowerShell.NetCore','InvokeBuild','Pester','platyPS','PSScriptAnalyzer') -Force -ErrorAction 'Stop' -AllowClobber -Scope 'CurrentUser'
-
-#build: off
+  - pwsh: Install-Module -Name @('AWS.Tools.Common','AWS.Tools.S3','InvokeBuild','Pester','platyPS','PSScriptAnalyzer') -Force -ErrorAction 'Stop' -AllowClobber -Scope 'CurrentUser' -SkipPublisherCheck
 
 test_script:
   - pwsh: $ErrorActionPreference = 'Stop'
-  - pwsh: if ($PSVersionTable.PSEdition -eq 'Desktop') {$env:CLONE_FOLDER = 'C:\projects\convert'}
-  - pwsh: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.Platform -eq 'Win32NT') {$env:CLONE_FOLDER = 'C:\projects\convert'}
-  - pwsh: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.OS -like 'Linux*') {$env:CLONE_FOLDER = '/home/appveyor/projects/convert'}
-  - pwsh: if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.OS -like 'Darwin*') {$env:CLONE_FOLDER = '/Users/appveyor/projects/convert'}
-  - pwsh: 'Set-Location -Path $env:CLONE_FOLDER; Invoke-Build'
+  - pwsh: Invoke-Build
 
 #on_success:
 #  - ps: Invoke-Expression .\appveyor_success.ps1
