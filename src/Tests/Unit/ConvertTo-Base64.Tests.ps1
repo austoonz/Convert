@@ -52,9 +52,13 @@ Describe -Name $function -Fixture {
             {
                 $expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             }
-            elseif ($IsWindows -and $IsCoreCLR)
+            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6)
             {
                 $expected = 'H4sIAAAAAAAACwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            }
+            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7)
+            {
+                $expected = 'H4sIAAAAAAAACgthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             }
             elseif ($IsLinux)
             {

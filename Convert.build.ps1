@@ -42,7 +42,7 @@ Enter-Build {
     Write-Host ''
     Write-Host '  Build Environment: Setting up...' -ForegroundColor Green
 
-    Write-Host '    - Importing the AWS PowerShell Module...' -ForegroundColor Green
+    Write-Host '    - Importing the AWS Tools for PowerShell...' -ForegroundColor Green
     if ($PSEdition -eq 'Desktop') {
         if (Get-Module -Name 'AWSPowerShell' -ListAvailable)
         {
@@ -496,21 +496,28 @@ task CreateArtifact {
         $platform = 'windows'
     }
 
-    Write-Host ('    Module Name:       {0}' -f $script:ModuleName) -ForegroundColor Green
-    Write-Host ('    Module Version:    {0}' -f $script:ModuleVersion) -ForegroundColor Green
+    Write-Host ('    Module Name:          {0}' -f $script:ModuleName) -ForegroundColor Green
+    Write-Host ('    Module Version:       {0}' -f $script:ModuleVersion) -ForegroundColor Green
     $ymd = [DateTime]::UtcNow.ToString('yyyyMMdd')
     $hms = [DateTime]::UtcNow.ToString('hhmmss')
+
     $script:ZipFileName = '{0}_{1}_{2}.{3}.zip' -f $script:ModuleName, $script:ModuleVersion, $ymd, $hms
     $script:ZipFileNameWithPlatform = '{0}_{1}_{2}.{3}.{4}.zip' -f $script:ModuleName, $script:ModuleVersion, $ymd, $hms, $platform
     $script:ZipFile = Join-Path -Path $archivePath -ChildPath $script:ZipFileName
+
+    $script:DeploymentArtifactFileName = '{0}_{1}.zip' -f $script:ModuleName, $script:ModuleVersion
+    $script:DeploymentArtifact = Join-Path -Path $script:DeploymentArtifactsPath -ChildPath $script:DeploymentArtifactFileName
 
     if ($PSEdition -eq 'Desktop')
     {
         Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
     }
     [System.IO.Compression.ZipFile]::CreateFromDirectory($script:ArtifactsPath, $script:ZipFile)
-    Write-Host "    Archive FileName:  $script:ZipFileName" -ForegroundColor Green
+    Write-Host "    Archive FileName:     $script:ZipFileName" -ForegroundColor Green
 
+    Copy-Item -Path $script:ZipFile -Destination $script:DeploymentArtifact
+    Write-Host '    Deployment Artifact:  Created' -ForegroundColor Green
+    
     if ($env:CODEBUILD_WEBHOOK_HEAD_REF -and $env:CODEBUILD_WEBHOOK_TRIGGER)
     {
         Write-Host ('    This was a WebHook triggered build: {0}' -f $env:CODEBUILD_WEBHOOK_TRIGGER)
