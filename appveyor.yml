@@ -4,10 +4,16 @@
 
 # Secure Keys
 environment:
-  NuGetApiKey:
-    secure: He4qQ4jNoO9z4GBTLKnok4HoPOJBKnVnRgVbOEJYtEvueiHivUB5NDxw3Ebzt2Ck
+  AWS_REGION:
+    secure: TpI8eZAA7xTwppMUnUWS4Q==
+  AWS_ACCESS_KEY_ID:
+    secure: yJis6I3pszTK31O9zFy0CyF5olds8dOSezJlo1Zw+ck=
+  AWS_SECRET_ACCESS_KEY:
+    secure: OFWhVroAO+2nqG6zGnS1a/1QueNA6ZRf80eqHy64FbOZ3poeSsjS/zD05/vzSyee
   GitHubKey:
     secure: 8rcm5QQdAIatmWWsxw1Evd3mw4p3GkjcVyIMShjY2mmIrOS546w0coB95z5FGLh0
+  NuGetApiKey:
+    secure: He4qQ4jNoO9z4GBTLKnok4HoPOJBKnVnRgVbOEJYtEvueiHivUB5NDxw3Ebzt2Ck
 
 # Allow WMF5 (i.e. PowerShellGallery functionality)
 image:
@@ -41,19 +47,19 @@ for:
         - image: Visual Studio 2017
     init:
       - ps: $PSVersionTable
+      - ps: Get-Module -ListAvailable | Select-Object -Property Name,Version,Path
     install:
-      - ps: Install-PackageProvider -Name 'NuGet' -MinimumVersion '2.8.5.201' -Force | Out-Null
-      - ps: Install-Module -Name AWSPowerShell,InvokeBuild,posh-git,Pester,platyPS,PSScriptAnalyzer -Force -SkipPublisherCheck
+      - ps: '& install_modules.ps1'
     build_script:
-      - ps: Invoke-Build -File .\src\<%=$PLASTER_PARAM_ModuleName%>.build.ps1
+      - ps: Invoke-Build
 
 init:
   - pwsh: '& git config --global core.autocrlf true'
   - pwsh: $PSVersionTable
+  - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version,Path
 
 install:
-  - ps: Install-PackageProvider -Name 'NuGet' -MinimumVersion '2.8.5.201' -Force | Out-Null
-  - ps: Install-Module -Name AWSPowerShell.NetCore,InvokeBuild,posh-git,Pester,platyPS,PSScriptAnalyzer -Force -SkipPublisherCheck
+  - pwsh: '& install_modules.ps1'
 
 #build: off
 
