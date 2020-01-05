@@ -1,5 +1,10 @@
 # Changelog
 
+## Version v0.4.1 (2020-04-01)
+
+### ConvertTo-CliXml
+- Fixed support for a single string that contains multiple Clixml records.
+
 ## Version v0.4.0 (2019-04-27)
 
 ### Manifest Updates

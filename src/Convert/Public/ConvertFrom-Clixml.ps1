@@ -83,6 +83,7 @@ function ConvertFrom-Clixml
     begin
     {
         $userErrorActionPreference = $ErrorActionPreference
+        Set-Variable -Name 'SPLIT' -Value '(?<!^)(?=<Objs)' -Option 'Constant'
     }
     
     process
@@ -91,7 +92,10 @@ function ConvertFrom-Clixml
         {
             try
             {
-                [System.Management.Automation.PSSerializer]::Deserialize($s)
+                foreach ($record in ($s -split $SPLIT))
+                {
+                    [System.Management.Automation.PSSerializer]::Deserialize($record)
+                }
             }
             catch
             {
