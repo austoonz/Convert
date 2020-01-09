@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/
+schema: 2.0.0
+---
+
 # ConvertTo-Base64
 
 ## SYNOPSIS
@@ -24,7 +31,6 @@ Converts a string to a base64 encoded string.
 ```
 $string = 'A string'
 ConvertTo-Base64 -String $string
-
 QSBzdHJpbmc=
 ```
 
@@ -32,16 +38,15 @@ QSBzdHJpbmc=
 ```
 (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64).Length
 1057480
+```
 
 (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64 -Compress).Length
 110876
-```
 
 ### EXAMPLE 3
 ```
 $string = 'A string'
 $string | ConvertTo-Base64
-
 QSBzdHJpbmc=
 ```
 
@@ -49,7 +54,6 @@ QSBzdHJpbmc=
 ```
 $string = 'A string'
 ConvertTo-Base64 -String $string -Encoding Unicode
-
 QQAgAHMAdAByAGkAbgBnAA==
 ```
 
@@ -57,7 +61,6 @@ QQAgAHMAdAByAGkAbgBnAA==
 ```
 $string = 'A string'
 $string | ConvertTo-Base64 -Encoding Unicode
-
 QQAgAHMAdAByAGkAbgBnAA==
 ```
 
@@ -65,9 +68,7 @@ QQAgAHMAdAByAGkAbgBnAA==
 ```
 $string1 = 'A string'
 $string2 = 'Another string'
-
 ConvertTo-Base64 -String $string1,$string2
-
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
 ```
@@ -76,9 +77,7 @@ QW5vdGhlciBzdHJpbmc=
 ```
 $string1 = 'A string'
 $string2 = 'Another string'
-
 $string1,$string2 | ConvertTo-Base64
-
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
 ```
@@ -87,9 +86,7 @@ QW5vdGhlciBzdHJpbmc=
 ```
 $string1 = 'A string'
 $string2 = 'Another string'
-
 ConvertTo-Base64 -String $string1,$string2 -Encoding Unicode
-
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ```
@@ -98,9 +95,7 @@ QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ```
 $string1 = 'A string'
 $string2 = 'Another string'
-
 $string1,$string2 | ConvertTo-Base64 -Encoding Unicode
-
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ```
@@ -108,43 +103,41 @@ QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ### EXAMPLE 10
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 ConvertTo-Base64 -MemoryStream $stream
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 11
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 $stream | ConvertTo-Base64
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 12
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -152,20 +145,19 @@ ConvertTo-Base64 -MemoryStream $stream1,$stream2
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 13
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -173,7 +165,6 @@ $stream1,$stream2 | ConvertTo-Base64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ## PARAMETERS
 
@@ -248,7 +239,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS

@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/
+schema: 2.0.0
+---
+
 # ConvertFrom-MemoryStream
 
 ## SYNOPSIS
@@ -23,43 +30,41 @@ Converts MemoryStream to a base64 encoded string.
 ### EXAMPLE 1
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 ConvertFrom-MemoryStream -MemoryStream $stream -ToBase64
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 2
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 $stream | ConvertFrom-MemoryStream -ToBase64
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 3
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -67,20 +72,19 @@ ConvertFrom-MemoryStream -MemoryStream $stream1,$stream2 -ToBase64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 4
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -88,48 +92,45 @@ $stream1,$stream2 | ConvertFrom-MemoryStream -ToBase64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 5
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 ConvertFrom-MemoryStream -MemoryStream $stream -ToString
 
 A string
-```
 
 ### EXAMPLE 6
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 $stream | ConvertFrom-MemoryStream -ToString
 
 A string
-```
 
 ### EXAMPLE 7
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -137,20 +138,19 @@ ConvertFrom-MemoryStream -MemoryStream $stream1,$stream2 -ToString
 
 A string
 Another string
-```
 
 ### EXAMPLE 8
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -158,7 +158,6 @@ $stream1,$stream2 | ConvertFrom-MemoryStream -ToString
 
 A string
 Another string
-```
 
 ## PARAMETERS
 
@@ -233,7 +232,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS

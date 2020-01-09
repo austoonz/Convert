@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/
+schema: 2.0.0
+---
+
 # ConvertFrom-Clixml
 
 ## SYNOPSIS
@@ -22,9 +29,9 @@ $xml = @"
 </Objs>
 "@
 ConvertFrom-Clixml -String $xml
+```
 
 ThisIsMyString
-```
 
 ### EXAMPLE 2
 ```
@@ -34,9 +41,9 @@ $xml = @"
 </Objs>
 "@
 $xml | ConvertFrom-Clixml
+```
 
 ThisIsMyString
-```
 
 ### EXAMPLE 3
 ```
@@ -51,10 +58,10 @@ $xml2 = @"
 </Objs>
 "@
 ConvertFrom-Clixml -String $xml,$xml2
+```
 
 ThisIsMyString
 This is another string
-```
 
 ### EXAMPLE 4
 ```
@@ -69,10 +76,10 @@ $xml2 = @"
 </Objs>
 "@
 $xml,$xml2 | ConvertFrom-Clixml
+```
 
 ThisIsMyString
 This is another string
-```
 
 ## PARAMETERS
 
@@ -100,7 +107,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [Object[]]
-
 ## NOTES
 
 ## RELATED LINKS

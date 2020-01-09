@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/
+schema: 2.0.0
+---
+
 # ConvertFrom-MemoryStreamToBase64
 
 ## SYNOPSIS
@@ -17,43 +24,41 @@ Converts MemoryStream to a base64 encoded string.
 ### EXAMPLE 1
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 2
 ```
 $string = 'A string'
-
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 $stream | ConvertFrom-MemoryStreamToBase64
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 3
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -61,20 +66,19 @@ ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream1,$stream2
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 4
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -82,7 +86,6 @@ $stream1,$stream2 | ConvertFrom-MemoryStreamToBase64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ## PARAMETERS
 
@@ -127,7 +130,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS

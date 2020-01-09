@@ -1,5 +1,22 @@
 # Changelog
 
+## Version v0.5.0 (2020-04-01)
+
+### New functions
+- ConvertFrom-Base64ToByteArray
+- ConvertFrom-ByteArrayToMemoryStream
+- ConvertFrom-MemoryStreamToString
+
+### New Aliases
+- ConvertFrom-Base64StringToByteArray -> ConvertFrom-Base64ToByteArray
+- ConvertFrom-Base64StringToString -> ConvertFrom-Base64ToString
+- ConvertFrom-ByteArrayToBase64String -> ConvertFrom-ByteArrayToBase64
+
+## Version v0.4.1 (2020-04-01)
+
+### ConvertTo-CliXml
+- Fixed support for a single string that contains multiple Clixml records.
+
 ## Version v0.4.0 (2019-04-27)
 
 ### Manifest Updates

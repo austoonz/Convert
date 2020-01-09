@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/
+schema: 2.0.0
+---
+
 # ConvertFrom-ByteArrayToBase64
 
 ## SYNOPSIS
@@ -18,9 +25,9 @@ Converts a byte array to a base64 encoded string.
 ```
 $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
 ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
+```
 
 H4sIAAAAAAAAC3NUKC4pysxLBwCMN9RgCAAAAA==
-```
 
 ## PARAMETERS
 
@@ -30,7 +37,7 @@ A byte array object for conversion.
 ```yaml
 Type: Byte[]
 Parameter Sets: (All)
-Aliases:
+Aliases: Bytes
 
 Required: True
 Position: 1
@@ -65,7 +72,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS

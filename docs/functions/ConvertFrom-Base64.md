@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/
+schema: 2.0.0
+---
+
 # ConvertFrom-Base64
 
 ## SYNOPSIS
@@ -17,32 +24,32 @@ Converts a base64 encoded string to a string.
 ### EXAMPLE 1
 ```
 ConvertFrom-Base64 -Base64 'QSBzdHJpbmc=' -ToString
+```
 
 A string
-```
 
 ### EXAMPLE 2
 ```
 ConvertTo-Base64 -Base64 'A string','Another string' -ToString
+```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 3
 ```
 'QSBzdHJpbmc=' | ConvertFrom-Base64 -ToString
+```
 
 A string
-```
 
 ### EXAMPLE 4
 ```
 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64 -ToString
+```
 
 A string
 Another string
-```
 
 ## PARAMETERS
 
@@ -117,7 +124,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS

@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/
+schema: 2.0.0
+---
+
 # ConvertFrom-StringToByteArray
 
 ## SYNOPSIS
@@ -17,23 +24,23 @@ Converts a string to a byte array object.
 ### EXAMPLE 1
 ```
 $bytes = ConvertFrom-StringToByteArray -String 'A string'
-
 $bytes.GetType()
+```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
-True     True     Byte[]                                   System.Array
+True     True     Byte\[\]                                   System.Array
 
-$bytes[0].GetType()
+$bytes\[0\].GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte                                     System.ValueType
-```
 
 ### EXAMPLE 2
 ```
 $bytes = 'A string','Another string' | ConvertFrom-StringToByteArray
+```
 
 $bytes.Count
 2
@@ -42,14 +49,13 @@ $bytes.GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
-True     True     Object[]                                 System.Array
+True     True     Object\[\]                                 System.Array
 
-$bytes[0].GetType()
+$bytes\[0\].GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
-True     True     Byte[]                                   System.Array
-```
+True     True     Byte\[\]                                   System.Array
 
 ## PARAMETERS
 
@@ -94,7 +100,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [System.Collections.Generic.List[Byte[]]]
-
 ## NOTES
 
 ## RELATED LINKS

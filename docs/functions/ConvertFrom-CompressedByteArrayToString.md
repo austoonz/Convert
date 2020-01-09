@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/
+schema: 2.0.0
+---
+
 # ConvertFrom-CompressedByteArrayToString
 
 ## SYNOPSIS
@@ -17,19 +24,18 @@ Converts a string to a byte array object.
 ### EXAMPLE 1
 ```
 $bytes = ConvertFrom-CompressedByteArrayToString -String 'A string
-
 $bytes.GetType()
+```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
-True     True     Object[]                                 System.Array
+True     True     Object\[\]                                 System.Array
 
-$bytes[0].GetType()
+$bytes\[0\].GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte                                     System.ValueType
-```
 
 ## PARAMETERS
 
@@ -74,7 +80,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [Byte[]]
-
 ## NOTES
 
 ## RELATED LINKS

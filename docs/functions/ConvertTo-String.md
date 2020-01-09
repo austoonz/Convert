@@ -1,3 +1,10 @@
+---
+external help file: Convert-help.xml
+Module Name: Convert
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-String/
+schema: 2.0.0
+---
+
 # ConvertTo-String
 
 ## SYNOPSIS
@@ -28,45 +35,45 @@ Converts a base64 encoded string to a string.
 ### EXAMPLE 1
 ```
 ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc='
+```
 
 A string
-```
 
 ### EXAMPLE 2
 ```
 ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc='
+```
 
 A string
 Another string
-```
 
 ### EXAMPLE 3
 ```
 'QSBzdHJpbmc=' | ConvertTo-String
+```
 
 A string
-```
 
 ### EXAMPLE 4
 ```
 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertTo-String
+```
 
 A string
 Another string
-```
 
 ### EXAMPLE 5
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -74,20 +81,19 @@ ConvertTo-String -MemoryStream $stream1,$stream2
 
 A string
 Another string
-```
 
 ### EXAMPLE 6
 ```
 $string1 = 'A string'
-
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
-$stream2 = [System.IO.MemoryStream]::new()
-$writer2 = [System.IO.StreamWriter]::new($stream2)
+$stream2 = \[System.IO.MemoryStream\]::new()
+$writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
@@ -95,7 +101,6 @@ $stream1,$stream2 | ConvertTo-String
 
 A string
 Another string
-```
 
 ## PARAMETERS
 
@@ -185,7 +190,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS
