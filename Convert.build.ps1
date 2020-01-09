@@ -35,7 +35,7 @@ task . Clean, ValidateRequirements, Analyze, Test, Build, CreateArtifact
 task TestLocal Clean, Analyze, Test
 
 # Local help file creation process
-task HelpLocal CreateHelp, UpdateCBH
+task HelpLocal Clean, CreateHelp, UpdateCBH
 
 # Pre-build variables to be used by other portions of the script
 Enter-Build {
