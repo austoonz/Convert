@@ -3,6 +3,7 @@
     This script is used to install the required PowerShell Modules for the build process.
     It has a dependency on the PowerShell Gallery.
 #>
+$global:VerbosePreference = 'SilentlyContinue'
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 $VerbosePreference = 'SilentlyContinue'
@@ -32,25 +33,33 @@ $modulesToInstall = @(
 )
 
 $installModule = @{
-    Scope = 'CurrentUser'
-    Force = $true
-    AllowClobber = $true
+    Scope              = 'CurrentUser'
+    AllowClobber       = $true
+    Force              = $true
     SkipPublisherCheck = $true
+    Verbose            = $false
 }
 
 $installedModules = Get-Module -ListAvailable
 
-$null = Install-PackageProvider -Name 'NuGet' -MinimumVersion '2.8.5.201' -Force -Scope 'CurrentUser' -ErrorAction 'SilentlyContinue'
+$installPackageProvider = @{
+    Name           = 'NuGet'
+    MinimumVersion = '2.8.5.201'
+    Scope          = 'CurrentUser'
+    Force          = $true
+    ErrorAction    = 'SilentlyContinue'
+}
+$null = Install-PackageProvider @installPackageProvider
 
 foreach ($module in $modulesToInstall) {
     Write-Host ('  - {0} {1}' -f $module.ModuleName, $module.ModuleVersion)
 
-    if ($module.ModuleName -like 'AWS.Tools.*' -and $installedModules.Where({$_.Name -like 'AWSPowerShell*'})) {
+    if ($module.ModuleName -like 'AWS.Tools.*' -and $installedModules.Where( { $_.Name -like 'AWSPowerShell*' } )) {
         Write-Host '      A legacy AWS PowerShell module is installed. Skipping...'
         continue
     }
 
-    if ($installedModules.Where({$_.Name -eq $module.ModuleName -and $_.Version -eq $module.ModuleVersion})) {
+    if ($installedModules.Where( { $_.Name -eq $module.ModuleName -and $_.Version -eq $module.ModuleVersion } )) {
         Write-Host ('      Already installed. Skipping...' -f $module.ModuleName)
         continue
     }
