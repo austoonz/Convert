@@ -48,6 +48,7 @@ function ConvertFrom-Base64ToString
 {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/')]
     [OutputType('String')]
+    [Alias('ConvertFrom-Base64StringToString')]
     param
     (
         [Parameter(
@@ -55,6 +56,7 @@ function ConvertFrom-Base64ToString
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
+        [Alias('Base64String')]
         [String[]]
         $String,
 

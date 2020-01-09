@@ -58,6 +58,7 @@ function ConvertFrom-Base64
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
+        [Alias('String', 'Base64String')]
         [String[]]
         $Base64,
 
