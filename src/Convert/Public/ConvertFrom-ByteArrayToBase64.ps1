@@ -28,6 +28,7 @@
 function ConvertFrom-ByteArrayToBase64
 {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/')]
+    [Alias('ConvertFrom-ByteArrayToBase64String')]
     param
     (
         [Parameter(
@@ -35,6 +36,7 @@ function ConvertFrom-ByteArrayToBase64
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
+        [Alias('Bytes')]
         [Byte[]]
         $ByteArray,
 
