@@ -28,7 +28,7 @@ $modulesToInstall = @(
     }
     @{
         ModuleName    = 'PSScriptAnalyzer'
-        ModuleVersion = '1.18.3'
+        ModuleVersion = '1.18.2'
     }
 )
 
