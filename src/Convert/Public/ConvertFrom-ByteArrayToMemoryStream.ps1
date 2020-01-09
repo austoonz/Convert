@@ -10,6 +10,9 @@
 
     .LINK
     https://msdn.microsoft.com/en-us/library/system.io.memorystream(v=vs.110).aspx
+
+    .NOTES
+    Additional information:
     https://msdn.microsoft.com/en-us/library/63z365ty(v=vs.110).aspx
 
     .EXAMPLE

@@ -6,7 +6,7 @@
         Converts MemoryStream to a string.
 
     .PARAMETER MemoryStream
-        A MemoryStream object for conversion.
+        A System.IO.MemoryStream object for conversion.
 
     .PARAMETER Stream
         A System.IO.Stream object for conversion.

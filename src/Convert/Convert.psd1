@@ -73,21 +73,24 @@
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport    = @(
-        'ConvertFrom-Base64',
-        'ConvertFrom-Base64ToString',
-        'ConvertFrom-ByteArrayToBase64',
-        'ConvertFrom-Clixml',
-        'ConvertFrom-CompressedByteArrayToString',
-        'ConvertFrom-MemoryStream',
-        'ConvertFrom-MemoryStreamToBase64',
-        'ConvertFrom-MemoryStreamToString',
-        'ConvertFrom-StringToBase64',
-        'ConvertFrom-StringToByteArray',
-        'ConvertFrom-StringToCompressedByteArray',
-        'ConvertFrom-StringToMemoryStream',
-        'ConvertTo-Base64',
-        'ConvertTo-Clixml',
-        'ConvertTo-MemoryStream',
+        'ConvertFrom-Base64'
+        'ConvertFrom-Base64ToByteArray'
+        'ConvertFrom-Base64ToString'
+        'ConvertFrom-ByteArrayToBase64'
+        'ConvertFrom-ByteArrayToMemoryStream'
+        'ConvertFrom-Clixml'
+        'ConvertFrom-CompressedByteArrayToString'
+        'ConvertFrom-MemoryStream'
+        'ConvertFrom-MemoryStreamToBase64'
+        'ConvertFrom-MemoryStreamToSecureString'
+        'ConvertFrom-MemoryStreamToString'
+        'ConvertFrom-StringToBase64'
+        'ConvertFrom-StringToByteArray'
+        'ConvertFrom-StringToCompressedByteArray'
+        'ConvertFrom-StringToMemoryStream'
+        'ConvertTo-Base64'
+        'ConvertTo-Clixml'
+        'ConvertTo-MemoryStream'
         'ConvertTo-String'
     )
 
@@ -98,7 +101,11 @@
     VariablesToExport = @()
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport      = 'ConvertFrom-StreamToString'
+    AliasesToExport      = @(
+        'ConvertFrom-Base64StringToByteArray'
+        'ConvertFrom-ByteArrayToBase64String'
+        'ConvertFrom-StreamToString'
+    )
 
     # DSC resources to export from this module
     DscResourcesToExport = @()

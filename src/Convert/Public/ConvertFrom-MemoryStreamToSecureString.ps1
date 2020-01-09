@@ -11,8 +11,20 @@
     .PARAMETER Stream
     A System.IO.Stream object for conversion.
 
+    .EXAMPLE
+    $string = 'My Super Secret Value'
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
+    $memoryStream = [System.IO.MemoryStream]::new($bytes, 0, $bytes.Length)
+    $secure = ConvertFrom-MemoryStreamToSecureString -MemoryStream $memoryStream
+    $credential = [PSCredential]::new('MyValue', $secure)
+
+    Converts the provided MemoryStream to a SeureString.
+
     .LINK
     https://msdn.microsoft.com/en-us/library/system.io.memorystream.aspx
+
+    .NOTES
+    Additional information:
     https://msdn.microsoft.com/en-us/library/system.io.streamreader%28v=vs.110%29.aspx
     https://msdn.microsoft.com/en-us/library/system.security.securestring%28v=vs.110%29.aspx
 #>
