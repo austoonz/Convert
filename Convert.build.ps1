@@ -350,19 +350,29 @@ task CreateMarkdownHelp {
     $null = New-MarkdownHelp @markdownParams
 
     # Replace each missing element we need for a proper generic module page .md file
-    $ModuleDocsPathFileContent = Get-Content -Path $ModuleDocsPath -Raw
-    $ModuleDocsPathFileContent = $ModuleDocsPathFileContent -replace '{{Manually Enter Description Here}}', $script:ModuleDescription
-
     Write-Host '    Updating function documentation definitions...' -ForegroundColor Green
-    $Script:FunctionsToExport | Foreach-Object {
-        Write-Host "      - $_" -ForegroundColor Green
+    $newModuleDocsContent = [System.Text.StringBuilder]::new()
+    $regex = '^### \[(.*)\]\(.*\)'
+    foreach ($line in (Get-Content -Path $ModuleDocsPath)) {
+        if ($line -eq '{{ Fill in the Description }}') { continue }
 
-        $TextToReplace = ('{{Manually Enter {0} Description Here}}' -f $_)
-        $ReplacementText = (Get-Help -Name $_ -Detailed).Synopsis
-        $ModuleDocsPathFileContent = $ModuleDocsPathFileContent -replace $TextToReplace, $ReplacementText
+        if ($line -eq '## Description') {
+            $null = $newModuleDocsContent.AppendLine('## Description')
+            $null = $newModuleDocsContent.AppendLine((Get-Module -Name $ModuleName).Description)
+            continue
+        }
+
+        if ($line -match $regex) {
+            $function = $Matches[1]
+            $null = $newModuleDocsContent.AppendLine($line)
+            $null = $newModuleDocsContent.AppendLine((Get-Help -Name $function -Detailed).Synopsis)
+            continue
+        }
+
+        $null = $newModuleDocsContent.AppendLine($line)
     }
 
-    $ModuleDocsPathFileContent | Out-File -FilePath $ModuleDocsPath -Force -Encoding:utf8
+    $newModuleDocsContent.ToString().TrimEnd() | Out-File -FilePath $ModuleDocsPath -Force -Encoding:utf8
 
     $MissingDocumentation = Select-String -Path (Join-Path -Path $docsPath -ChildPath '\*.md') -Pattern '({{.*}})'
     if ($MissingDocumentation.Count -gt 0)
@@ -517,7 +527,7 @@ task CreateArtifact {
 
     Copy-Item -Path $script:ZipFile -Destination $script:DeploymentArtifact
     Write-Host '    Deployment Artifact:  Created' -ForegroundColor Green
-    
+
     if ($env:CODEBUILD_WEBHOOK_HEAD_REF -and $env:CODEBUILD_WEBHOOK_TRIGGER)
     {
         Write-Host ('    This was a WebHook triggered build: {0}' -f $env:CODEBUILD_WEBHOOK_TRIGGER)

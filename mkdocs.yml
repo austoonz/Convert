@@ -9,8 +9,10 @@ pages:
   - Change Log: CHANGELOG.md
   - Functions:
     - ConvertFrom-Base64: functions/ConvertFrom-Base64.md
+    - ConvertFrom-Base64ToByteArray: functions/ConvertFrom-Base64ToByteArray.md
     - ConvertFrom-Base64ToString: functions/ConvertFrom-Base64ToString.md
     - ConvertFrom-ByteArrayToBase64: functions/ConvertFrom-ByteArrayToBase64.md
+    - ConvertFrom-ByteArrayToMemoryStream: functions/ConvertFrom-ByteArrayToMemoryStream.md
     - ConvertFrom-Clixml: functions/ConvertFrom-Clixml.md
     - ConvertFrom-CompressedByteArrayToString: functions/ConvertFrom-CompressedByteArrayToString.md
     - ConvertFrom-MemoryStream: functions/ConvertFrom-MemoryStream.md
@@ -24,4 +26,3 @@ pages:
     - ConvertTo-Clixml: functions/ConvertTo-Clixml.md
     - ConvertTo-MemoryStream: functions/ConvertTo-MemoryStream.md
     - ConvertTo-String: functions/ConvertTo-String.md
-
