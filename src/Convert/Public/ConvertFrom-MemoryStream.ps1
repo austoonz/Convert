@@ -14,7 +14,7 @@
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
 
     .PARAMETER ToString
-        Switch parameter to specify a conversion to a string object.
+        (Deprecated) Switch parameter to specify a conversion to a string object. This switch will be removed from future revisions to simplify cmdlet parameters.
 
     .PARAMETER ToBase64
         Switch parameter to specify a conversion to a Base64 encoded string object.
@@ -183,17 +183,13 @@ function ConvertFrom-MemoryStream
             {
                 $string = ConvertFrom-MemoryStreamToString -MemoryStream $m -ErrorAction Stop
 
-                switch ($PSCmdlet.ParameterSetName)
+                if ($ToString)
                 {
-                    'ToString'
-                    {
-                        $string
-                    }
-
-                    'ToBase64'
-                    {
-                        ConvertFrom-StringToBase64 -String $string -Encoding $Encoding
-                    }
+                    $string
+                }
+                elseif ($ToBase64)
+                {
+                    ConvertFrom-StringToBase64 -String $string -Encoding $Encoding
                 }
             }
             catch

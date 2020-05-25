@@ -114,13 +114,18 @@ function ConvertTo-MemoryStream
             {
                 foreach ($s in $string)
                 {
+                    $params = @{
+                        String = $s
+                        Encoding = $Encoding
+                    }
+
                     if ($Compress)
                     {
-                        ConvertFrom-StringToMemoryStream -String $s -Compress @eaSplat
+                        ConvertFrom-StringToMemoryStream @params -Compress @eaSplat
                     }
                     else
                     {
-                        ConvertFrom-StringToMemoryStream -String $s @eaSplat
+                        ConvertFrom-StringToMemoryStream @params @eaSplat
                     }
                 }
                 break

@@ -8,11 +8,6 @@
     .PARAMETER ByteArray
         A byte array object for conversion.
 
-    .PARAMETER Encoding
-        The encoding to use for conversion.
-        Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
-
     .EXAMPLE
         $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
         ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
@@ -38,11 +33,7 @@ function ConvertFrom-ByteArrayToBase64
         [ValidateNotNullOrEmpty()]
         [Alias('Bytes')]
         [Byte[]]
-        $ByteArray,
-
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
-        [String]
-        $Encoding = 'UTF8'
+        $ByteArray
     )
 
     begin
