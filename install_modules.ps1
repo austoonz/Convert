@@ -11,16 +11,20 @@ $VerbosePreference = 'SilentlyContinue'
 # List of PowerShell Modules required for the build
 $modulesToInstall = @(
     @{
+        ModuleName    = 'AWS.Tools.Common'
+        ModuleVersion = '4.0.5.0'
+    }
+    @{
         ModuleName    = 'AWS.Tools.S3'
-        ModuleVersion = '4.0.2.0'
+        ModuleVersion = '4.0.5.0'
     }
     @{
         ModuleName    = 'InvokeBuild'
-        ModuleVersion = '5.5.6' 
+        ModuleVersion = '5.6.0'
     }
     @{
         ModuleName    = 'Pester'
-        ModuleVersion = '4.9.0'
+        ModuleVersion = '4.10.1'
     }
     @{
         ModuleName    = 'platyPS'
@@ -28,7 +32,7 @@ $modulesToInstall = @(
     }
     @{
         ModuleName    = 'PSScriptAnalyzer'
-        ModuleVersion = '1.18.2'
+        ModuleVersion = '1.19.0'
     }
 )
 
