@@ -25,7 +25,6 @@ Converts a string to a byte array object.
 ```
 $bytes = ConvertFrom-StringToByteArray -String 'A string'
 $bytes.GetType()
-```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
@@ -36,11 +35,11 @@ $bytes\[0\].GetType()
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte                                     System.ValueType
+```
 
 ### EXAMPLE 2
 ```
 $bytes = 'A string','Another string' | ConvertFrom-StringToByteArray
-```
 
 $bytes.Count
 2
@@ -56,6 +55,7 @@ $bytes\[0\].GetType()
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte\[\]                                   System.Array
+```
 
 ## PARAMETERS
 

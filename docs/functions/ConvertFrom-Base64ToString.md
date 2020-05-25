@@ -24,32 +24,32 @@ Converts a base64 encoded string to a string.
 ### EXAMPLE 1
 ```
 ConvertFrom-Base64ToString -String 'QSBzdHJpbmc='
-```
 
 A string
+```
 
 ### EXAMPLE 2
 ```
 ConvertTo-Base64 -String 'A string','Another string'
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 3
 ```
 'QSBzdHJpbmc=' | ConvertFrom-Base64ToString
-```
 
 A string
+```
 
 ### EXAMPLE 4
 ```
 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64ToString
-```
 
 A string
 Another string
+```
 
 ## PARAMETERS
 

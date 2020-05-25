@@ -31,25 +31,25 @@ A string
 ### EXAMPLE 2
 ```
 ConvertTo-Base64 -Base64 'A string','Another string' -ToString
-```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 3
 ```
 'QSBzdHJpbmc=' | ConvertFrom-Base64 -ToString
-```
 
 A string
+```
 
 ### EXAMPLE 4
 ```
 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64 -ToString
-```
 
 A string
 Another string
+```
 
 ## PARAMETERS
 

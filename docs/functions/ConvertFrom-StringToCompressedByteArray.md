@@ -25,7 +25,6 @@ Converts a string to a compressed byte array object.
 ```
 $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
 $bytes.GetType()
-```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
@@ -36,6 +35,7 @@ $bytes\[0\].GetType()
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte                                     System.ValueType
+```
 
 ## PARAMETERS
 

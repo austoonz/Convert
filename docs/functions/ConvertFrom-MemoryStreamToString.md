@@ -34,11 +34,11 @@ $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
-```
 
 ConvertFrom-MemoryStreamToString -MemoryStream $stream
 
 A string
+```
 
 ### EXAMPLE 2
 ```
@@ -47,11 +47,11 @@ $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
-```
 
 $stream | ConvertFrom-MemoryStreamToString
 
 A string
+```
 
 ### EXAMPLE 3
 ```
@@ -60,7 +60,6 @@ $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
-```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -72,6 +71,7 @@ ConvertFrom-MemoryStreamToString -MemoryStream $stream1,$stream2
 
 A string
 Another string
+```
 
 ### EXAMPLE 4
 ```
@@ -80,7 +80,6 @@ $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
-```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -92,6 +91,7 @@ $stream1,$stream2 | ConvertFrom-MemoryStreamToString
 
 A string
 Another string
+```
 
 ## PARAMETERS
 

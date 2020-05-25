@@ -29,9 +29,9 @@ $xml = @"
 </Objs>
 "@
 ConvertFrom-Clixml -String $xml
-```
 
 ThisIsMyString
+```
 
 ### EXAMPLE 2
 ```
@@ -41,9 +41,9 @@ $xml = @"
 </Objs>
 "@
 $xml | ConvertFrom-Clixml
-```
 
 ThisIsMyString
+```
 
 ### EXAMPLE 3
 ```
@@ -58,10 +58,10 @@ $xml2 = @"
 </Objs>
 "@
 ConvertFrom-Clixml -String $xml,$xml2
-```
 
 ThisIsMyString
 This is another string
+```
 
 ### EXAMPLE 4
 ```
@@ -76,10 +76,10 @@ $xml2 = @"
 </Objs>
 "@
 $xml,$xml2 | ConvertFrom-Clixml
-```
 
 ThisIsMyString
 This is another string
+```
 
 ## PARAMETERS
 

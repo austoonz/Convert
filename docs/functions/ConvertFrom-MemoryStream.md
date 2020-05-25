@@ -34,11 +34,11 @@ $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
-```
 
 ConvertFrom-MemoryStream -MemoryStream $stream -ToBase64
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 2
 ```
@@ -47,11 +47,11 @@ $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
-```
 
 $stream | ConvertFrom-MemoryStream -ToBase64
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 3
 ```
@@ -60,7 +60,6 @@ $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
-```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -72,6 +71,7 @@ ConvertFrom-MemoryStream -MemoryStream $stream1,$stream2 -ToBase64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 4
 ```
@@ -80,7 +80,6 @@ $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
-```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -92,6 +91,7 @@ $stream1,$stream2 | ConvertFrom-MemoryStream -ToBase64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 5
 ```
@@ -100,11 +100,11 @@ $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
-```
 
 ConvertFrom-MemoryStream -MemoryStream $stream -ToString
 
 A string
+```
 
 ### EXAMPLE 6
 ```
@@ -113,11 +113,11 @@ $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
-```
 
 $stream | ConvertFrom-MemoryStream -ToString
 
 A string
+```
 
 ### EXAMPLE 7
 ```
@@ -126,7 +126,6 @@ $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
-```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -138,6 +137,7 @@ ConvertFrom-MemoryStream -MemoryStream $stream1,$stream2 -ToString
 
 A string
 Another string
+```
 
 ### EXAMPLE 8
 ```
@@ -146,7 +146,6 @@ $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
-```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -158,6 +157,7 @@ $stream1,$stream2 | ConvertFrom-MemoryStream -ToString
 
 A string
 Another string
+```
 
 ## PARAMETERS
 
@@ -194,7 +194,8 @@ Accept wildcard characters: False
 ```
 
 ### -ToString
-Switch parameter to specify a conversion to a string object.
+(Deprecated) Switch parameter to specify a conversion to a string object.
+This switch will be removed from future revisions to simplify cmdlet parameters.
 
 ```yaml
 Type: SwitchParameter

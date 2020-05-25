@@ -28,11 +28,11 @@ $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
-```
 
 ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 2
 ```
@@ -41,11 +41,11 @@ $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
-```
 
 $stream | ConvertFrom-MemoryStreamToBase64
 
 QSBzdHJpbmc=
+```
 
 ### EXAMPLE 3
 ```
@@ -54,7 +54,6 @@ $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
-```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -66,6 +65,7 @@ ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream1,$stream2
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ### EXAMPLE 4
 ```
@@ -74,7 +74,6 @@ $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
-```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -86,6 +85,7 @@ $stream1,$stream2 | ConvertFrom-MemoryStreamToBase64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
+```
 
 ## PARAMETERS
 

@@ -25,27 +25,26 @@ Converts a string to a MemoryStream object.
 ```
 $stream = ConvertFrom-StringToMemoryStream -String 'A string'
 $stream.GetType()
-```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     MemoryStream                             System.IO.Stream
+```
 
 ### EXAMPLE 2
 ```
 $stream = 'A string' | ConvertFrom-StringToMemoryStream
 $stream.GetType()
-```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     MemoryStream                             System.IO.Stream
+```
 
 ### EXAMPLE 3
 ```
 $streams = ConvertFrom-StringToMemoryStream -String 'A string','Another string'
 $streams.GetType()
-```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
@@ -56,12 +55,12 @@ $streams\[0\].GetType()
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     MemoryStream                             System.IO.Stream
+```
 
 ### EXAMPLE 4
 ```
 $streams = 'A string','Another string' | ConvertFrom-StringToMemoryStream
 $streams.GetType()
-```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
@@ -72,12 +71,12 @@ $streams\[0\].GetType()
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     MemoryStream                             System.IO.Stream
+```
 
 ### EXAMPLE 5
 ```
 $stream = ConvertFrom-StringToMemoryStream -String 'This string has two string values'
 $stream.Length
-```
 
 33
 
@@ -85,6 +84,7 @@ $stream = ConvertFrom-StringToMemoryStream -String 'This string has two string v
 $stream.Length
 
 10
+```
 
 ## PARAMETERS
 
