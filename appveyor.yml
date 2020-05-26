@@ -17,7 +17,7 @@ image:
   - macos
 
 # Version number
-version: 0.5.{build}
+version: 0.6.{build}
 
 # There's no need to alter the build number for a Pull Request (PR) since they don't modify anything
 pull_requests:
