@@ -76,4 +76,6 @@ foreach ($module in $modulesToInstall) {
     else {
         Install-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion @installModule
     }
+
+    Import-Module -Name $module.ModuleName -Force
 }
