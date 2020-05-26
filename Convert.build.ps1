@@ -44,7 +44,11 @@ Enter-Build {
 
     Write-Host '    - Importing the AWS Tools for PowerShell...' -ForegroundColor Green
     if ($PSEdition -eq 'Desktop') {
-        if (Get-Module -Name 'AWSPowerShell' -ListAvailable)
+        if (Get-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ListAvailable)
+        {
+            Import-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ErrorAction 'Stop'
+        }
+        elseif (Get-Module -Name 'AWSPowerShell' -ListAvailable)
         {
             Import-Module -Name 'AWSPowerShell' -ErrorAction 'Stop'
         }
@@ -52,23 +56,19 @@ Enter-Build {
         {
             Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
         }
-        elseif (Get-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ListAvailable)
-        {
-            Import-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ErrorAction 'Stop'
-        }
         else
         {
             throw 'One of the AWS Tools for PowerShell modules must be available for import.'
         }
     }
     else {
-        if (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable)
-        {
-            Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
-        }
-        elseif (Get-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ListAvailable)
+        if (Get-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ListAvailable)
         {
             Import-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ErrorAction 'Stop'
+        }
+        elseif (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable)
+        {
+            Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
         }
         else
         {

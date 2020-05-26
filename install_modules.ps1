@@ -8,12 +8,11 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 $VerbosePreference = 'SilentlyContinue'
 
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Install-Module -Name 'PowerShellGet' -MinimumVersion '2.2.4' -SkipPublisherCheck -Force -AllowClobber
+
 # List of PowerShell Modules required for the build
 $modulesToInstall = @(
-    @{
-        ModuleName    = 'AWS.Tools.Common'
-        ModuleVersion = '4.0.5.0'
-    }
     @{
         ModuleName    = 'AWS.Tools.S3'
         ModuleVersion = '4.0.5.0'
@@ -32,7 +31,7 @@ $modulesToInstall = @(
     }
     @{
         ModuleName    = 'PSScriptAnalyzer'
-        ModuleVersion = '1.19.0'
+        ModuleVersion = '1.18.3'
     }
 )
 
@@ -68,14 +67,6 @@ foreach ($module in $modulesToInstall) {
         continue
     }
 
-    # Override AWS Tools for PowerShell on Desktop edition
-    if ($PSVersionTable.PSEdition -eq 'Desktop' -and $module.ModuleName -like 'AWS.Tools.*') {
-        Install-Module -Name 'AWSPowerShell' -RequiredVersion $module.ModuleVersion @installModule
-        $installedModules = Get-Module -ListAvailable
-    }
-    else {
-        Install-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion @installModule
-    }
-
+    Install-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion @installModule
     Import-Module -Name $module.ModuleName -Force
 }

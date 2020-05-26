@@ -1,6 +1,6 @@
 # Changelog
 
-## Version v0.5.1 (2020-05-25)
+## Version v0.6.0 (2020-05-25)
 
 ### Fixes
 * Fixed Compression when using ConvertTo-Base64 with a MemoryStream.

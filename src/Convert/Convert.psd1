@@ -12,7 +12,7 @@
     RootModule           = 'Convert.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.5.1'
+    ModuleVersion        = '0.6.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @(
@@ -33,7 +33,7 @@
     Copyright            = '(c) 2019 Andrew Pearce. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description          = 'PowerShell Module to simplify object conversions'
+    Description          = 'Convert simplifies object conversions by exposing common requirements as PowerShell functions.'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion    = '5.1'
