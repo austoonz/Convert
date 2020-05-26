@@ -133,5 +133,62 @@ Describe -Name $function -Fixture {
             $writer.Dispose()
             $writer2.Dispose()
         }
+
+        It -Name 'Converts to base64 with compression correctly' -Test {
+            $string = 'ThisIsMyString'
+
+            $stream = [System.IO.MemoryStream]::new()
+            $writer = [System.IO.StreamWriter]::new($stream)
+            $writer.Write($string)
+            $writer.Flush()
+
+            $assertion = ConvertTo-Base64 -MemoryStream $stream -Encoding UTF8 -Compress
+
+            $expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            $assertion | Should -BeExactly $expected
+
+            $stream.Dispose()
+            $writer.Dispose()
+        }
+
+        It -Name 'Converts from Pipeline with compression' -Test {
+            $string = 'ThisIsMyString'
+
+            $stream = [System.IO.MemoryStream]::new()
+            $writer = [System.IO.StreamWriter]::new($stream)
+            $writer.Write($string)
+            $writer.Flush()
+
+            $assertion = $stream | ConvertTo-Base64 -Encoding UTF8 -Compress
+
+            $expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            $assertion | Should -BeExactly $expected
+
+            $stream.Dispose()
+            $writer.Dispose()
+        }
+
+        It -Name 'Converts an array from Pipeline with compression' -Test {
+            $string = 'ThisIsMyString'
+
+            $stream = [System.IO.MemoryStream]::new()
+            $writer = [System.IO.StreamWriter]::new($stream)
+            $writer.Write($string)
+            $writer.Flush()
+
+            $stream2 = [System.IO.MemoryStream]::new()
+            $writer2 = [System.IO.StreamWriter]::new($stream2)
+            $writer2.Write($string)
+            $writer2.Flush()
+
+            $assertion = @($stream, $stream2) | ConvertTo-Base64 -Encoding UTF8 -Compress
+
+            $assertion | Should -HaveCount 2
+
+            $stream.Dispose()
+            $stream2.Dispose()
+            $writer.Dispose()
+            $writer2.Dispose()
+        }
     }
 }

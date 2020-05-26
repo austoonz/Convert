@@ -177,7 +177,6 @@ function ConvertTo-Base64
         $userErrorActionPreference = $ErrorActionPreference
 
         $convertSplat = @{
-            Encoding    = $Encoding
             ErrorAction = $userErrorActionPreference
         }
     }
@@ -192,11 +191,11 @@ function ConvertTo-Base64
                 {
                     if ($Compress)
                     {
-                        ConvertFrom-StringToBase64 -String $s @convertSplat -Compress
+                        ConvertFrom-StringToBase64 -String $s -Encoding $Encoding @convertSplat -Compress
                     }
                     else
                     {
-                        ConvertFrom-StringToBase64 -String $s @convertSplat
+                        ConvertFrom-StringToBase64 -String $s -Encoding $Encoding @convertSplat
                     }
                 }
                 break
@@ -209,7 +208,7 @@ function ConvertTo-Base64
                     if ($Compress)
                     {
                         $string = ConvertFrom-MemoryStreamToString -MemoryStream $m @convertSplat
-                        $byteArray = ConvertFrom-StringToCompressedByteArray -String $s @convertSplat
+                        $byteArray = ConvertFrom-StringToCompressedByteArray -String $string @convertSplat
                         ConvertFrom-ByteArrayToBase64 -ByteArray $byteArray @convertSplat
                     }
                     else
