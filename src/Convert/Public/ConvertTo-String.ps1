@@ -136,15 +136,14 @@ function ConvertTo-String
 
     process
     {
+        $splat = @{}
         switch ($PSCmdlet.ParameterSetName)
         {
             'Base64String'
             {
                 $InputObject = $Base64EncodedString
                 $Function = 'ConvertFrom-Base64ToString'
-                $splat = @{
-                    Encoding = $Encoding
-                }
+                $splat.Add('Encoding', $Encoding)
                 if ($Decompress)
                 {
                     $splat.Add('Decompress', $true)
@@ -156,7 +155,6 @@ function ConvertTo-String
             {
                 $InputObject = $MemoryStream
                 $Function = 'ConvertFrom-MemoryStreamToString'
-                $splat = @{}
                 break
             }
 
@@ -164,13 +162,6 @@ function ConvertTo-String
             {
                 $InputObject = $Stream
                 $Function = 'ConvertFrom-MemoryStreamToString'
-                $splat = @{}
-                break
-            }
-
-            default
-            {
-                Write-Error -Message 'Invalid ParameterSetName' -ErrorAction $userErrorActionPreference
                 break
             }
         }
