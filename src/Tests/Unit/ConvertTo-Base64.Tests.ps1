@@ -144,7 +144,27 @@ Describe -Name $function -Fixture {
 
             $assertion = ConvertTo-Base64 -MemoryStream $stream -Encoding UTF8 -Compress
 
-            $expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            if ($PSEdition -eq 'Desktop')
+            {
+                $expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6)
+            {
+                $expected = 'H4sIAAAAAAAACwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7)
+            {
+                $expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+            elseif ($IsLinux)
+            {
+                $expected = 'H4sIAAAAAAAAAwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+            elseif ($IsMacOS)
+            {
+                $expected = 'H4sIAAAAAAAAEwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+
             $assertion | Should -BeExactly $expected
 
             $stream.Dispose()
@@ -161,7 +181,26 @@ Describe -Name $function -Fixture {
 
             $assertion = $stream | ConvertTo-Base64 -Encoding UTF8 -Compress
 
-            $expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            if ($PSEdition -eq 'Desktop')
+            {
+                $expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6)
+            {
+                $expected = 'H4sIAAAAAAAACwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7)
+            {
+                $expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+            elseif ($IsLinux)
+            {
+                $expected = 'H4sIAAAAAAAAAwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
+            elseif ($IsMacOS)
+            {
+                $expected = 'H4sIAAAAAAAAEwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            }
             $assertion | Should -BeExactly $expected
 
             $stream.Dispose()
