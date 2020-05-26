@@ -54,7 +54,7 @@ init:
   - pwsh: '& git config --global core.autocrlf true'
   - pwsh: $PSVersionTable
   - pwsh: 'Write-Host "Current Location: $(Get-Location)"'
-  - pwsh: '& ./appveyor_prepare.ps1'
+  - pwsh: $path = (Get-Module -ListAvailable -Name 'AWSPowerShell').Path; if ($path) {Remove-Item -Path $path -Force -Recurse}
   - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version | Sort-Object -Property Name | Format-Table
 install:
   - pwsh: '& ./install_modules.ps1'
