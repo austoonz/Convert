@@ -81,3 +81,5 @@ foreach ($module in $modulesToInstall) {
     Install-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion @installModule
     Import-Module -Name $module.ModuleName -Force
 }
+
+Get-Module -ListAvailable | Select-Object -Property Name,Version | Sort-Object -Property Name | Format-Table
