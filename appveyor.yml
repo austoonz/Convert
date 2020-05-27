@@ -9,11 +9,7 @@ environment:
   NuGetApiKey:
     secure: He4qQ4jNoO9z4GBTLKnok4HoPOJBKnVnRgVbOEJYtEvueiHivUB5NDxw3Ebzt2Ck
 
-# Allow WMF5 (i.e. PowerShellGallery functionality)
 image:
-  - Visual Studio 2017
-  - Visual Studio 2019
-  - Ubuntu1804
   - macos
 
 # Version number
@@ -35,31 +31,12 @@ skip_commits:
     - RELEASE.md
   message: /updated readme.*|update readme.*s|update docs.*|update version.*|update appveyor.*|skip ci/
 
-for:
-  - matrix:
-      only:
-        - image: Visual Studio 2017
-    build: off
-    init:
-      - ps: $PSVersionTable
-      - ps: 'Write-Host "Current Location: $(Get-Location)"'
-      - ps: Get-Module -ListAvailable | Select-Object -Property Name,Version | Sort-Object -Property Name | Format-Table
-    install:
-      - ps: '& ./install_modules.ps1'
-    test_script:
-      - ps: Invoke-Build
-
 build: off
 init:
   - pwsh: '& git config --global core.autocrlf true'
   - pwsh: $PSVersionTable
   - pwsh: 'Write-Host "Current Location: $(Get-Location)"'
-  - pwsh: $path = (Get-Module -ListAvailable -Name 'AWSPowerShell').Path; if ($path) {Remove-Item -Path $path -Force -Recurse}
-  - pwsh: Get-Module -ListAvailable | Select-Object -Property Name,Version | Sort-Object -Property Name | Format-Table
 install:
   - pwsh: '& ./install_modules.ps1'
 test_script:
   - pwsh: Invoke-Build
-
-#on_success:
-#  - ps: Invoke-Expression .\appveyor_success.ps1
