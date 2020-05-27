@@ -13,15 +13,17 @@ $uri = 'http://169.254.170.2{0}' -f $env:AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
 $sts = Invoke-RestMethod -UseBasicParsing -Uri $uri
 
 '  - Setting default AWS Credential'
-$credentialsFile = "$env:HOME\.aws\credentials"
-$null = New-Item -Path $credentialsFile -Force
-
-'[default]' | Out-File -FilePath $credentialsFile -Append
-'aws_access_key_id={0}' -f $sts.AccessKeyId | Out-File -FilePath $credentialsFile -Append
-'aws_secret_access_key={0}' -f $sts.SecretAccessKey | Out-File -FilePath $credentialsFile -Append
-'aws_session_token={0}' -f $sts.Token | Out-File -FilePath $credentialsFile -Append
+$sb = [System.Text.StringBuilder]::new()
+$null = $sb.AppendLine('[default]')
+$null = $sb.AppendLine('aws_access_key_id={0}' -f $sts.AccessKeyId)
+$null = $sb.AppendLine('aws_secret_access_key={0}' -f $sts.SecretAccessKey)
+$null = $sb.AppendLine('aws_session_token={0}' -f $sts.Token)
 
 '  - Setting default AWS Region'
-'region={0}' -f $env:AWS_DEFAULT_REGION | Out-File -FilePath $credentialsFile -Append
+$null = $sb.AppendLine('region={0}' -f $env:AWS_DEFAULT_REGION)
+
+$credentialsFile = "$env:HOME\.aws\credentials"
+$null = New-Item -Path $credentialsFile -Force
+$sb.ToString() | Out-File -FilePath $credentialsFile -Append
 
 '  - AWS credentials configured'

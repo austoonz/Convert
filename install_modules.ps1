@@ -8,8 +8,19 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 $VerbosePreference = 'SilentlyContinue'
 
+# Fix for PowerShell Gallery and TLS1.2
+# https://devblogs.microsoft.com/powershell/powershell-gallery-tls-support/
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Install-Module -Name 'PowerShellGet' -MinimumVersion '2.2.4' -SkipPublisherCheck -Force -AllowClobber
+
+# Fix for build environments that include the monolithic AWS Tools for PowerShell
+$installedModules = Get-Module -ListAvailable
+$installedModules.Where({$_.Name -eq 'AWSPowerShell'}) | ForEach-Object {
+    Remove-Item -Path $_.Path -Force -Recurse
+}
+$installedModules.Where({$_.Name -eq 'AWSPowerShell.NetCore'}) | ForEach-Object {
+    Remove-Item -Path $_.Path -Force -Recurse
+}
 
 # List of PowerShell Modules required for the build
 $modulesToInstall = @(
