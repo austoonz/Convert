@@ -8,7 +8,7 @@
 [psgallery-img]:      https://img.shields.io/powershellgallery/dt/Convert.svg
 [psgallery-site]:     https://www.powershellgallery.com/packages/Convert
 
-Branch      | CodeBuild (Windows)           | CodeBuild (Linux)           | AppVeyor (Windows, Linux, macOS)         | Read the Docs              |
+Branch      | CodeBuild (Windows)           | CodeBuild (Linux)           | AppVeyor (macOS)                         | Read the Docs              |
 ---         | ---                           | ---                         | ---                                      | ---                        |
 master      | ![Build Status][cb-m-windows] | ![Build Status][cb-m-linux] | [![Build status][av-m-image]][av-m-site] | [![rtd-image][]][rtd-site] |
 development | ![Build Status][cb-d-windows] | ![Build Status][cb-d-linux] | [![Build status][av-d-image]][av-d-site] | ---                        |
