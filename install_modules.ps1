@@ -26,11 +26,11 @@ $installedModules.Where({$_.Name -eq 'AWSPowerShell.NetCore'}) | ForEach-Object 
 $modulesToInstall = @(
     @{
         ModuleName    = 'AWS.Tools.S3'
-        ModuleVersion = '4.0.5.0'
+        ModuleVersion = '4.1.0.0'
     }
     @{
         ModuleName    = 'InvokeBuild'
-        ModuleVersion = '5.6.0'
+        ModuleVersion = '5.6.2'
     }
     @{
         ModuleName    = 'Pester'

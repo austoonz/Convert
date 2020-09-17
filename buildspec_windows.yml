@@ -1,22 +1,20 @@
 version: 0.2
 
-env:
-  variables:
-    pwsh: 'PowerShell-7.0.1-win-x64.msi'
-
 phases:
 
   install:
     commands:
-      - powershell -command '$PSVersionTable'
-      - powershell -command '.\configure_aws_credential.ps1'
-      - powershell -command '.\install_modules.ps1'
+      - powershell -file '.\install_awstoe.ps1'
+      - awstoe.exe run --documents arn:aws:imagebuilder:us-west-2:aws:component/powershell-windows/x.x.x
 
-      # Install PowerShell Core
-      - aws s3 cp "s3://austoonz-software/$env:pwsh" $env:pwsh --quiet
-      - powershell -command "Start-Process -FilePath .\$env:pwsh -ArgumentList '/qn /norestart' -Wait"
+  pre_build:
+    commands:
+      - powershell -command '$PSVersionTable'
+      - powershell -file '.\configure_aws_credential.ps1'
+      - powershell -file '.\install_modules.ps1'
+
       - '& "C:\Program Files\PowerShell\7\pwsh.exe" -command ''$PSVersionTable'''
-      - '& "C:\Program Files\PowerShell\7\pwsh.exe" -command ''.\install_modules.ps1'''
+      - '& "C:\Program Files\PowerShell\7\pwsh.exe" -file ''.\install_modules.ps1'''
 
   build:
     commands:
