@@ -4,7 +4,7 @@ phases:
 
   install:
     commands:
-      - dotnet tool install PowerShell --global
+      - dotnet tool install PowerShell --global --version 7.0.3
 
   pre_build:
     commands:
