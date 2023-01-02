@@ -68,10 +68,17 @@ Enter-Build {
     $script:ModuleManifestFile = Join-Path -Path $script:ModuleSourcePath -ChildPath "$($script:ModuleName).psd1"
     Import-Module $script:ModuleManifestFile
 
-    $manifestInfo = Import-PowerShellDataFile -Path $script:ModuleManifestFile
-    $script:ModuleVersion = $manifestInfo.ModuleVersion
-    $script:ModuleDescription = $manifestInfo.Description
-    $Script:FunctionsToExport = $manifestInfo.FunctionsToExport
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $manifestInfo = Import-PowerShellDataFile -Path $script:ModuleManifestFile
+        $script:ModuleVersion = $manifestInfo.ModuleVersion
+        $script:ModuleDescription = $manifestInfo.Description
+        $Script:FunctionsToExport = $manifestInfo.FunctionsToExport
+    } else {
+        $manifestInfo = Test-ModuleManifest -Path $script:ModuleManifestFile
+        $script:ModuleVersion = [string]$manifestInfo.Version
+        $script:ModuleDescription = $manifestInfo.Description
+        $Script:FunctionsToExport = ($manifestInfo.ExportedCommands.Values | Where-Object {$_.CommandType -eq 'Function'}).Name
+    }
 
     $script:TestsPath = Join-Path -Path $script:SourcePath -ChildPath 'Tests'
     $script:UnitTestsPath = Join-Path -Path $script:TestsPath -ChildPath 'Unit'
