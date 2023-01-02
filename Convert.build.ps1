@@ -54,7 +54,7 @@ Enter-Build {
     }
 
     Write-Host '    - Importing the Pester Module...' -ForegroundColor Green
-    Import-Module -Name 'Pester' -ErrorAction 'Stop'
+    Import-Module -Name 'Pester' -ErrorAction 'Stop' -MinimumVersion '5.3.0'
 
     Write-Host '    - Configuring Build Variables...' -ForegroundColor Green
     $script:RepositoryRoot = $BuildRoot
@@ -84,7 +84,7 @@ Enter-Build {
     $script:BuildModuleManifestFile = Join-Path -Path $script:ArtifactsPath -ChildPath "$($script:ModuleName).psd1"
     $script:BuildModuleRootFile = Join-Path -Path $script:ArtifactsPath -ChildPath "$($script:ModuleName).psm1"
 
-    $script:CodeCoverageThreshold = 75
+    $script:CodeCoverageThreshold = 85
 
     $ProgressPreference = 'SilentlyContinue'
     $Global:ProgressPreference = 'SilentlyContinue'

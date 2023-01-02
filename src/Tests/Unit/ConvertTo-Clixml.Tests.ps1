@@ -11,53 +11,64 @@ Describe -Name $function -Fixture {
     BeforeEach {
         $String = 'ThisIsMyString'
 
-        $FilePath = Join-Path -Path $env:TEMP -ChildPath 'clixml.txt'
-        $String | Export-Clixml -Path $FilePath
-        $Expected = Get-Content -Path $FilePath -Raw
+        function GetException {
+            try {
+                throw 'blah'
+            } catch {
+                return $_
+            }
+        }
+
+        function GetExpected {
+            param ($String)
+            $filePath = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'clixml.txt'
+            $String | Export-Clixml -Path $filePath
+            return (Get-Content -Path $filePath -Raw)
+
+        }
 
         # Use the variables so IDe does not complain
-        $null = $Expected
+        $null = $String
     }
 
     Context -Name 'Input/Output' -Fixture {
         It -Name "Converts to Clixml correctly" -Test {
             $assertion = ConvertTo-Clixml -InputObject $String
-            $assertion | Should -BeExactly $Expected
+            $assertion | Should -BeExactly (GetExpected -String $String)
         }
     }
 
     Context -Name 'Depth Support' -Fixture {
-        # Using an exception object as the object to test
-        try {
-            throw 'blah'
-        } catch {
-            $testObject = $_
+        BeforeEach {
+            # Using an exception object as the object to test
+            $TestObject = GetException
+
+            $ExpectedDepth1File = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'Depth1.xml'
+            $ExpectedDepth2File = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'Depth2.xml'
+
+            $ExpectedDepth1File, $ExpectedDepth2File | Remove-Item -Force -ErrorAction SilentlyContinue
+
+            $testObject | Export-Clixml -Depth 1 -Path $ExpectedDepth1File
+            $testObject | Export-Clixml -Depth 2 -Path $ExpectedDepth2File
+
+            $ExpectedDepth1 = Get-Content -Path $ExpectedDepth1File -Raw
+            $ExpectedDepth2 = Get-Content -Path $ExpectedDepth2File -Raw
+
+            $null = $ExpectedDepth1, $ExpectedDepth2
         }
 
-        $ExpectedDepth1File = Join-Path -Path $env:TEMP -ChildPath 'Depth1.xml'
-        $ExpectedDepth2File = Join-Path -Path $env:TEMP -ChildPath 'Depth2.xml'
-
-        $ExpectedDepth1File, $ExpectedDepth2File | Remove-Item -Force -ErrorAction SilentlyContinue
-
-        $testObject | Export-Clixml -Depth 1 -Path $ExpectedDepth1File
-        $testObject | Export-Clixml -Depth 2 -Path $ExpectedDepth2File
-
-        $ExpectedDepth1 = Get-Content -Path $ExpectedDepth1File -Raw
-        $ExpectedDepth2 = Get-Content -Path $ExpectedDepth2File -Raw
-
-        $assertionDepth1Default = ConvertTo-Clixml -InputObject $testObject
-        $assertionDepth1 = ConvertTo-Clixml -InputObject $testObject -Depth 1
-        $assertionDepth2 = ConvertTo-Clixml -InputObject $testObject -Depth 2
-
         It -Name "Supports depth 1 by default" -Test {
+            $assertionDepth1Default = ConvertTo-Clixml -InputObject $TestObject
             $assertionDepth1Default | Should -BeExactly $ExpectedDepth1
         }
 
         It -Name "Supports depth 1 when specified" -Test {
+            $assertionDepth1 = ConvertTo-Clixml -InputObject $TestObject -Depth 1
             $assertionDepth1 | Should -BeExactly $ExpectedDepth1
         }
 
         It -Name "Supports depth 2 when specified" -Test {
+            $assertionDepth2 = ConvertTo-Clixml -InputObject $TestObject -Depth 2
             $assertionDepth2 | Should -BeExactly $ExpectedDepth2
         }
     }
@@ -65,7 +76,7 @@ Describe -Name $function -Fixture {
     Context -Name 'Pipeline' -Fixture {
         It -Name 'Supports the Pipeline' -Test {
             $assertion = $String | ConvertTo-Clixml
-            $assertion | Should -BeExactly $Expected
+            $assertion | Should -BeExactly (GetExpected -String $String)
         }
 
         It -Name 'Supports the Pipeline with array input' -Test {
@@ -77,7 +88,7 @@ Describe -Name $function -Fixture {
     Context -Name 'Input/Output' -Fixture {
         It -Name "Converts to Clixml correctly" -Test {
             $assertion = ConvertTo-Clixml -InputObject $String
-            $assertion | Should -BeExactly $Expected
+            $assertion | Should -BeExactly (GetExpected -String $String)
         }
     }
 }
