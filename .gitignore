@@ -3,5 +3,5 @@ Artifacts
 DeploymentArtifacts
 .DS_Store
 .vscode
-cov.xml
-TestsResults.xml
+coverage.xml
+test_report.xml

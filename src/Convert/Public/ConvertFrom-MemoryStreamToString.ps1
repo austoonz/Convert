@@ -75,8 +75,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/
 #>
-function ConvertFrom-MemoryStreamToString
-{
+function ConvertFrom-MemoryStreamToString {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/')]
     [Alias('ConvertFrom-StreamToString')]
     param
@@ -99,44 +98,31 @@ function ConvertFrom-MemoryStreamToString
         $Stream
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        switch ($PSCmdlet.ParameterSetName)
-        {
-            'MemoryStream'
-            {
+    process {
+        switch ($PSCmdlet.ParameterSetName) {
+            'MemoryStream' {
                 $inputObject = $MemoryStream
             }
-            'Stream'
-            {
+            'Stream' {
                 $inputObject = $Stream
             }
         }
 
-        foreach ($object in $inputObject)
-        {
-            try
-            {
+        foreach ($object in $inputObject) {
+            try {
                 $reader = [System.IO.StreamReader]::new($object)
-                if ($PSCmdlet.ParameterSetName -eq 'MemoryStream')
-                {
+                if ($PSCmdlet.ParameterSetName -eq 'MemoryStream') {
                     $object.Position = 0
                 }
                 $reader.ReadToEnd()
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
-            }
-            finally
-            {
-                if ($reader)
-                {
+            } finally {
+                if ($reader) {
                     $reader.Dispose()
                 }
             }

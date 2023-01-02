@@ -2,15 +2,14 @@
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue')
-{
+if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
     Remove-Module -Name $moduleName -Force
 }
 Import-Module $pathToManifest -Force
 
 Describe $function {
     It 'Returns a MemoryStream' {
-        $byteArray = [Byte[]] (,0xFF * 100)
+        $byteArray = [Byte[]] (, 0xFF * 100)
 
         $assertion = ConvertFrom-ByteArrayToMemoryStream -ByteArray $byteArray
         $assertion.GetType().Name | Should -BeExactly 'MemoryStream'

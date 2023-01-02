@@ -2,64 +2,63 @@ $moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue')
-{
+if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
     Remove-Module -Name $moduleName -Force
 }
 Import-Module $pathToManifest -Force
 
 Describe -Name $function -Fixture {
+    BeforeEach {
+        $String = 'ThisIsMyString'
 
-    $string = 'ThisIsMyString'
-    $encodings = @(
-        @{
-            'Encoding' = 'ASCII'
-            'Expected' = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            'Encoding' = 'BigEndianUnicode'
-            'Expected' = 'AFQAaABpAHMASQBzAE0AeQBTAHQAcgBpAG4AZw=='
-        }
-        @{
-            'Encoding' = 'Default'
-            'Expected' = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            'Encoding' = 'Unicode'
-            'Expected' = 'VABoAGkAcwBJAHMATQB5AFMAdAByAGkAbgBnAA=='
-        }
-        @{
-            'Encoding' = 'UTF32'
-            'Expected' = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
-        }
-        @{
-            'Encoding' = 'UTF7'
-            'Expected' = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            'Encoding' = 'UTF8'
-            'Expected' = 'VGhpc0lzTXlTdHJpbmc='
-        }
-    )
+        # Use the variables so IDe does not complain
+        $null = $String
+    }
 
-    Context -Name '-ToBase64' -Fixture {
+    Context -Name '-ToBase64' -ForEach @(
+        @{
+            Encoding = 'ASCII'
+            Expected = 'VGhpc0lzTXlTdHJpbmc='
+        }
+        @{
+            Encoding = 'BigEndianUnicode'
+            Expected = 'AFQAaABpAHMASQBzAE0AeQBTAHQAcgBpAG4AZw=='
+        }
+        @{
+            Encoding = 'Default'
+            Expected = 'VGhpc0lzTXlTdHJpbmc='
+        }
+        @{
+            Encoding = 'Unicode'
+            Expected = 'VABoAGkAcwBJAHMATQB5AFMAdAByAGkAbgBnAA=='
+        }
+        @{
+            Encoding = 'UTF32'
+            Expected = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
+        }
+        @{
+            Encoding = 'UTF7'
+            Expected = 'VGhpc0lzTXlTdHJpbmc='
+        }
+        @{
+            Encoding = 'UTF8'
+            Expected = 'VGhpc0lzTXlTdHJpbmc='
+        }
+    ) -Fixture {
         Context -Name 'Input/Output' -Fixture {
-            foreach ($encoding in $encodings)
-            {
-                It -Name "Converts using $($encoding.Encoding) correctly" -Test {
-                    $string = 'ThisIsMyString'
+            It -Name 'Converts using <Encoding> correctly' -Test {
+                $string = 'ThisIsMyString'
 
-                    $stream = [System.IO.MemoryStream]::new()
-                    $writer = [System.IO.StreamWriter]::new($stream)
-                    $writer.Write($string)
-                    $writer.Flush()
+                $stream = [System.IO.MemoryStream]::new()
+                $writer = [System.IO.StreamWriter]::new($stream)
+                $writer.Write($string)
+                $writer.Flush()
 
-                    $assertion = ConvertFrom-MemoryStream -MemoryStream $stream -Encoding $encoding.Encoding -ToBase64
-                    $assertion | Should -BeExactly $encoding.Expected
+                $assertion = ConvertFrom-MemoryStream -MemoryStream $stream -Encoding $Encoding -ToBase64
+                $assertion | Should -BeExactly $Expected
 
-                    $stream.Dispose()
-                    $writer.Dispose()
-                }
+                $stream.Dispose()
+                $writer.Dispose()
             }
         }
 

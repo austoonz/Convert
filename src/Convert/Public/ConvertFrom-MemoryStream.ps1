@@ -141,8 +141,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/
 #>
-function ConvertFrom-MemoryStream
-{
+function ConvertFrom-MemoryStream {
     [CmdletBinding(
         HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/',
         DefaultParameterSetName = 'ToString'
@@ -170,30 +169,21 @@ function ConvertFrom-MemoryStream
         $ToBase64
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        foreach ($m in $MemoryStream)
-        {
-            try
-            {
+    process {
+        foreach ($m in $MemoryStream) {
+            try {
                 $string = ConvertFrom-MemoryStreamToString -MemoryStream $m -ErrorAction Stop
 
-                if ($ToString)
-                {
+                if ($ToString) {
                     $string
-                }
-                elseif ($ToBase64)
-                {
+                } elseif ($ToBase64) {
                     ConvertFrom-StringToBase64 -String $string -Encoding $Encoding
                 }
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
         }

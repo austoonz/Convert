@@ -77,8 +77,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/
 #>
-function ConvertFrom-StringToMemoryStream
-{
+function ConvertFrom-StringToMemoryStream {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/')]
     param
     (
@@ -98,34 +97,25 @@ function ConvertFrom-StringToMemoryStream
         $Compress
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        foreach ($s in $String)
-        {
-            try
-            {
+    process {
+        foreach ($s in $String) {
+            try {
                 [System.IO.MemoryStream]$stream = [System.IO.MemoryStream]::new()
-                if ($Compress)
-                {
+                if ($Compress) {
                     $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
                     $gzipStream = [System.IO.Compression.GzipStream]::new($stream, ([IO.Compression.CompressionMode]::Compress))
                     $gzipStream.Write( $byteArray, 0, $byteArray.Length )
-                }
-                else
-                {
+                } else {
                     $writer = [System.IO.StreamWriter]::new($stream)
                     $writer.Write($s)
                     $writer.Flush()
                 }
                 $stream
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
         }

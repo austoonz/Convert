@@ -26,23 +26,23 @@ $installedModules.Where({$_.Name -eq 'AWSPowerShell.NetCore'}) | ForEach-Object 
 $modulesToInstall = @(
     @{
         ModuleName    = 'AWS.Tools.S3'
-        ModuleVersion = '4.1.0.0'
+        ModuleVersion = '4.1.241'
     }
     @{
         ModuleName    = 'InvokeBuild'
-        ModuleVersion = '5.6.2'
+        ModuleVersion = '5.10.1'
     }
     @{
         ModuleName    = 'Pester'
-        ModuleVersion = '4.10.1'
+        ModuleVersion = '5.3.3'
     }
     @{
         ModuleName    = 'platyPS'
-        ModuleVersion = '0.14.0'
+        ModuleVersion = '0.14.2'
     }
     @{
         ModuleName    = 'PSScriptAnalyzer'
-        ModuleVersion = '1.18.3'
+        ModuleVersion = '1.21.0'
     }
 )
 
@@ -55,15 +55,6 @@ $installModule = @{
 }
 
 $installedModules = Get-Module -ListAvailable
-
-$installPackageProvider = @{
-    Name           = 'NuGet'
-    MinimumVersion = '2.8.5.201'
-    Scope          = 'CurrentUser'
-    Force          = $true
-    ErrorAction    = 'SilentlyContinue'
-}
-$null = Install-PackageProvider @installPackageProvider
 
 foreach ($module in $modulesToInstall) {
     Write-Host ('  - {0} {1}' -f $module.ModuleName, $module.ModuleVersion)

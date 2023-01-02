@@ -57,8 +57,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/
 #>
-function ConvertTo-Clixml
-{
+function ConvertTo-Clixml {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/')]
     param
     (
@@ -76,21 +75,15 @@ function ConvertTo-Clixml
         $Depth = 1
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        foreach ($io in $InputObject)
-        {
-            try
-            {
+    process {
+        foreach ($io in $InputObject) {
+            try {
                 [System.Management.Automation.PSSerializer]::Serialize($io, $Depth)
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
         }

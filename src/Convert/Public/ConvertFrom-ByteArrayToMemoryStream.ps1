@@ -20,11 +20,10 @@
 
     This command uses the ConvertFrom-ByteArrayToMemoryStream cmdlet to convert a Byte Array into a Memory Stream.
 #>
-function ConvertFrom-ByteArrayToMemoryStream
-{
+function ConvertFrom-ByteArrayToMemoryStream {
     param
     (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [Alias('Bytes')]
         [System.Byte[]]$ByteArray

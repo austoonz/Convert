@@ -2,126 +2,106 @@ $moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue')
-{
+if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
     Remove-Module -Name $moduleName -Force
 }
 Import-Module $pathToManifest -Force
 
 Describe -Name $function -Fixture {
-
-    $string = 'ThisIsMyString'
-    $expected = @"
+    BeforeEach {
+        $String = 'ThisIsMyString'
+        $Expected = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
-  <S>ThisIsMyString</S>
+    <S>ThisIsMyString</S>
 </Objs>
 "@
-    $string = 'ThisIsMyString'
+        # Use the variables so IDe does not complain
+        $null = $String, $Expected
+    }
 
     Context -Name 'String input' -Fixture {
         It -Name 'Converts to base64 correctly' -Test {
-            $string = 'ThisIsMyString'
-            $assertion = ConvertTo-Base64 -String $string -Encoding UTF8
+            $assertion = ConvertTo-Base64 -String $String -Encoding UTF8
 
-            $expected = 'VGhpc0lzTXlTdHJpbmc='
-            $assertion | Should -BeExactly $expected
+            $Expected = 'VGhpc0lzTXlTdHJpbmc='
+            $assertion | Should -BeExactly $Expected
         }
 
         It -Name 'Converts from Pipeline' -Test {
-            $string = 'ThisIsMyString'
-            $assertion = $string | ConvertTo-Base64 -Encoding UTF8
+            $assertion = $String | ConvertTo-Base64 -Encoding UTF8
 
-            $expected = 'VGhpc0lzTXlTdHJpbmc='
-            $assertion | Should -BeExactly $expected
+            $Expected = 'VGhpc0lzTXlTdHJpbmc='
+            $assertion | Should -BeExactly $Expected
         }
 
         It -Name 'Converts an array from Pipeline' -Test {
-            $string = 'ThisIsMyString'
-            $assertion = $string, $string | ConvertTo-Base64 -Encoding UTF8
+            $assertion = $String, $String | ConvertTo-Base64 -Encoding UTF8
 
             $assertion | Should -HaveCount 2
         }
 
         It -Name 'Convert an object to compressed base64 string' -Test {
-            $string = 'ThisIsMyString'
-            $assertion = ConvertTo-Base64 -String $string -Encoding Unicode -Compress
+            $assertion = ConvertTo-Base64 -String $String -Encoding Unicode -Compress
 
             # Each platform performs these convertions with compression differently.
             # Leaving alone for now, will re-evaluate this in a future release.
-            if ($PSEdition -eq 'Desktop')
-            {
-                $expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            if ($PSEdition -eq 'Desktop') {
+                $Expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6) {
+                $Expected = 'H4sIAAAAAAAACwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7) {
+                $Expected = 'H4sIAAAAAAAACgthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            } elseif ($IsLinux) {
+                $Expected = 'H4sIAAAAAAAAAwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            } elseif ($IsMacOS) {
+                $Expected = 'H4sIAAAAAAAAEwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
+            } else {
+                $Expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             }
-            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6)
-            {
-                $expected = 'H4sIAAAAAAAACwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            }
-            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7)
-            {
-                $expected = 'H4sIAAAAAAAACgthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            }
-            elseif ($IsLinux)
-            {
-                $expected = 'H4sIAAAAAAAAAwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            }
-            elseif ($IsMacOS)
-            {
-                $expected = 'H4sIAAAAAAAAEwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            }
-            else
-            {
-                $expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            }
-            $assertion | Should -BeExactly $expected
+            $assertion | Should -BeExactly $Expected
         }
     }
 
     Context -Name 'MemoryStream input' -Fixture {
         It -Name 'Converts to base64 correctly' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
-            $writer.Write($string)
+            $writer.Write($String)
             $writer.Flush()
 
             $assertion = ConvertTo-Base64 -MemoryStream $stream -Encoding UTF8
 
-            $expected = 'VGhpc0lzTXlTdHJpbmc='
-            $assertion | Should -BeExactly $expected
+            $Expected = 'VGhpc0lzTXlTdHJpbmc='
+            $assertion | Should -BeExactly $Expected
 
             $stream.Dispose()
             $writer.Dispose()
         }
 
         It -Name 'Converts from Pipeline' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
-            $writer.Write($string)
+            $writer.Write($String)
             $writer.Flush()
 
             $assertion = $stream | ConvertTo-Base64 -Encoding UTF8
 
-            $expected = 'VGhpc0lzTXlTdHJpbmc='
-            $assertion | Should -BeExactly $expected
+            $Expected = 'VGhpc0lzTXlTdHJpbmc='
+            $assertion | Should -BeExactly $Expected
 
             $stream.Dispose()
             $writer.Dispose()
         }
 
         It -Name 'Converts an array from Pipeline' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
-            $writer.Write($string)
+            $writer.Write($String)
             $writer.Flush()
 
             $stream2 = [System.IO.MemoryStream]::new()
             $writer2 = [System.IO.StreamWriter]::new($stream2)
-            $writer2.Write($string)
+            $writer2.Write($String)
             $writer2.Flush()
 
             $assertion = @($stream, $stream2) | ConvertTo-Base64 -Encoding UTF8
@@ -135,89 +115,65 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Converts to base64 with compression correctly' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
-            $writer.Write($string)
+            $writer.Write($String)
             $writer.Flush()
 
             $assertion = ConvertTo-Base64 -MemoryStream $stream -Encoding UTF8 -Compress
 
-            if ($PSEdition -eq 'Desktop')
-            {
-                $expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
-            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6)
-            {
-                $expected = 'H4sIAAAAAAAACwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
-            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7)
-            {
-                $expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
-            elseif ($IsLinux)
-            {
-                $expected = 'H4sIAAAAAAAAAwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
-            elseif ($IsMacOS)
-            {
-                $expected = 'H4sIAAAAAAAAEwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            if ($PSEdition -eq 'Desktop') {
+                $Expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6) {
+                $Expected = 'H4sIAAAAAAAACwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7) {
+                $Expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            } elseif ($IsLinux) {
+                $Expected = 'H4sIAAAAAAAAAwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            } elseif ($IsMacOS) {
+                $Expected = 'H4sIAAAAAAAAEwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
             }
 
-            $assertion | Should -BeExactly $expected
+            $assertion | Should -BeExactly $Expected
 
             $stream.Dispose()
             $writer.Dispose()
         }
 
         It -Name 'Converts from Pipeline with compression' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
-            $writer.Write($string)
+            $writer.Write($String)
             $writer.Flush()
 
             $assertion = $stream | ConvertTo-Base64 -Encoding UTF8 -Compress
 
-            if ($PSEdition -eq 'Desktop')
-            {
-                $expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            if ($PSEdition -eq 'Desktop') {
+                $Expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6) {
+                $Expected = 'H4sIAAAAAAAACwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7) {
+                $Expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            } elseif ($IsLinux) {
+                $Expected = 'H4sIAAAAAAAAAwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
+            } elseif ($IsMacOS) {
+                $Expected = 'H4sIAAAAAAAAEwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
             }
-            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6)
-            {
-                $expected = 'H4sIAAAAAAAACwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
-            elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7)
-            {
-                $expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
-            elseif ($IsLinux)
-            {
-                $expected = 'H4sIAAAAAAAAAwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
-            elseif ($IsMacOS)
-            {
-                $expected = 'H4sIAAAAAAAAEwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
-            $assertion | Should -BeExactly $expected
+            $assertion | Should -BeExactly $Expected
 
             $stream.Dispose()
             $writer.Dispose()
         }
 
         It -Name 'Converts an array from Pipeline with compression' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
-            $writer.Write($string)
+            $writer.Write($String)
             $writer.Flush()
 
             $stream2 = [System.IO.MemoryStream]::new()
             $writer2 = [System.IO.StreamWriter]::new($stream2)
-            $writer2.Write($string)
+            $writer2.Write($String)
             $writer2.Flush()
 
             $assertion = @($stream, $stream2) | ConvertTo-Base64 -Encoding UTF8 -Compress

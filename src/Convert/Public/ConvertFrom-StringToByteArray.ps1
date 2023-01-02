@@ -51,8 +51,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/
 #>
-function ConvertFrom-StringToByteArray
-{
+function ConvertFrom-StringToByteArray {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/')]
     param
     (
@@ -69,27 +68,21 @@ function ConvertFrom-StringToByteArray
         $Encoding = 'UTF8'
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        foreach ($s in $String)
-        {
+    process {
+        foreach ($s in $String) {
             # Creating a generic list to ensure an array of string being handed in
             # outputs an array of Byte arrays, rather than a single array with both
             # Byte arrays merged.
             $byteArrayObject = [System.Collections.Generic.List[Byte[]]]::new()
-            try
-            {
+            try {
                 $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
                 $null = $byteArrayObject.Add($byteArray)
                 $byteArrayObject
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
         }

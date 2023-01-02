@@ -44,8 +44,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/
 #>
-function ConvertFrom-Base64ToString
-{
+function ConvertFrom-Base64ToString {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/')]
     [OutputType('String')]
     [Alias('ConvertFrom-Base64StringToString')]
@@ -69,30 +68,21 @@ function ConvertFrom-Base64ToString
         $Decompress
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        foreach ($s in $String)
-        {
-            try
-            {
+    process {
+        foreach ($s in $String) {
+            try {
                 $bytes = [System.Convert]::FromBase64String($s)
 
-                if ($Decompress)
-                {
+                if ($Decompress) {
                     ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
-                }
-                else
-                {
+                } else {
                     [System.Text.Encoding]::$Encoding.GetString($bytes)
                 }
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
         }

@@ -74,8 +74,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/
 #>
-function ConvertTo-MemoryStream
-{
+function ConvertTo-MemoryStream {
     [CmdletBinding(
         DefaultParameterSetName = 'String',
         HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/')]
@@ -98,41 +97,32 @@ function ConvertTo-MemoryStream
         $Compress
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
         $eaSplat = @{
             ErrorAction = $userErrorActionPreference
         }
     }
 
-    process
-    {
-        switch ($PSCmdlet.ParameterSetName)
-        {
-            'String'
-            {
-                foreach ($s in $string)
-                {
+    process {
+        switch ($PSCmdlet.ParameterSetName) {
+            'String' {
+                foreach ($s in $string) {
                     $params = @{
-                        String = $s
+                        String   = $s
                         Encoding = $Encoding
                     }
 
-                    if ($Compress)
-                    {
+                    if ($Compress) {
                         ConvertFrom-StringToMemoryStream @params -Compress @eaSplat
-                    }
-                    else
-                    {
+                    } else {
                         ConvertFrom-StringToMemoryStream @params @eaSplat
                     }
                 }
                 break
             }
 
-            default
-            {
+            default {
                 Write-Error -Message 'Invalid ParameterSetName' @eaSplat
                 break
             }

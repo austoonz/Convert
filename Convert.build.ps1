@@ -43,37 +43,14 @@ Enter-Build {
     Write-Host '  Build Environment: Setting up...' -ForegroundColor Green
 
     Write-Host '    - Importing the AWS Tools for PowerShell...' -ForegroundColor Green
-    if ($PSEdition -eq 'Desktop') {
-        if (Get-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ListAvailable)
-        {
-            Import-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ErrorAction 'Stop'
-        }
-        elseif (Get-Module -Name 'AWSPowerShell' -ListAvailable)
-        {
-            Import-Module -Name 'AWSPowerShell' -ErrorAction 'Stop'
-        }
-        elseif (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable)
-        {
-            Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
-        }
-        else
-        {
-            throw 'One of the AWS Tools for PowerShell modules must be available for import.'
-        }
-    }
-    else {
-        if (Get-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ListAvailable)
-        {
-            Import-Module -Name @('AWS.Tools.Common','AWS.Tools.S3') -ErrorAction 'Stop'
-        }
-        elseif (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable)
-        {
-            Import-Module -Name 'AWSPowerShell.NetCore' -ErrorAction 'Stop'
-        }
-        else
-        {
-            throw 'One of the AWS Tools for PowerShell modules must be available for import.'
-        }
+    if (Get-Module -Name 'AWS.Tools.Common' -ListAvailable) {
+        Import-Module -Name 'AWS.Tools.Common'
+    } elseif (($PSEdition -eq 'Desktop') -and (Get-Module -Name 'AWSPowerShell' -ListAvailable)) {
+        Import-Module -Name 'AWSPowerShell'
+    } elseif (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable) {
+        Import-Module -Name 'AWSPowerShell.NetCore'
+    } else {
+        throw 'One of the AWS Tools for PowerShell modules must be available for import.'
     }
 
     Write-Host '    - Importing the Pester Module...' -ForegroundColor Green
@@ -218,39 +195,40 @@ task AnalyzeTests -After Analyze {
     Write-Host ''
 }
 
-# Synopsis: Invokes all Pester Unit Tests in the Tests\Unit folder (if it exists)
 task Test {
     Write-Host ''
 
-    $codeCoverageOutputFile = Join-Path -Path $script:RepositoryRoot -ChildPath 'cov.xml'
-    $codeCoverageFiles = (Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse).FullName
-
-    if (Test-Path -Path $script:UnitTestsPath)
-    {
+    if (Test-Path -Path $script:UnitTestsPath) {
         Write-Host ''
         Write-Host '  Pester Unit Tests: Invoking...' -ForegroundColor Green
         Write-Host ''
 
-        $invokePesterParams = @{
-            Path                         = 'src\Tests\Unit'
-            Strict                       = $true
-            PassThru                     = $true
-            Verbose                      = $false
-            EnableExit                   = $false
-            CodeCoverage                 = $codeCoverageFiles
-            CodeCoverageOutputFile       = $codeCoverageOutputFile
-            CodeCoverageOutputFileFormat = 'JaCoCo'
+        $outputFormat = 'CoverageGutters'
+        if ($env:CODEBUILD_BUILD_ARN) {
+            $outputFormat = 'JaCoCo'
         }
 
-        # Publish Test Results as NUnitXml
-        $testResults = Invoke-Pester @invokePesterParams
+        $pesterConfiguration = New-PesterConfiguration
+        $pesterConfiguration.run.Path = $script:UnitTestsPath
+        $pesterConfiguration.Run.PassThru = $true
+        $pesterConfiguration.Run.Exit = $false
+        $pesterConfiguration.CodeCoverage.Enabled = $true
+        $pesterConfiguration.CodeCoverage.CoveragePercentTarget = $script:CodeCoverageThreshold
+        $pesterConfiguration.CodeCoverage.OutputPath = Join-Path -Path $script:RepositoryRoot -ChildPath 'coverage.xml'
+        $pesterConfiguration.CodeCoverage.OutputFormat = $outputFormat
+        $pesterConfiguration.CodeCoverage.Path = (Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse).FullName
+        $pesterConfiguration.TestResult.Enabled = $true
+        $pesterConfiguration.TestResult.OutputPath = Join-Path -Path $script:RepositoryRoot -ChildPath 'test_report.xml'
+        $pesterConfiguration.TestResult.OutputFormat = 'JUnitXml'
+        $pesterConfiguration.Output.Verbosity = 'Detailed'
+
+        Write-Build White '      Performing Pester Unit Tests...'
+        $testResults = Invoke-Pester -Configuration $pesterConfiguration
 
         # Output the details for each failed test (if running in CodeBuild)
-        if ($env:CODEBUILD_BUILD_ARN)
-        {
+        if ($env:CODEBUILD_BUILD_ARN) {
             $testResults.TestResult | ForEach-Object {
-                if ($_.Result -ne 'Passed')
-                {
+                if ($_.Result -ne 'Passed') {
                     $_
                 }
             }
@@ -260,12 +238,9 @@ task Test {
         assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
 
         # Ensure our builds fail until if below a minimum defined code test coverage threshold
-        try
-        {
-            $coveragePercent = '{0:N2}' -f ($testResults.CodeCoverage.NumberOfCommandsExecuted / $testResults.CodeCoverage.NumberOfCommandsAnalyzed * 100)
-        }
-        catch
-        {
+        try {
+            $coveragePercent = '{0:N2}' -f ($testResults.CodeCoverage.CommandsExecutedCount / $testResults.CodeCoverage.CommandsAnalyzedCount * 100)
+        } catch {
             $coveragePercent = 0
         }
 
@@ -275,42 +250,6 @@ task Test {
 
         Write-Host ''
         Write-Host '  Pester Unit Tests: Passed' -ForegroundColor Green
-    }
-
-    Write-Host ''
-
-    if (Test-Path -Path $script:IntegrationTestsPath)
-    {
-        Write-Host '  Pester Integration Tests: Invoking...' -ForegroundColor Green
-        Write-Host ''
-
-        $invokePesterParams = @{
-            Path       = $script:IntegrationTestsPath
-            Strict     = $true
-            PassThru   = $true
-            Verbose    = $false
-            EnableExit = $false
-        }
-        Write-Host $invokePesterParams.path
-        # Publish Test Results as NUnitXml
-        $testResults = Invoke-Pester @invokePesterParams
-
-        # This will output a nice json for each failed test (if running in CodeBuild)
-        if ($env:CODEBUILD_BUILD_ARN)
-        {
-            $testResults.TestResult | ForEach-Object {
-                if ($_.Result -ne 'Passed')
-                {
-                    ConvertTo-Json -InputObject $_ -Compress
-                }
-            }
-        }
-
-        $numberFails = $testResults.FailedCount
-        assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
-
-        Write-Host ''
-        Write-Host '  Pester Integration Tests: Passed' -ForegroundColor Green
     }
 
     Write-Host ''

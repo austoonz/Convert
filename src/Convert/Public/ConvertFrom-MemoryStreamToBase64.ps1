@@ -1,18 +1,18 @@
 <#
     .SYNOPSIS
         Converts MemoryStream to a base64 encoded string.
-    
+
     .DESCRIPTION
         Converts MemoryStream to a base64 encoded string.
-    
+
     .PARAMETER MemoryStream
         A MemoryStream object for conversion.
-    
+
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
-    
+
     .EXAMPLE
         $string = 'A string'
         $stream = [System.IO.MemoryStream]::new()
@@ -21,7 +21,7 @@
         $writer.Flush()
 
         ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
-        
+
         QSBzdHJpbmc=
 
     .EXAMPLE
@@ -77,8 +77,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/
 #>
-function ConvertFrom-MemoryStreamToBase64
-{
+function ConvertFrom-MemoryStreamToBase64 {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/')]
     param
     (
@@ -94,23 +93,17 @@ function ConvertFrom-MemoryStreamToBase64
         [String]
         $Encoding = 'UTF8'
     )
-    
-    begin
-    {
+
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        foreach ($m in $MemoryStream)
-        {
-            try
-            {
+    process {
+        foreach ($m in $MemoryStream) {
+            try {
                 $string = ConvertFrom-MemoryStreamToString -MemoryStream $m
                 ConvertFrom-StringToBase64 -String $string -Encoding $Encoding
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
         }

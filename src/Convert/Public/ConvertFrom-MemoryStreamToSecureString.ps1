@@ -28,9 +28,8 @@
     https://msdn.microsoft.com/en-us/library/system.io.streamreader%28v=vs.110%29.aspx
     https://msdn.microsoft.com/en-us/library/system.security.securestring%28v=vs.110%29.aspx
 #>
-function ConvertFrom-MemoryStreamToSecureString
-{
-    [CmdletBinding(DefaultParameterSetName='MemoryStream')]
+function ConvertFrom-MemoryStreamToSecureString {
+    [CmdletBinding(DefaultParameterSetName = 'MemoryStream')]
     param
     (
         [Parameter(
@@ -51,48 +50,36 @@ function ConvertFrom-MemoryStreamToSecureString
         $Stream
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        switch ($PSCmdlet.ParameterSetName)
-        {
-            'MemoryStream'
-            {
+    process {
+        switch ($PSCmdlet.ParameterSetName) {
+            'MemoryStream' {
                 $inputObject = $MemoryStream
             }
-            'Stream'
-            {
+            'Stream' {
                 $inputObject = $Stream
             }
         }
 
-        foreach ($object in $inputObject)
-        {
-            try
-            {
+        foreach ($object in $inputObject) {
+            try {
                 $secureString = [System.Security.SecureString]::new()
                 $reader = [System.IO.StreamReader]::new($object)
-            
-                while ($reader.Peek() -ge 0)
-                {
+
+                while ($reader.Peek() -ge 0) {
                     $secureString.AppendChar($reader.Read())
                 }
                 $secureString.MakeReadOnly()
-            
-                $secureString    
-            }
-            catch
-            {
+
+                $secureString
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
-            }
-            finally
-            {
+            } finally {
                 $reader.Dispose()
             }
-        }    
+        }
     }
 }

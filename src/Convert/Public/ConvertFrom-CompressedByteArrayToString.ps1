@@ -33,8 +33,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/
 #>
-function ConvertFrom-CompressedByteArrayToString
-{
+function ConvertFrom-CompressedByteArrayToString {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/')]
     param
     (
@@ -51,15 +50,12 @@ function ConvertFrom-CompressedByteArrayToString
         $Encoding = 'UTF8'
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        try
-        {
+    process {
+        try {
             $inputStream = [System.IO.MemoryStream]::new($ByteArray)
             $output = [System.IO.MemoryStream]::new()
 
@@ -69,9 +65,7 @@ function ConvertFrom-CompressedByteArrayToString
             $inputStream.Close()
 
             [System.Text.Encoding]::$Encoding.GetString($output.ToArray())
-        }
-        catch
-        {
+        } catch {
             Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
         }
     }

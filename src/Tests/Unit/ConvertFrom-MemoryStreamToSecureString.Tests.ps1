@@ -2,8 +2,7 @@
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue')
-{
+if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
     Remove-Module -Name $moduleName -Force
 }
 Import-Module $pathToManifest -Force
@@ -22,14 +21,14 @@ Describe $function {
     }
 
     It 'Throws an exception when input is of wrong type' {
-        { ConvertFrom-MemoryStreamToSecureString -MemoryStream 'String' } | Should Throw
+        { ConvertFrom-MemoryStreamToSecureString -MemoryStream 'String' } | Should -Throw
     }
 
     It 'Throws an exception when input is null' {
-        { ConvertFrom-MemoryStreamToSecureString -MemoryStream $null } | Should Throw
+        { ConvertFrom-MemoryStreamToSecureString -MemoryStream $null } | Should -Throw
     }
 
     It 'Does not throw an exception when input is an empty System.IO.MemoryStream' {
-        { ConvertFrom-MemoryStreamToSecureString -MemoryStream (New-Object System.IO.MemoryStream) } | Should Not Throw
+        { ConvertFrom-MemoryStreamToSecureString -MemoryStream (New-Object System.IO.MemoryStream) } | Should -Not -Throw
     }
 }

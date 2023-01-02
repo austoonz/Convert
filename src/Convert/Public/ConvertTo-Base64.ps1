@@ -138,8 +138,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/
 #>
-function ConvertTo-Base64
-{
+function ConvertTo-Base64 {
     [CmdletBinding(
         DefaultParameterSetName = 'String',
         HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/')]
@@ -172,8 +171,7 @@ function ConvertTo-Base64
         $Compress
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
 
         $convertSplat = @{
@@ -181,46 +179,33 @@ function ConvertTo-Base64
         }
     }
 
-    process
-    {
-        switch ($PSCmdlet.ParameterSetName)
-        {
-            'String'
-            {
-                foreach ($s in $string)
-                {
-                    if ($Compress)
-                    {
+    process {
+        switch ($PSCmdlet.ParameterSetName) {
+            'String' {
+                foreach ($s in $string) {
+                    if ($Compress) {
                         ConvertFrom-StringToBase64 -String $s -Encoding $Encoding @convertSplat -Compress
-                    }
-                    else
-                    {
+                    } else {
                         ConvertFrom-StringToBase64 -String $s -Encoding $Encoding @convertSplat
                     }
                 }
                 break
             }
 
-            'MemoryStream'
-            {
-                foreach ($m in $MemoryStream)
-                {
-                    if ($Compress)
-                    {
+            'MemoryStream' {
+                foreach ($m in $MemoryStream) {
+                    if ($Compress) {
                         $string = ConvertFrom-MemoryStreamToString -MemoryStream $m @convertSplat
                         $byteArray = ConvertFrom-StringToCompressedByteArray -String $string @convertSplat
                         ConvertFrom-ByteArrayToBase64 -ByteArray $byteArray @convertSplat
-                    }
-                    else
-                    {
+                    } else {
                         ConvertFrom-MemoryStreamToBase64 -MemoryStream $m @convertSplat
                     }
                 }
                 break
             }
 
-            default
-            {
+            default {
                 Write-Error -Message 'Invalid ParameterSetName' -ErrorAction $userErrorActionPreference
                 break
             }

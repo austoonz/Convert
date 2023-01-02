@@ -20,8 +20,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/
 #>
-function ConvertFrom-ByteArrayToBase64
-{
+function ConvertFrom-ByteArrayToBase64 {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/')]
     [Alias('ConvertFrom-ByteArrayToBase64String')]
     param
@@ -36,19 +35,14 @@ function ConvertFrom-ByteArrayToBase64
         $ByteArray
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        try
-        {
+    process {
+        try {
             [System.Convert]::ToBase64String($ByteArray)
-        }
-        catch
-        {
+        } catch {
             Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
         }
     }

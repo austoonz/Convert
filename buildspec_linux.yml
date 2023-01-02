@@ -3,14 +3,18 @@ version: 0.2
 phases:
 
   install:
+    runtime-versions:
+      dotnet: 6.x
+
     commands:
       - export PATH="$PATH:/root/.dotnet/tools"
-      - dotnet tool install PowerShell --global --version 7.0.3
+      - dotnet tool install PowerShell --global --version 7.2.8
 
   pre_build:
     commands:
       - pwsh -command '$PSVersionTable'
       - pwsh -command './configure_aws_credential.ps1'
+      - pwsh -command './install_nuget.ps1'
       - pwsh -command './install_modules.ps1'
 
   build:
@@ -21,3 +25,10 @@ artifacts:
   files:
     - '**/*'
   base-directory: 'DeploymentArtifacts'
+
+reports:
+  UnitTests:
+    files:
+      - 'test_report.xml'
+    discard-paths: yes
+    file-format: JUNITXML

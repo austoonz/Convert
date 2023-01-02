@@ -86,8 +86,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertTo-String/
 #>
-function ConvertTo-String
-{
+function ConvertTo-String {
     [CmdletBinding(
         DefaultParameterSetName = 'Base64String',
         HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/')]
@@ -129,45 +128,37 @@ function ConvertTo-String
         $Decompress
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
+    process {
         $splat = @{}
-        switch ($PSCmdlet.ParameterSetName)
-        {
-            'Base64String'
-            {
+        switch ($PSCmdlet.ParameterSetName) {
+            'Base64String' {
                 $InputObject = $Base64EncodedString
                 $Function = 'ConvertFrom-Base64ToString'
                 $splat.Add('Encoding', $Encoding)
-                if ($Decompress)
-                {
+                if ($Decompress) {
                     $splat.Add('Decompress', $true)
                 }
                 break
             }
 
-            'MemoryStream'
-            {
+            'MemoryStream' {
                 $InputObject = $MemoryStream
                 $Function = 'ConvertFrom-MemoryStreamToString'
                 break
             }
 
-            'Stream'
-            {
+            'Stream' {
                 $InputObject = $Stream
                 $Function = 'ConvertFrom-MemoryStreamToString'
                 break
             }
         }
 
-        if ($InputObject)
-        {
+        if ($InputObject) {
             $InputObject | & $Function @splat -ErrorAction $userErrorActionPreference
         }
     }

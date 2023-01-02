@@ -33,8 +33,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/
 #>
-function ConvertFrom-StringToCompressedByteArray
-{
+function ConvertFrom-StringToCompressedByteArray {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/')]
     param
     (
@@ -51,21 +50,17 @@ function ConvertFrom-StringToCompressedByteArray
         $Encoding = 'UTF8'
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        foreach ($s in $String)
-        {
+    process {
+        foreach ($s in $String) {
             # Creating a generic list to ensure an array of string being handed in
             # outputs an array of Byte arrays, rather than a single array with both
             # Byte arrays merged.
             $byteArrayObject = [System.Collections.Generic.List[Byte[]]]::new()
-            try
-            {
+            try {
                 $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
 
                 [System.IO.MemoryStream] $output = [System.IO.MemoryStream]::new()
@@ -76,9 +71,7 @@ function ConvertFrom-StringToCompressedByteArray
 
                 $null = $byteArrayObject.Add($output.ToArray())
                 $byteArrayObject
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
         }

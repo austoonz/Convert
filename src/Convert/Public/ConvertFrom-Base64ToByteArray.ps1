@@ -20,13 +20,12 @@
     .LINK
     https://msdn.microsoft.com/en-us/library/system.convert.frombase64string%28v=vs.110%29.aspx
 #>
-function ConvertFrom-Base64ToByteArray
-{
+function ConvertFrom-Base64ToByteArray {
     [CmdletBinding()]
     [Alias('ConvertFrom-Base64StringToByteArray')]
     param
     (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [Alias('Base64String')]
         [String]$String

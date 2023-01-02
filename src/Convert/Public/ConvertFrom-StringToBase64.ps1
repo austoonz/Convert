@@ -58,8 +58,7 @@
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/
 #>
-function ConvertFrom-StringToBase64
-{
+function ConvertFrom-StringToBase64 {
     [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/')]
     param
     (
@@ -80,30 +79,21 @@ function ConvertFrom-StringToBase64
         $Compress
     )
 
-    begin
-    {
+    begin {
         $userErrorActionPreference = $ErrorActionPreference
     }
 
-    process
-    {
-        foreach ($s in $String)
-        {
-            try
-            {
-                if ($Compress)
-                {
+    process {
+        foreach ($s in $String) {
+            try {
+                if ($Compress) {
                     $bytes = ConvertFrom-StringToCompressedByteArray -String $s -Encoding $Encoding
-                }
-                else
-                {
+                } else {
                     $bytes = [System.Text.Encoding]::$Encoding.GetBytes($s)
                 }
 
                 [System.Convert]::ToBase64String($bytes)
-            }
-            catch
-            {
+            } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
         }

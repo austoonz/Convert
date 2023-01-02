@@ -2,37 +2,32 @@ $moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue')
-{
+if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
     Remove-Module -Name $moduleName -Force
 }
 Import-Module $pathToManifest -Force
 
 Describe -Name $function -Fixture {
+    BeforeEach {
+        $String = 'ThisIsMyString'
 
-    $string = 'ThisIsMyString'
-    $expected = @"
-<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
-  <S>ThisIsMyString</S>
-</Objs>
-"@
-    $string = 'ThisIsMyString'
+        # Use the variables so IDe does not complain
+        $null = $String
+    }
 
     Context -Name 'String input' -Fixture {
         It -Name 'Converts to base64 correctly' -Test {
             $base64 = 'VGhpc0lzTXlTdHJpbmc='
             $assertion = ConvertTo-String -Base64EncodedString $base64 -Encoding UTF8
 
-            $expected = 'ThisIsMyString'
-            $assertion | Should -BeExactly $expected
+            $assertion | Should -BeExactly $String
         }
 
         It -Name 'Converts from Pipeline' -Test {
             $base64 = 'VGhpc0lzTXlTdHJpbmc='
             $assertion = $base64 | ConvertTo-String -Encoding UTF8
 
-            $expected = 'ThisIsMyString'
-            $assertion | Should -BeExactly $expected
+            $assertion | Should -BeExactly $String
         }
 
         It -Name 'Converts an array from Pipeline' -Test {
@@ -46,15 +41,12 @@ Describe -Name $function -Fixture {
             $base64 = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
             $assertion = ConvertTo-String -Base64EncodedString $base64 -Encoding Unicode -Decompress
 
-            $expected = 'ThisIsMyString'
-            $assertion | Should -BeExactly $expected
+            $assertion | Should -BeExactly $String
         }
     }
 
     Context -Name 'MemoryStream input' -Fixture {
         It -Name 'Converts to base64 correctly' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
             $writer.Write($string)
@@ -62,15 +54,13 @@ Describe -Name $function -Fixture {
 
             $assertion = ConvertTo-String -MemoryStream $stream
 
-            $assertion | Should -BeExactly $string
+            $assertion | Should -BeExactly $String
 
             $stream.Dispose()
             $writer.Dispose()
         }
 
         It -Name 'Converts from Pipeline' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
             $writer.Write($string)
@@ -78,15 +68,13 @@ Describe -Name $function -Fixture {
 
             $assertion = $stream | ConvertTo-String
 
-            $assertion | Should -BeExactly $string
+            $assertion | Should -BeExactly $String
 
             $stream.Dispose()
             $writer.Dispose()
         }
 
         It -Name 'Converts an array from Pipeline' -Test {
-            $string = 'ThisIsMyString'
-
             $stream = [System.IO.MemoryStream]::new()
             $writer = [System.IO.StreamWriter]::new($stream)
             $writer.Write($string)
@@ -94,7 +82,7 @@ Describe -Name $function -Fixture {
 
             $stream2 = [System.IO.MemoryStream]::new()
             $writer2 = [System.IO.StreamWriter]::new($stream2)
-            $writer2.Write($string)
+            $writer2.Write($String)
             $writer2.Flush()
 
             $assertion = @($stream, $stream2) | ConvertTo-String
