@@ -1,17 +1,15 @@
 <#
     .SYNOPSIS
-        Converts MemoryStream to a base64 encoded string.
+        Converts MemoryStream to a byte array.
 
     .DESCRIPTION
-        Converts MemoryStream to a base64 encoded string.
+        Converts MemoryStream to a byte array.
 
     .PARAMETER MemoryStream
-        A MemoryStream object for conversion.
+        A System.IO.MemoryStream object for conversion.
 
-    .PARAMETER Encoding
-        The encoding to use for conversion.
-        Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+    .PARAMETER Stream
+        A System.IO.Stream object for conversion.
 
     .EXAMPLE
         $string = 'A string'
@@ -20,9 +18,7 @@
         $writer.Write($string)
         $writer.Flush()
 
-        ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
-
-        QSBzdHJpbmc=
+        ConvertFrom-MemoryStreamToByteArray -MemoryStream $stream
 
     .EXAMPLE
         $string = 'A string'
@@ -31,9 +27,7 @@
         $writer.Write($string)
         $writer.Flush()
 
-        $stream | ConvertFrom-MemoryStreamToBase64
-
-        QSBzdHJpbmc=
+        $stream | ConvertFrom-MemoryStreamToByteArray
 
     .EXAMPLE
         $string1 = 'A string'
@@ -48,10 +42,7 @@
         $writer2.Write($string2)
         $writer2.Flush()
 
-        ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream1,$stream2
-
-        QSBzdHJpbmc=
-        QW5vdGhlciBzdHJpbmc=
+        ConvertFrom-MemoryStreamToByteArray -MemoryStream $stream1,$stream2
 
     .EXAMPLE
         $string1 = 'A string'
@@ -66,28 +57,34 @@
         $writer2.Write($string2)
         $writer2.Flush()
 
-        $stream1,$stream2 | ConvertFrom-MemoryStreamToBase64
-
-        QSBzdHJpbmc=
-        QW5vdGhlciBzdHJpbmc=
+        $stream1,$stream2 | ConvertFrom-MemoryStreamToByteArray
 
     .OUTPUTS
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/
+        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToByteArray/
 #>
-function ConvertFrom-MemoryStreamToBase64 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/')]
+function ConvertFrom-MemoryStreamToByteArray {
+    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToByteArray/')]
     param
     (
         [Parameter(
             Mandatory = $true,
             ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true)]
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'MemoryStream')]
         [ValidateNotNullOrEmpty()]
         [System.IO.MemoryStream[]]
-        $MemoryStream
+        $MemoryStream,
+
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'Stream')]
+        [ValidateNotNullOrEmpty()]
+        [System.IO.Stream[]]
+        $Stream
     )
 
     begin {
@@ -95,12 +92,28 @@ function ConvertFrom-MemoryStreamToBase64 {
     }
 
     process {
-        foreach ($m in $MemoryStream) {
+        switch ($PSCmdlet.ParameterSetName) {
+            'MemoryStream' {
+                $inputObject = $MemoryStream
+            }
+            'Stream' {
+                $inputObject = $Stream
+            }
+        }
+
+        foreach ($object in $inputObject) {
             try {
-                $byteArray = ConvertFrom-MemoryStreamToByteArray -MemoryStream $m
-                ConvertFrom-ByteArrayToBase64 -ByteArray $byteArray
+                $reader = [System.IO.StreamReader]::new($object)
+                if ($PSCmdlet.ParameterSetName -eq 'MemoryStream') {
+                    $object.Position = 0
+                }
+                $object.ToArray()
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+            } finally {
+                if ($reader) {
+                    $reader.Dispose()
+                }
             }
         }
     }

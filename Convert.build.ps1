@@ -91,10 +91,74 @@ Enter-Build {
     $script:BuildModuleManifestFile = Join-Path -Path $script:ArtifactsPath -ChildPath "$($script:ModuleName).psd1"
     $script:BuildModuleRootFile = Join-Path -Path $script:ArtifactsPath -ChildPath "$($script:ModuleName).psm1"
 
+    $script:PesterOutputFormat = 'CoverageGutters'
+    if ($env:CODEBUILD_BUILD_ARN) {
+        $script:PesterOutputFormat = 'JaCoCo'
+    }
     $script:CodeCoverageThreshold = 85
 
     $ProgressPreference = 'SilentlyContinue'
     $Global:ProgressPreference = 'SilentlyContinue'
+
+    function InvokePesterUnitTests {
+        param (
+            $Task,
+            $UnitTestPath,
+            $CodeCoverageFiles,
+            [switch]$EnableCodeCoverage
+        )
+
+        Write-Host ''
+        Write-Host "  Invoke Pester Tests for the $Task Task..." -ForegroundColor Green
+        Write-Host ''
+
+        $pesterConfiguration = New-PesterConfiguration
+        $pesterConfiguration.Run.Path = $UnitTestPath
+        $pesterConfiguration.Run.PassThru = $true
+        $pesterConfiguration.Run.Exit = $false
+        if ($EnableCodeCoverage) {
+            $pesterConfiguration.CodeCoverage.Enabled = $true
+            $pesterConfiguration.CodeCoverage.CoveragePercentTarget = $script:CodeCoverageThreshold
+            $pesterConfiguration.CodeCoverage.OutputPath = Join-Path -Path $script:RepositoryRoot -ChildPath 'coverage.xml'
+            $pesterConfiguration.CodeCoverage.OutputFormat = $script:PesterOutputFormat
+            $pesterConfiguration.CodeCoverage.Path = $CodeCoverageFiles
+        }
+        $pesterConfiguration.TestResult.Enabled = $true
+        $pesterConfiguration.TestResult.OutputPath = Join-Path -Path $script:RepositoryRoot -ChildPath 'test_report.xml'
+        $pesterConfiguration.TestResult.OutputFormat = 'JUnitXml'
+        $pesterConfiguration.Output.Verbosity = 'Detailed'
+
+        Write-Build White '      Performing Pester Unit Tests...'
+        $testResults = Invoke-Pester -Configuration $pesterConfiguration
+
+        # Output the details for each failed test (if running in CodeBuild)
+        if ($env:CODEBUILD_BUILD_ARN) {
+            $testResults.TestResult | ForEach-Object {
+                if ($_.Result -ne 'Passed') {
+                    $_
+                }
+            }
+        }
+
+        $numberFails = $testResults.FailedCount
+        assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
+
+        if ($EnableCodeCoverage) {
+            # Ensure our builds fail until if below a minimum defined code test coverage threshold
+            try {
+                $coveragePercent = '{0:N2}' -f ($testResults.CodeCoverage.CommandsExecutedCount / $testResults.CodeCoverage.CommandsAnalyzedCount * 100)
+            } catch {
+                $coveragePercent = 0
+            }
+
+            assert([Int]$coveragePercent -ge $script:CodeCoverageThreshold) (
+                ('Failed to meet code coverage threshold of {0}% with only {1}% coverage' -f $script:CodeCoverageThreshold, $coveragePercent)
+            )
+        }
+
+        Write-Host ''
+        Write-Host "  Pester $Name Tests: Passed" -ForegroundColor Green
+    }
 
     Write-Host '  Build Environment: Ready' -ForegroundColor Green
     Write-Host ''
@@ -205,59 +269,21 @@ task AnalyzeTests -After Analyze {
 task Test {
     Write-Host ''
 
-    if (Test-Path -Path $script:UnitTestsPath) {
-        Write-Host ''
-        Write-Host '  Pester Unit Tests: Invoking...' -ForegroundColor Green
-        Write-Host ''
-
-        $outputFormat = 'CoverageGutters'
-        if ($env:CODEBUILD_BUILD_ARN) {
-            $outputFormat = 'JaCoCo'
-        }
-
-        $pesterConfiguration = New-PesterConfiguration
-        $pesterConfiguration.run.Path = $script:UnitTestsPath
-        $pesterConfiguration.Run.PassThru = $true
-        $pesterConfiguration.Run.Exit = $false
-        $pesterConfiguration.CodeCoverage.Enabled = $true
-        $pesterConfiguration.CodeCoverage.CoveragePercentTarget = $script:CodeCoverageThreshold
-        $pesterConfiguration.CodeCoverage.OutputPath = Join-Path -Path $script:RepositoryRoot -ChildPath 'coverage.xml'
-        $pesterConfiguration.CodeCoverage.OutputFormat = $outputFormat
-        $pesterConfiguration.CodeCoverage.Path = (Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse).FullName
-        $pesterConfiguration.TestResult.Enabled = $true
-        $pesterConfiguration.TestResult.OutputPath = Join-Path -Path $script:RepositoryRoot -ChildPath 'test_report.xml'
-        $pesterConfiguration.TestResult.OutputFormat = 'JUnitXml'
-        $pesterConfiguration.Output.Verbosity = 'Detailed'
-
-        Write-Build White '      Performing Pester Unit Tests...'
-        $testResults = Invoke-Pester -Configuration $pesterConfiguration
-
-        # Output the details for each failed test (if running in CodeBuild)
-        if ($env:CODEBUILD_BUILD_ARN) {
-            $testResults.TestResult | ForEach-Object {
-                if ($_.Result -ne 'Passed') {
-                    $_
-                }
-            }
-        }
-
-        $numberFails = $testResults.FailedCount
-        assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
-
-        # Ensure our builds fail until if below a minimum defined code test coverage threshold
-        try {
-            $coveragePercent = '{0:N2}' -f ($testResults.CodeCoverage.CommandsExecutedCount / $testResults.CodeCoverage.CommandsAnalyzedCount * 100)
-        } catch {
-            $coveragePercent = 0
-        }
-
-        assert([Int]$coveragePercent -ge $script:CodeCoverageThreshold) (
-            ('Failed to meet code coverage threshold of {0}% with only {1}% coverage' -f $script:CodeCoverageThreshold, $coveragePercent)
-        )
-
-        Write-Host ''
-        Write-Host '  Pester Unit Tests: Passed' -ForegroundColor Green
+    $testPath = $script:UnitTestsPath
+    $codeCoverageFiles = Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse | Where-Object {$_.Name -notlike '_*'}
+    if ($TestFile) {
+        $testPath = Get-ChildItem -Path $script:TestsPath -Recurse | Where-Object {$_.Name -like "$TestFile*"} | Select-Object -ExpandProperty FullName
+        $codeCoverageFiles = Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse | Where-Object {$_.Name -like "$TestFile"} | Select-Object -ExpandProperty FullName
     }
+    if (-not(Test-Path -Path $testPath)) {return}
+
+    $invokePesterUnitTests = @{
+        Task = 'Test'
+        UnitTestPath = $testPath
+        CodeCoverageFiles = $codeCoverageFiles
+        EnableCodeCoverage = $true
+    }
+    InvokePesterUnitTests @invokePesterUnitTests
 
     Write-Host ''
 }

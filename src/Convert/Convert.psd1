@@ -12,7 +12,7 @@
     RootModule           = 'Convert.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '0.6.0'
+    ModuleVersion        = '1.0.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @(
@@ -75,6 +75,7 @@
     FunctionsToExport    = @(
         'ConvertFrom-Base64'
         'ConvertFrom-Base64ToByteArray'
+        'ConvertFrom-Base64ToMemoryStream'
         'ConvertFrom-Base64ToString'
         'ConvertFrom-ByteArrayToBase64'
         'ConvertFrom-ByteArrayToMemoryStream'
@@ -82,6 +83,7 @@
         'ConvertFrom-CompressedByteArrayToString'
         'ConvertFrom-MemoryStream'
         'ConvertFrom-MemoryStreamToBase64'
+        'ConvertFrom-MemoryStreamToByteArray'
         'ConvertFrom-MemoryStreamToSecureString'
         'ConvertFrom-MemoryStreamToString'
         'ConvertFrom-StringToBase64'

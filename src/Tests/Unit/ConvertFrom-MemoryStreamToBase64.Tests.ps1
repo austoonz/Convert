@@ -15,37 +15,8 @@ Describe -Name $function -Fixture {
         $null = $String
     }
 
-    Context -Name 'Input/Output' -ForEach @(
-        @{
-            Encoding = 'ASCII'
-            Expected = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            Encoding = 'BigEndianUnicode'
-            Expected = 'AFQAaABpAHMASQBzAE0AeQBTAHQAcgBpAG4AZw=='
-        }
-        @{
-            Encoding = 'Default'
-            Expected = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            Encoding = 'Unicode'
-            Expected = 'VABoAGkAcwBJAHMATQB5AFMAdAByAGkAbgBnAA=='
-        }
-        @{
-            Encoding = 'UTF32'
-            Expected = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
-        }
-        @{
-            Encoding = 'UTF7'
-            Expected = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
-            Encoding = 'UTF8'
-            Expected = 'VGhpc0lzTXlTdHJpbmc='
-        }
-    )  -Fixture {
-        It -Name 'Converts using <Encoding> correctly' -Test {
+    Context -Name 'Input/Output' -Fixture {
+        It -Name 'Converts correctly' -Test {
             $string = 'ThisIsMyString'
 
             $stream = [System.IO.MemoryStream]::new()
@@ -53,8 +24,8 @@ Describe -Name $function -Fixture {
             $writer.Write($string)
             $writer.Flush()
 
-            $assertion = ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream -Encoding $Encoding
-            $assertion | Should -BeExactly $Expected
+            $assertion = ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
+            $assertion | Should -BeExactly 'VGhpc0lzTXlTdHJpbmc='
 
             $stream.Dispose()
             $writer.Dispose()
