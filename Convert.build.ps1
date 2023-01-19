@@ -270,7 +270,7 @@ task Test {
     Write-Host ''
 
     $testPath = $script:UnitTestsPath
-    $codeCoverageFiles = Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse | Where-Object {$_.Name -notlike '_*'}
+    $codeCoverageFiles = Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse | Where-Object {$_.Name -notlike '_*'} | Select-Object -ExpandProperty FullName
     if ($TestFile) {
         $testPath = Get-ChildItem -Path $script:TestsPath -Recurse | Where-Object {$_.Name -like "$TestFile*"} | Select-Object -ExpandProperty FullName
         $codeCoverageFiles = Get-ChildItem -Path $script:ModuleSourcePath -Filter '*.ps1' -Recurse | Where-Object {$_.Name -like "$TestFile"} | Select-Object -ExpandProperty FullName

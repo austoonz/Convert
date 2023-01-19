@@ -40,7 +40,11 @@ Describe -Name $function -Fixture {
             $assertion = ConvertFrom-Base64ToMemoryStream -String ([int]1) -ErrorAction Continue 2>&1
 
             $exception = @(
+                # PowerShell
                 'The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.'
+
+                # Windows PowerShell
+                'Invalid length for a Base-64 char array or string.'
             )
             $assertion.Exception.InnerException.Message | Should -BeIn $exception
         }
