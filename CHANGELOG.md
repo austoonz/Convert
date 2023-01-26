@@ -1,5 +1,13 @@
 # Changelog
 
+## Version v1.1.0 (2023-01-25)
+
+### New Functions
+
+* ConvertFrom-UnixTime
+* ConvertTo-UnixTime
+* Get-UnixTime
+
 ## Version v1.0.0 (2023-01-18)
 
 ### Breaking Changes

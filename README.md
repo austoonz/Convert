@@ -25,7 +25,6 @@ development | ![Build Status][cb-d-windows] | ![Build Status][cb-d-linux] | --- 
 
 Convert is a PowerShell Module that simplifies object conversions by exposing common requirements as standard PowerShell Functions. For example, this module includes functions for converting to and from Base64 encoded strings, MemoryStream objects, or Clixml output.
 
-
 ## Documentation
 
 Documentation Site: [convert.readthedocs.io](https://convert.readthedocs.io/)
