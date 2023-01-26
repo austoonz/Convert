@@ -17,7 +17,7 @@ Describe -Name $function -Fixture {
 
     Context -Name 'Converts a date time represented as Unix time to a date time object' -Fixture {
         It -Name 'Supports a Unix time in seconds' -Test {
-            $currentTime = Get-Date -AsUTC
+            $currentTime = [DateTime]::UtcNow
             $unixtime = [System.Math]::Round(($currentTime - $epochTime).TotalSeconds)
             $assertion = ConvertFrom-UnixTime -UnixTime $unixtime
 
@@ -28,7 +28,7 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Supports a Unix time in milliseconds' -Test {
-            $currentTime = Get-Date -AsUTC
+            $currentTime = [DateTime]::UtcNow
             $unixtime = [System.Math]::Round(($currentTime - $epochTime).TotalMilliseconds)
             $assertion = ConvertFrom-UnixTime -UnixTime $unixtime -FromMilliseconds
 
@@ -39,7 +39,7 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Supports the PowerShell Pipeline' -Test {
-            $currentTime = Get-Date -AsUTC
+            $currentTime = [DateTime]::UtcNow
             $unixtime = [System.Math]::Round(($currentTime - $epochTime).TotalSeconds)
             $assertion = $unixtime | ConvertFrom-UnixTime
 
