@@ -32,3 +32,8 @@ reports:
       - 'test_report.xml'
     discard-paths: yes
     file-format: JUNITXML
+  PostBuildTests:
+    files:
+      - 'test_report_build.xml'
+    discard-paths: yes
+    file-format: JUNITXML

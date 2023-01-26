@@ -5,3 +5,4 @@ DeploymentArtifacts
 .vscode
 coverage.xml
 test_report.xml
+test_report_build.xml
