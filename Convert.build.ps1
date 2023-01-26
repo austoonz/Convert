@@ -106,7 +106,8 @@ Enter-Build {
             $Task,
             $UnitTestPath,
             $CodeCoverageFiles,
-            [switch]$EnableCodeCoverage
+            [switch]$EnableCodeCoverage,
+            [switch]$PreventTestOutput
         )
 
         Write-Host ''
@@ -124,9 +125,11 @@ Enter-Build {
             $pesterConfiguration.CodeCoverage.OutputFormat = $script:PesterOutputFormat
             $pesterConfiguration.CodeCoverage.Path = $CodeCoverageFiles
         }
-        $pesterConfiguration.TestResult.Enabled = $true
-        $pesterConfiguration.TestResult.OutputPath = Join-Path -Path $script:RepositoryRoot -ChildPath 'test_report.xml'
-        $pesterConfiguration.TestResult.OutputFormat = 'JUnitXml'
+        if (-not $PreventTestOutput) {
+            $pesterConfiguration.TestResult.Enabled = $true
+            $pesterConfiguration.TestResult.OutputPath = Join-Path -Path $script:RepositoryRoot -ChildPath 'test_report.xml'
+            $pesterConfiguration.TestResult.OutputFormat = 'JUnitXml'
+        }
         $pesterConfiguration.Output.Verbosity = 'Detailed'
 
         Write-Build White '      Performing Pester Unit Tests...'
@@ -455,8 +458,9 @@ task TestBuild -After Build {
     if (-not(Test-Path -Path $script:BuildTestsPath)) { return }
 
     $invokePesterUnitTests = @{
-        Task         = 'Build'
-        UnitTestPath = $script:BuildTestsPath
+        Task              = 'Build'
+        UnitTestPath      = $script:BuildTestsPath
+        PreventTestOutput = $true
     }
     InvokePesterUnitTests @invokePesterUnitTests
 
