@@ -8,7 +8,13 @@ function ConvertTo-EscapedUrl {
 
     process {
         foreach ($u in $Url) {
-            [System.Uri]::EscapeDataString($u)
+            if ($PSVersionTable.PSVersion.Major -gt 5) {
+                [System.Uri]::EscapeDataString($u)
+            } else {
+                # This call on Windows PowerShell does not escape the single quote character, doing it manually.
+                $escaped = [System.Uri]::EscapeDataString($u)
+                $escaped.Replace("'", '%27')
+            }
         }
     }
 }
