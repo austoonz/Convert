@@ -1,5 +1,13 @@
 # Changelog
 
+## Version v1.2.0 (2023-01-31)
+
+### New Functions
+
+* ConvertFrom-EscapedUrl
+* ConvertTo-EscapedUrl
+* ConvertTo-TitleCase
+
 ## Version v1.1.0 (2023-01-25)
 
 ### New Functions

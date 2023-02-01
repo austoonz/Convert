@@ -12,7 +12,7 @@
     RootModule           = 'Convert.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.1.0'
+    ModuleVersion        = '1.2.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @(
@@ -81,6 +81,7 @@
         'ConvertFrom-ByteArrayToMemoryStream'
         'ConvertFrom-Clixml'
         'ConvertFrom-CompressedByteArrayToString'
+        'ConvertFrom-EscapedUrl'
         'ConvertFrom-MemoryStream'
         'ConvertFrom-MemoryStreamToBase64'
         'ConvertFrom-MemoryStreamToByteArray'
@@ -93,8 +94,10 @@
         'ConvertFrom-UnixTime'
         'ConvertTo-Base64'
         'ConvertTo-Clixml'
+        'ConvertTo-EscapedUrl'
         'ConvertTo-MemoryStream'
         'ConvertTo-String'
+        'ConvertTo-TitleCase'
         'ConvertTo-UnixTime'
         'Get-UnixTime'
     )
