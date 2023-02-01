@@ -31,8 +31,7 @@ Describe $function {
         $expected = $expected.Replace('{', '%7B')
         $expected = $expected.Replace('|', '%7C')
         $expected = $expected.Replace('}', '%7D')
-        # Note this noted here for reference, but is excluded on purpose. The System.Uri escaping does not escape `~`.
-        # $expected = $expected.Replace('~', '%7E')
+        $expected = $expected.Replace('~', '%7E')
         $expected = $expected.Replace('"', '%22')
         $expected = $expected.Replace("'", '%27')
         $expected = $expected.Replace('+', '%2B')
