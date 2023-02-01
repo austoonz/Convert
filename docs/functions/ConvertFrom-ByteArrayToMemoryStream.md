@@ -8,21 +8,24 @@ schema: 2.0.0
 # ConvertFrom-ByteArrayToMemoryStream
 
 ## SYNOPSIS
+
 Converts a Byte Array to a MemoryStream
 
 ## SYNTAX
 
-```
+```powershell
 ConvertFrom-ByteArrayToMemoryStream [-ByteArray] <Byte[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts a Byte Array to a MemoryStream
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 ConvertFrom-ByteArrayToMemoryStream -ByteArray ([Byte[]] (,0xFF * 100))
 ```
 
@@ -31,6 +34,7 @@ This command uses the ConvertFrom-ByteArrayToMemoryStream cmdlet to convert a By
 ## PARAMETERS
 
 ### -ByteArray
+
 The Byte Array to be converted
 
 ```yaml
@@ -46,6 +50,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -53,10 +58,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ## NOTES
+
 Additional information:
 https://msdn.microsoft.com/en-us/library/63z365ty(v=vs.110).aspx
 
 ## RELATED LINKS
 
 [https://msdn.microsoft.com/en-us/library/system.io.memorystream(v=vs.110).aspx](https://msdn.microsoft.com/en-us/library/system.io.memorystream(v=vs.110).aspx)
-

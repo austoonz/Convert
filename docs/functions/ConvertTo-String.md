@@ -8,39 +8,46 @@ schema: 2.0.0
 # ConvertTo-String
 
 ## SYNOPSIS
+
 Converts a base64 encoded string to a string.
 
 ## SYNTAX
 
 ### Base64String (Default)
-```
+
+```powershell
 ConvertTo-String -Base64EncodedString <String[]> [-Encoding <String>] [-Decompress] [<CommonParameters>]
 ```
 
 ### MemoryStream
-```
+
+```powershell
 ConvertTo-String -MemoryStream <MemoryStream[]> [<CommonParameters>]
 ```
 
 ### Stream
-```
+
+```powershell
 ConvertTo-String -Stream <Stream[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts a base64 encoded string to a string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc='
 
 A string
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 ConvertTo-String -Base64EncodedString 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc='
 
 A string
@@ -48,14 +55,16 @@ Another string
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 'QSBzdHJpbmc=' | ConvertTo-String
 
 A string
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertTo-String
 
 A string
@@ -63,7 +72,8 @@ Another string
 ```
 
 ### EXAMPLE 5
-```
+
+```powershell
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
@@ -83,7 +93,8 @@ Another string
 ```
 
 ### EXAMPLE 6
-```
+
+```powershell
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
@@ -105,6 +116,7 @@ Another string
 ## PARAMETERS
 
 ### -Base64EncodedString
+
 A Base64 Encoded String
 
 ```yaml
@@ -120,6 +132,7 @@ Accept wildcard characters: False
 ```
 
 ### -MemoryStream
+
 A MemoryStream object for conversion.
 
 ```yaml
@@ -135,6 +148,7 @@ Accept wildcard characters: False
 ```
 
 ### -Stream
+
 A System.IO.Stream object for conversion.
 
 ```yaml
@@ -150,6 +164,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+
 The encoding to use for conversion.
 Defaults to UTF8.
 Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
@@ -167,6 +182,7 @@ Accept wildcard characters: False
 ```
 
 ### -Decompress
+
 If supplied, the output will be decompressed using Gzip.
 
 ```yaml
@@ -182,6 +198,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -189,9 +206,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertTo-String/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-String/)
-

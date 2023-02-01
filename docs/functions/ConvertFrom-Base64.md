@@ -8,28 +8,32 @@ schema: 2.0.0
 # ConvertFrom-Base64
 
 ## SYNOPSIS
+
 Converts a base64 encoded string to a string.
 
 ## SYNTAX
 
-```
+```powershell
 ConvertFrom-Base64 [-Base64] <String[]> [[-Encoding] <String>] [-ToString] [-Decompress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts a base64 encoded string to a string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 ConvertFrom-Base64 -Base64 'QSBzdHJpbmc=' -ToString
 ```
 
 A string
 
 ### EXAMPLE 2
-```
+
+```powershell
 ConvertTo-Base64 -Base64 'A string','Another string' -ToString
 
 QSBzdHJpbmc=
@@ -37,14 +41,16 @@ QW5vdGhlciBzdHJpbmc=
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 'QSBzdHJpbmc=' | ConvertFrom-Base64 -ToString
 
 A string
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64 -ToString
 
 A string
@@ -54,6 +60,7 @@ Another string
 ## PARAMETERS
 
 ### -Base64
+
 A Base64 Encoded String.
 
 ```yaml
@@ -69,6 +76,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+
 The encoding to use for conversion.
 Defaults to UTF8.
 Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
@@ -86,6 +94,7 @@ Accept wildcard characters: False
 ```
 
 ### -ToString
+
 Switch parameter to specify a conversion to a string object.
 
 ```yaml
@@ -101,6 +110,7 @@ Accept wildcard characters: False
 ```
 
 ### -Decompress
+
 If supplied, the output will be decompressed using Gzip.
 
 ```yaml
@@ -116,6 +126,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -123,9 +134,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/)
-

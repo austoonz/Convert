@@ -10,19 +10,28 @@ pages:
   - Functions:
     - ConvertFrom-Base64: functions/ConvertFrom-Base64.md
     - ConvertFrom-Base64ToByteArray: functions/ConvertFrom-Base64ToByteArray.md
+    - ConvertFrom-Base64ToMemoryStream: functions/ConvertFrom-Base64ToMemoryStream.md
     - ConvertFrom-Base64ToString: functions/ConvertFrom-Base64ToString.md
     - ConvertFrom-ByteArrayToBase64: functions/ConvertFrom-ByteArrayToBase64.md
     - ConvertFrom-ByteArrayToMemoryStream: functions/ConvertFrom-ByteArrayToMemoryStream.md
     - ConvertFrom-Clixml: functions/ConvertFrom-Clixml.md
     - ConvertFrom-CompressedByteArrayToString: functions/ConvertFrom-CompressedByteArrayToString.md
+    - ConvertFrom-EscapedUrl: functions/ConvertFrom-EscapedUrl.md
     - ConvertFrom-MemoryStream: functions/ConvertFrom-MemoryStream.md
     - ConvertFrom-MemoryStreamToBase64: functions/ConvertFrom-MemoryStreamToBase64.md
+    - ConvertFrom-MemoryStreamToByteArray: functions/ConvertFrom-MemoryStreamToByteArray.md
     - ConvertFrom-MemoryStreamToString: functions/ConvertFrom-MemoryStreamToString.md
+    - ConvertFrom-MemoryStreamToSecureString: functions/ConvertFrom-MemoryStreamToSecureString.md
     - ConvertFrom-StringToBase64: functions/ConvertFrom-StringToBase64.md
     - ConvertFrom-StringToByteArray: functions/ConvertFrom-StringToByteArray.md
     - ConvertFrom-StringToCompressedByteArray: functions/ConvertFrom-StringToCompressedByteArray.md
     - ConvertFrom-StringToMemoryStream: functions/ConvertFrom-StringToMemoryStream.md
+    - ConvertFrom-UnixTime: functions/ConvertFrom-UnixTime.md
     - ConvertTo-Base64: functions/ConvertTo-Base64.md
     - ConvertTo-Clixml: functions/ConvertTo-Clixml.md
+    - ConvertTo-EscapedUrl: functions/ConvertTo-EscapedUrl.md
     - ConvertTo-MemoryStream: functions/ConvertTo-MemoryStream.md
     - ConvertTo-String: functions/ConvertTo-String.md
+    - ConvertTo-TitleCase: functions/ConvertTo-TitleCase.md
+    - ConvertTo-UnixTime: functions/ConvertTo-UnixTime.md
+    - Get-UnixTime: functions/Get-UnixTime.md

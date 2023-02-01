@@ -8,67 +8,85 @@ schema: 2.0.0
 # ConvertFrom-StringToBase64
 
 ## SYNOPSIS
+
 Converts a string to a base64 encoded string.
 
 ## SYNTAX
 
-```
+```powershell
 ConvertFrom-StringToBase64 [-String] <String[]> [[-Encoding] <String>] [-Compress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts a string to a base64 encoded string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 ConvertFrom-StringToBase64 -String 'A string'
+
 QSBzdHJpbmc=
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 'A string' | ConvertFrom-StringToBase64
+
 QSBzdHJpbmc=
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 ConvertFrom-StringToBase64 -String 'A string' -Encoding Unicode
+
 QQAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 'A string' | ConvertFrom-StringToBase64 -Encoding Unicode
+
 QQAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 5
-```
+
+```powershell
 ConvertFrom-StringToBase64 -String 'A string','Another string'
+
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
 ```
 
 ### EXAMPLE 6
-```
+
+```powershell
 'A string','Another string' | ConvertFrom-StringToBase64
+
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
 ```
 
 ### EXAMPLE 7
-```
+
+```powershell
 ConvertFrom-StringToBase64 -String 'A string','Another string' -Encoding Unicode
+
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 8
-```
+
+```powershell
 'A string','Another string' | ConvertFrom-StringToBase64 -Encoding Unicode
+
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ```
@@ -76,6 +94,7 @@ QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ## PARAMETERS
 
 ### -String
+
 A string object for conversion.
 
 ```yaml
@@ -91,6 +110,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+
 The encoding to use for conversion.
 Defaults to UTF8.
 Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
@@ -108,6 +128,7 @@ Accept wildcard characters: False
 ```
 
 ### -Compress
+
 If supplied, the output will be compressed using Gzip.
 
 ```yaml
@@ -123,6 +144,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -130,9 +152,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/)
-

@@ -1,49 +1,48 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-EscapedUrl/
 schema: 2.0.0
 ---
 
-# ConvertFrom-ByteArrayToBase64
+# ConvertFrom-EscapedUrl
 
 ## SYNOPSIS
 
-Converts a byte array to a base64 encoded string.
+Converts an escaped URL back to a standard Url.
 
 ## SYNTAX
 
 ```powershell
-ConvertFrom-ByteArrayToBase64 [-ByteArray] <Byte[]> [<CommonParameters>]
+ConvertFrom-EscapedUrl [[-Url] <String[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-Converts a byte array to a base64 encoded string.
+Converts an escaped URL back to a standard Url.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 
 ```powershell
-$bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
-ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
-```
+ConvertFrom-EscapedUrl -Url 'http%3A%2F%2Ftest.com%3Fvalue%3Dmy%20value'
 
-H4sIAAAAAAAAC3NUKC4pysxLBwCMN9RgCAAAAA==
+Returns the string \`http://test.com?value=my value\`.
+```
 
 ## PARAMETERS
 
-### -ByteArray
+### -Url
 
-A byte array object for conversion.
+The escaped URL to convert.
 
 ```yaml
-Type: Byte[]
+Type: String[]
 Parameter Sets: (All)
-Aliases: Bytes
+Aliases:
 
-Required: True
+Required: False
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
@@ -58,10 +57,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### [String[]]
+### [string]
 
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/)
+[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-EscapedUrl/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-EscapedUrl/)

@@ -1,49 +1,48 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-TitleCase/
 schema: 2.0.0
 ---
 
-# ConvertFrom-ByteArrayToBase64
+# ConvertTo-TitleCase
 
 ## SYNOPSIS
 
-Converts a byte array to a base64 encoded string.
+Convert a string to title case.
 
 ## SYNTAX
 
 ```powershell
-ConvertFrom-ByteArrayToBase64 [-ByteArray] <Byte[]> [<CommonParameters>]
+ConvertTo-TitleCase [[-String] <String[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-Converts a byte array to a base64 encoded string.
+Convert a string to title case.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 
 ```powershell
-$bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
-ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
-```
+ConvertTo-TitleCase -String 'my string'
 
-H4sIAAAAAAAAC3NUKC4pysxLBwCMN9RgCAAAAA==
+Returns the string \`My String\`.
+```
 
 ## PARAMETERS
 
-### -ByteArray
+### -String
 
-A byte array object for conversion.
+The string to convert.
 
 ```yaml
-Type: Byte[]
+Type: String[]
 Parameter Sets: (All)
-Aliases: Bytes
+Aliases:
 
-Required: True
+Required: False
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
@@ -58,10 +57,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### [String[]]
+### [string]
 
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/)
+[http://convert.readthedocs.io/en/latest/functions/ConvertTo-TitleCase/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-TitleCase/)

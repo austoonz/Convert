@@ -14,7 +14,7 @@
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
 
     .EXAMPLE
-        $bytes = ConvertFrom-CompressedByteArrayToString -String 'A string
+        $bytes = ConvertFrom-CompressedByteArrayToString -String 'A string'
         $bytes.GetType()
 
         IsPublic IsSerial Name                                     BaseType

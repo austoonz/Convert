@@ -8,27 +8,32 @@ schema: 2.0.0
 # ConvertFrom-MemoryStreamToString
 
 ## SYNOPSIS
+
 Converts MemoryStream to a string.
 
 ## SYNTAX
 
 ### MemoryStream
-```
+
+```powershell
 ConvertFrom-MemoryStreamToString -MemoryStream <MemoryStream[]> [<CommonParameters>]
 ```
 
 ### Stream
-```
+
+```powershell
 ConvertFrom-MemoryStreamToString -Stream <Stream[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts MemoryStream to a string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
@@ -41,7 +46,8 @@ A string
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
@@ -54,7 +60,8 @@ A string
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
@@ -74,7 +81,8 @@ Another string
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
@@ -96,6 +104,7 @@ Another string
 ## PARAMETERS
 
 ### -MemoryStream
+
 A System.IO.MemoryStream object for conversion.
 
 ```yaml
@@ -111,6 +120,7 @@ Accept wildcard characters: False
 ```
 
 ### -Stream
+
 A System.IO.Stream object for conversion.
 
 ```yaml
@@ -126,6 +136,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -133,9 +144,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/)
-

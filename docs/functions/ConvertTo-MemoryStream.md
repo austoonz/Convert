@@ -8,21 +8,24 @@ schema: 2.0.0
 # ConvertTo-MemoryStream
 
 ## SYNOPSIS
+
 Converts an object to a MemoryStream object.
 
 ## SYNTAX
 
-```
+```powershell
 ConvertTo-MemoryStream -String <String[]> [-Encoding <String>] [-Compress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts an object to a MemoryStream object.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 $string = 'A string'
 $stream = ConvertTo-MemoryStream -String $string
 $stream.GetType()
@@ -33,7 +36,8 @@ True     True     MemoryStream                             System.IO.Stream
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 $string = 'A string'
 $stream = $string | ConvertTo-MemoryStream
 $stream.GetType()
@@ -44,7 +48,8 @@ True     True     MemoryStream                             System.IO.Stream
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 $string1 = 'A string'
 $string2 = 'Another string'
 
@@ -63,7 +68,8 @@ True     True     MemoryStream                             System.IO.Stream
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 $string1 = 'A string'
 $string2 = 'Another string'
 
@@ -84,6 +90,7 @@ True     True     MemoryStream                             System.IO.Stream
 ## PARAMETERS
 
 ### -String
+
 A string object for conversion.
 
 ```yaml
@@ -99,6 +106,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+
 The encoding to use for conversion.
 Defaults to UTF8.
 Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
@@ -116,6 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### -Compress
+
 If supplied, the output will be compressed using Gzip.
 
 ```yaml
@@ -131,6 +140,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -138,9 +148,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [System.IO.MemoryStream[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/)
-

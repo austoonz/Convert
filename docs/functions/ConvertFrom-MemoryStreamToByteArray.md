@@ -1,25 +1,33 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToByteArray/
 schema: 2.0.0
 ---
 
-# ConvertFrom-MemoryStreamToBase64
+# ConvertFrom-MemoryStreamToByteArray
 
-## SYNOPSIS\
+## SYNOPSIS
 
-Converts MemoryStream to a base64 encoded string.
+Converts MemoryStream to a byte array.
 
 ## SYNTAX
 
+### MemoryStream
+
 ```powershell
-ConvertFrom-MemoryStreamToBase64 [-MemoryStream] <MemoryStream[]> [<CommonParameters>]
+ConvertFrom-MemoryStreamToByteArray -MemoryStream <MemoryStream[]> [<CommonParameters>]
+```
+
+### Stream
+
+```powershell
+ConvertFrom-MemoryStreamToByteArray -Stream <Stream[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-Converts MemoryStream to a base64 encoded string.
+Converts MemoryStream to a byte array.
 
 ## EXAMPLES
 
@@ -32,9 +40,7 @@ $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
 
-ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream
-
-QSBzdHJpbmc=
+ConvertFrom-MemoryStreamToByteArray -MemoryStream $stream
 ```
 
 ### EXAMPLE 2
@@ -46,9 +52,7 @@ $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
 
-$stream | ConvertFrom-MemoryStreamToBase64
-
-QSBzdHJpbmc=
+$stream | ConvertFrom-MemoryStreamToByteArray
 ```
 
 ### EXAMPLE 3
@@ -66,10 +70,7 @@ $writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
-ConvertFrom-MemoryStreamToBase64 -MemoryStream $stream1,$stream2
-
-QSBzdHJpbmc=
-QW5vdGhlciBzdHJpbmc=
+ConvertFrom-MemoryStreamToByteArray -MemoryStream $stream1,$stream2
 ```
 
 ### EXAMPLE 4
@@ -87,27 +88,40 @@ $writer2 = \[System.IO.StreamWriter\]::new($stream2)
 $writer2.Write($string2)
 $writer2.Flush()
 
-$stream1,$stream2 | ConvertFrom-MemoryStreamToBase64
-
-QSBzdHJpbmc=
-QW5vdGhlciBzdHJpbmc=
+$stream1,$stream2 | ConvertFrom-MemoryStreamToByteArray
 ```
 
 ## PARAMETERS
 
 ### -MemoryStream
 
-A MemoryStream object for conversion.
+A System.IO.MemoryStream object for conversion.
 
 ```yaml
 Type: MemoryStream[]
-Parameter Sets: (All)
+Parameter Sets: MemoryStream
 Aliases:
 
 Required: True
-Position: 1
+Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Stream
+
+A System.IO.Stream object for conversion.
+
+```yaml
+Type: Stream[]
+Parameter Sets: Stream
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
@@ -125,4 +139,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/)
+[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToByteArray/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToByteArray/)

@@ -8,21 +8,24 @@ schema: 2.0.0
 # ConvertFrom-Clixml
 
 ## SYNOPSIS
+
 Converts Clixml to an object.
 
 ## SYNTAX
 
-```
+```powershell
 ConvertFrom-Clixml [-String] <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts Clixml to an object.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
@@ -34,7 +37,8 @@ ThisIsMyString
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
@@ -46,7 +50,8 @@ ThisIsMyString
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
@@ -64,7 +69,8 @@ This is another string
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 $xml = @"
 <Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
 <S>ThisIsMyString</S>
@@ -84,6 +90,7 @@ This is another string
 ## PARAMETERS
 
 ### -String
+
 Clixml as a string object.
 
 ```yaml
@@ -99,6 +106,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -106,9 +114,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [Object[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/)
-

@@ -8,27 +8,32 @@ schema: 2.0.0
 # ConvertFrom-MemoryStream
 
 ## SYNOPSIS
+
 Converts MemoryStream to a base64 encoded string.
 
 ## SYNTAX
 
 ### ToString (Default)
-```
+
+```powershell
 ConvertFrom-MemoryStream -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ToString] [<CommonParameters>]
 ```
 
 ### ToBase64
-```
+
+```powershell
 ConvertFrom-MemoryStream -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ToBase64] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts MemoryStream to a base64 encoded string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
@@ -41,7 +46,8 @@ QSBzdHJpbmc=
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
@@ -54,7 +60,8 @@ QSBzdHJpbmc=
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
@@ -74,7 +81,8 @@ QW5vdGhlciBzdHJpbmc=
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
@@ -94,7 +102,8 @@ QW5vdGhlciBzdHJpbmc=
 ```
 
 ### EXAMPLE 5
-```
+
+```powershell
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
@@ -107,7 +116,8 @@ A string
 ```
 
 ### EXAMPLE 6
-```
+
+```powershell
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
@@ -120,7 +130,8 @@ A string
 ```
 
 ### EXAMPLE 7
-```
+
+```powershell
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
@@ -140,7 +151,8 @@ Another string
 ```
 
 ### EXAMPLE 8
-```
+
+```powershell
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
@@ -162,6 +174,7 @@ Another string
 ## PARAMETERS
 
 ### -MemoryStream
+
 A MemoryStream object for conversion.
 
 ```yaml
@@ -177,6 +190,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+
 The encoding to use for conversion.
 Defaults to UTF8.
 Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
@@ -194,6 +208,7 @@ Accept wildcard characters: False
 ```
 
 ### -ToString
+
 (Deprecated) Switch parameter to specify a conversion to a string object.
 This switch will be removed from future revisions to simplify cmdlet parameters.
 
@@ -210,6 +225,7 @@ Accept wildcard characters: False
 ```
 
 ### -ToBase64
+
 Switch parameter to specify a conversion to a Base64 encoded string object.
 
 ```yaml
@@ -225,6 +241,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -232,9 +249,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/)
-

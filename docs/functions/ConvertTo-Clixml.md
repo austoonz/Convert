@@ -8,21 +8,24 @@ schema: 2.0.0
 # ConvertTo-Clixml
 
 ## SYNOPSIS
+
 Converts an object to Clixml.
 
 ## SYNTAX
 
-```
+```powershell
 ConvertTo-Clixml [-InputObject] <PSObject> [[-Depth] <Int32>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts an object to Clixml.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
+
+```powershell
 $string = 'A string'
 ConvertTo-Clixml -InputObject $string
 
@@ -32,7 +35,8 @@ ConvertTo-Clixml -InputObject $string
 ```
 
 ### EXAMPLE 2
-```
+
+```powershell
 $string = 'A string'
 $string | ConvertTo-Clixml
 
@@ -42,7 +46,8 @@ $string | ConvertTo-Clixml
 ```
 
 ### EXAMPLE 3
-```
+
+```powershell
 $string1 = 'A string'
 $string2 = 'Another string'
 ConvertTo-Clixml -InputObject $string1,$string2
@@ -56,7 +61,8 @@ ConvertTo-Clixml -InputObject $string1,$string2
 ```
 
 ### EXAMPLE 4
-```
+
+```powershell
 $string1 = 'A string'
 $string2 = 'Another string'
 $string1,$string2 | ConvertTo-Clixml
@@ -72,6 +78,7 @@ $string1,$string2 | ConvertTo-Clixml
 ## PARAMETERS
 
 ### -InputObject
+
 The input object to serialize
 
 ```yaml
@@ -87,6 +94,7 @@ Accept wildcard characters: False
 ```
 
 ### -Depth
+
 The depth of the members to serialize
 
 ```yaml
@@ -102,6 +110,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -109,9 +118,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/)
-

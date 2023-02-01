@@ -8,22 +8,25 @@ schema: 2.0.0
 # ConvertFrom-CompressedByteArrayToString
 
 ## SYNOPSIS
+
 Converts a string to a byte array object.
 
 ## SYNTAX
 
-```
+```powershell
 ConvertFrom-CompressedByteArrayToString [-ByteArray] <Byte[]> [[-Encoding] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Converts a string to a byte array object.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-```
-$bytes = ConvertFrom-CompressedByteArrayToString -String 'A string
+
+```powershell
+$bytes = ConvertFrom-CompressedByteArrayToString -String 'A string'
 $bytes.GetType()
 
 IsPublic IsSerial Name                                     BaseType
@@ -40,6 +43,7 @@ True     True     Byte                                     System.ValueType
 ## PARAMETERS
 
 ### -ByteArray
+
 The array of bytes to convert.
 
 ```yaml
@@ -55,6 +59,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+
 The encoding to use for conversion.
 Defaults to UTF8.
 Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
@@ -72,6 +77,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -79,9 +85,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [Byte[]]
+
 ## NOTES
 
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/)
-
