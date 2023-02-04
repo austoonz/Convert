@@ -48,11 +48,19 @@
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/
 #>
 function ConvertFrom-Base64 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/')]
+    [CmdletBinding(
+        DefaultParameterSetName = 'Default',
+        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/')]
     [OutputType('String')]
     param
     (
         [Parameter(
+            ParameterSetName = 'Default',
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]
+        [Parameter(
+            ParameterSetName = 'ToString',
             Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
@@ -61,14 +69,17 @@ function ConvertFrom-Base64 {
         [String[]]
         $Base64,
 
+        [Parameter(ParameterSetName = 'ToString')]
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 
+        [Parameter(ParameterSetName = 'ToString')]
         [Parameter(Mandatory = $false)]
         [Switch]
         $ToString,
 
+        [Parameter(ParameterSetName = 'ToString')]
         [Parameter(Mandatory = $false)]
         [Switch]
         $Decompress
@@ -89,6 +100,8 @@ function ConvertFrom-Base64 {
                     } else {
                         [System.Text.Encoding]::$Encoding.GetString($bytes)
                     }
+                } else {
+                    $bytes
                 }
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference

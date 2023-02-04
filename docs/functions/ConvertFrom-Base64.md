@@ -13,8 +13,16 @@ Converts a base64 encoded string to a string.
 
 ## SYNTAX
 
+### Default (Default)
+
 ```powershell
-ConvertFrom-Base64 [-Base64] <String[]> [[-Encoding] <String>] [-ToString] [-Decompress] [<CommonParameters>]
+ConvertFrom-Base64 -Base64 <String[]> [-ToString] [-Decompress] [<CommonParameters>]
+```
+
+### ToString
+
+```powershell
+ConvertFrom-Base64 -Base64 <String[]> [-Encoding <String>] [-ToString] [-Decompress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -69,7 +77,7 @@ Parameter Sets: (All)
 Aliases: String, Base64String
 
 Required: True
-Position: 1
+Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
@@ -83,11 +91,11 @@ Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UT
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: ToString
 Aliases:
 
 Required: False
-Position: 2
+Position: Named
 Default value: UTF8
 Accept pipeline input: False
 Accept wildcard characters: False

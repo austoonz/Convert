@@ -9,10 +9,93 @@ Import-Module $pathToManifest -Force
 
 Describe -Name $function -Fixture {
     BeforeEach {
-        $Expected = 'ThisIsMyString'
+        $Base64String = 'VGhpc0lzTXlTdHJpbmc='
+        $ExpectedString = 'ThisIsMyString'
+        $ExpectedByteArray = @(
+            84
+            104
+            105
+            115
+            73
+            115
+            77
+            121
+            83
+            116
+            114
+            105
+            110
+            103
+        )
 
         # Use the variables so IDe does not complain
-        $null = $Expected
+        $null = $Base64String, $ExpectedString, $ExpectedByteArray
+    }
+
+    Context -Name "Default: <Encoding>" -ForEach @(
+        @{
+            Encoding = 'ASCII'
+        }
+        @{
+            Encoding = 'BigEndianUnicode'
+        }
+        @{
+            Encoding = 'Default'
+        }
+        @{
+            Encoding = 'Unicode'
+        }
+        @{
+            Encoding = 'UTF32'
+        }
+        @{
+            Encoding = 'UTF7'
+        }
+        @{
+            Encoding = 'UTF8'
+        }
+    ) -Fixture {
+        It -Name "Converts a <Encoding> Encoded string to a ByteArray" -Test {
+            $splat = @{
+                Base64   = $Base64String
+            }
+            $assertion = ConvertFrom-Base64 @splat
+            $assertion | Should -BeExactly $ExpectedByteArray
+        }
+
+        It -Name 'Supports the Pipeline' -Test {
+            $assertion = $Base64String | ConvertFrom-Base64
+            $assertion | Should -BeExactly $ExpectedByteArray
+        }
+
+        It -Name 'Supports EAP SilentlyContinue' -Test {
+            $splat = @{
+                Base64   = 'a'
+            }
+            $assertion = ConvertFrom-Base64 @splat -ErrorAction SilentlyContinue
+            $assertion | Should -BeNullOrEmpty
+        }
+
+        It -Name 'Supports EAP Stop' -Test {
+            $splat = @{
+                Base64   = 'a'
+            }
+            { ConvertFrom-Base64 @splat -ErrorAction Stop } | Should -Throw
+        }
+
+        It -Name 'Supports EAP Continue' -Test {
+            $splat = @{
+                Base64   = 'a'
+            }
+            $assertion = ConvertFrom-Base64 @splat -ErrorAction Continue 2>&1
+
+            $ExpectedList = @(
+                'Invalid length for a Base-64 char array or string.',
+                'The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.'
+            )
+
+            $assertion.Exception.InnerException.Message | Should -BeIn $ExpectedList
+        }
     }
 
     Context -Name "-ToString : <Encoding>" -ForEach @(
@@ -52,12 +135,12 @@ Describe -Name $function -Fixture {
                 ToString = $true
             }
             $assertion = ConvertFrom-Base64 @splat
-            $assertion | Should -BeExactly $Expected
+            $assertion | Should -BeExactly $ExpectedString
         }
 
         It -Name 'Supports the Pipeline' -Test {
             $assertion = $Base64 | ConvertFrom-Base64 -Encoding $Encoding -ToString
-            $assertion | Should -BeExactly $Expected
+            $assertion | Should -BeExactly $ExpectedString
         }
 
         It -Name 'Supports EAP SilentlyContinue' -Test {
@@ -87,12 +170,12 @@ Describe -Name $function -Fixture {
             }
             $assertion = ConvertFrom-Base64 @splat -ErrorAction Continue 2>&1
 
-            $expected = @(
+            $ExpectedList = @(
                 'Invalid length for a Base-64 char array or string.',
                 'The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.'
             )
 
-            $assertion.Exception.InnerException.Message | Should -BeIn $Expected
+            $assertion.Exception.InnerException.Message | Should -BeIn $ExpectedList
         }
     }
 }

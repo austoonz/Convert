@@ -1,5 +1,12 @@
 # Changelog
 
+## Version v1.2.1 (2023-02-04)
+
+### Fixes
+
+* Fixes default in ConvertFrom-Base64
+* Added parameter sets for ConvertFrom-Base64
+
 ## Version v1.2.0 (2023-01-31)
 
 ### New Functions
