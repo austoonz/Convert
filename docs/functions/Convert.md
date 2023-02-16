@@ -2,7 +2,7 @@
 Module Name: Convert
 Module Guid: d87140ad-7077-477a-b517-758954215e87
 Download Help Link: NA
-Help Version: 1.2.0
+Help Version: 1.3.0
 Locale: en-US
 ---
 
@@ -101,6 +101,10 @@ Converts an object to Clixml.
 ### [ConvertTo-EscapedUrl](ConvertTo-EscapedUrl.md)
 
 Converts a URL to an escaped Url.
+
+### [ConvertTo-Hash](ConvertTo-Hash.md)
+
+Converts a string to a hash.
 
 ### [ConvertTo-MemoryStream](ConvertTo-MemoryStream.md)
 

@@ -42,15 +42,17 @@ Enter-Build {
     Write-Host ''
     Write-Host '  Build Environment: Setting up...' -ForegroundColor Green
 
-    Write-Host '    - Importing the AWS Tools for PowerShell...' -ForegroundColor Green
-    if (Get-Module -Name 'AWS.Tools.Common' -ListAvailable) {
-        Import-Module -Name 'AWS.Tools.Common'
-    } elseif (($PSEdition -eq 'Desktop') -and (Get-Module -Name 'AWSPowerShell' -ListAvailable)) {
-        Import-Module -Name 'AWSPowerShell'
-    } elseif (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable) {
-        Import-Module -Name 'AWSPowerShell.NetCore'
-    } else {
-        throw 'One of the AWS Tools for PowerShell modules must be available for import.'
+    if ($env:CODEBUILD_BUILD_ARN) {
+        Write-Host '    - Importing the AWS Tools for PowerShell...' -ForegroundColor Green
+        if (Get-Module -Name 'AWS.Tools.Common' -ListAvailable) {
+            Import-Module -Name 'AWS.Tools.Common'
+        } elseif (($PSEdition -eq 'Desktop') -and (Get-Module -Name 'AWSPowerShell' -ListAvailable)) {
+            Import-Module -Name 'AWSPowerShell'
+        } elseif (Get-Module -Name 'AWSPowerShell.NetCore' -ListAvailable) {
+            Import-Module -Name 'AWSPowerShell.NetCore'
+        } else {
+            throw 'One of the AWS Tools for PowerShell modules must be available for import.'
+        }
     }
 
     Write-Host '    - Importing the Pester Module...' -ForegroundColor Green

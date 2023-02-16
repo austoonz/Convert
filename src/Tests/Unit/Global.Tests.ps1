@@ -37,7 +37,7 @@ Describe -Name 'Module Manifest' -Fixture {
     Context -Name 'Exported Functions' -Fixture {
         It -Name 'Exports the correct number of functions' -Test {
             $assertion = Get-Command -Module $script:ModuleName -CommandType Function
-            $assertion | Should -HaveCount 27
+            $assertion | Should -HaveCount 28
         }
 
         It -Name '<_>' -TestCases @(
@@ -63,6 +63,7 @@ Describe -Name 'Module Manifest' -Fixture {
             'ConvertTo-Base64'
             'ConvertTo-Clixml'
             'ConvertTo-EscapedUrl'
+            'ConvertTo-Hash'
             'ConvertTo-MemoryStream'
             'ConvertTo-String'
             'ConvertTo-TitleCase'
@@ -82,8 +83,8 @@ Describe -Name 'Module Manifest' -Fixture {
     }
 
     Context -Name 'Exported Aliases' -Fixture {
-        It -Name 'Exports three aliases' -Test {
-            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 3
+        It -Name 'Exports four aliases' -Test {
+            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 4
         }
 
         It -Name '<Alias>' -TestCases @(
@@ -98,6 +99,10 @@ Describe -Name 'Module Manifest' -Fixture {
             @{
                 Alias           = 'ConvertFrom-StreamToString'
                 ResolvedCommand = 'ConvertFrom-MemoryStreamToString'
+            }
+            @{
+                Alias           = 'Get-Hash'
+                ResolvedCommand = 'ConvertTo-Hash'
             }
         ) -Test {
             $assertion = Get-Alias -Name $Alias
