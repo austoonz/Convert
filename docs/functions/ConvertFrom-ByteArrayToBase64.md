@@ -14,7 +14,7 @@ Converts a byte array to a base64 encoded string.
 ## SYNTAX
 
 ```powershell
-ConvertFrom-ByteArrayToBase64 [-ByteArray] <Byte[]> [<CommonParameters>]
+ConvertFrom-ByteArrayToBase64 [-ByteArray] <Byte[]> [-Compress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -47,6 +47,22 @@ Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Compress
+
+If supplied, the output will be compressed using Gzip.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

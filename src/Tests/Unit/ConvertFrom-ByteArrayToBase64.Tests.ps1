@@ -8,13 +8,27 @@ if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
 Import-Module $pathToManifest -Force
 
 Describe $function {
+    BeforeAll {
+        $string = ConvertTo-Json -InputObject @{
+            Hello = 'World'
+            Foo = 'Bar'
+        }
+        $bytes = [System.Text.Encoding]::Unicode.GetBytes($string)
+        $null = $string, $bytes
+    }
     It 'Returns a Base64 Encoded String' {
-        $text = 'This is a secret and should be hidden'
-        $bytes = [System.Text.Encoding]::Unicode.GetBytes($text)
-        $base64String = [Convert]::ToBase64String($bytes)
+        $expected = 'ewANAAoAIAAgACIARgBvAG8AIgA6ACAAIgBCAGEAcgAiACwADQAKACAAIAAiAEgAZQBsAGwAbwAiADoAIAAiAFcAbwByAGwAZAAiAA0ACgB9AA=='
 
         $assertion = ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
-        $assertion | Should -BeExactly $base64String
+        $assertion | Should -BeExactly $expected
+        $assertion | Should -BeOfType 'String'
+    }
+
+    It 'Returns a Base64 Encoded String with compression' {
+        $expected = 'H4sIAAAAAAAACqtm4GXgYlAAQiUGN4Z8IFRisALznBgSGYqAtA6SCg+GVIYcIESoCgeyi4AiKUA2SF0tAwCaJHY2UgAAAA=='
+
+        $assertion = ConvertFrom-ByteArrayToBase64 -ByteArray $bytes -Compress
+        $assertion | Should -BeExactly $expected
         $assertion | Should -BeOfType 'String'
     }
 

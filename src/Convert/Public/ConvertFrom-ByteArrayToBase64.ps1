@@ -8,6 +8,9 @@
     .PARAMETER ByteArray
         A byte array object for conversion.
 
+    .PARAMETER Compress
+        If supplied, the output will be compressed using Gzip.
+
     .EXAMPLE
         $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
         ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
@@ -32,7 +35,10 @@ function ConvertFrom-ByteArrayToBase64 {
         [ValidateNotNullOrEmpty()]
         [Alias('Bytes')]
         [Byte[]]
-        $ByteArray
+        $ByteArray,
+
+        [Switch]
+        $Compress
     )
 
     begin {
@@ -41,7 +47,17 @@ function ConvertFrom-ByteArrayToBase64 {
 
     process {
         try {
-            [System.Convert]::ToBase64String($ByteArray)
+            if ($Compress) {
+                [System.IO.MemoryStream] $output = [System.IO.MemoryStream]::new()
+                $gzipStream = [System.IO.Compression.GzipStream]::new($output, ([IO.Compression.CompressionMode]::Compress))
+                $gzipStream.Write( $ByteArray, 0, $ByteArray.Length )
+                $gzipStream.Close()
+                $output.Close()
+
+                [System.Convert]::ToBase64String($output.ToArray())
+            } else {
+                [System.Convert]::ToBase64String($ByteArray)
+            }
         } catch {
             Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
         }
