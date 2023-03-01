@@ -8,7 +8,7 @@ if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
 Import-Module $pathToManifest -Force
 
 Describe $function {
-    It 'Converts to TitleCase correcty' {
+    It 'Converts to TitleCase correctly' {
         $string = 'this is a string'
         $expected = 'This Is A String'
 
@@ -26,10 +26,10 @@ Describe $function {
 
     It 'Supports the PowerShell pipeline by value name' {
         $strings = @([PSCustomObject]@{
-            String = 'this is a string'
-        }, [PSCustomObject]@{
-            String = 'another_string'
-        })
+                String = 'this is a string'
+            }, [PSCustomObject]@{
+                String = 'another_string'
+            })
         $expected = @('This Is A String', 'Another_String')
 
         $assertion = $strings | ConvertTo-TitleCase

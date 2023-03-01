@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-    This script is used to ensure the NuGet provider is insalled.
+    This script is used to ensure the NuGet provider is installed.
 #>
 $global:VerbosePreference = 'SilentlyContinue'
 $ErrorActionPreference = 'Stop'

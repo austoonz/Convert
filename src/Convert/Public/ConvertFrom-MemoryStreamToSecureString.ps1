@@ -18,7 +18,7 @@
     $secure = ConvertFrom-MemoryStreamToSecureString -MemoryStream $memoryStream
     $credential = [PSCredential]::new('MyValue', $secure)
 
-    Converts the provided MemoryStream to a SeureString.
+    Converts the provided MemoryStream to a SecureString.
 
     .LINK
     https://msdn.microsoft.com/en-us/library/system.io.memorystream.aspx
