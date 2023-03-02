@@ -78,7 +78,7 @@ Describe -Name 'Module Manifest' -Fixture {
         ($script:Manifest).ExportedCmdlets.GetEnumerator() | Should -HaveCount 0
     }
 
-    It -Name 'Exports no variabes' -Test {
+    It -Name 'Exports no variables' -Test {
         ($script:Manifest).ExportedVariables.GetEnumerator() | Should -HaveCount 0
     }
 

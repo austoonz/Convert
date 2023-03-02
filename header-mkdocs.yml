@@ -1,8 +1,0 @@
-site_name: Convert - PowerShell Module for object conversions
-repo_url: https://github.com/austoonz/Convert
-site_author: Andrew Pearce
-edit_uri: edit/master/docs/
-theme: readthedocs
-copyright: "Convert is licensed under the <a href='https://github.com/austoonz/Convert/blob/master/LICENSE'>MIT license"
-pages:
-  - Home: index.md

@@ -6,7 +6,7 @@
     Converts a date time to the date time represented in Unix time, which is the time in seconds that have elapsed since
     00:00:00 UTC on 1 January, 1970.
 
-    A switch is provided to return the time value repsented in milliseconds.
+    A switch is provided to return the time value represented in milliseconds.
 
     .OUTPUTS
     [long]

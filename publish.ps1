@@ -1,13 +1,13 @@
 Import-Module -Name AWS.Tools.CodeBuild
 Set-DefaultAWSRegion -Region 'us-west-2'
-$buildStatus = foreach ($project in @('austoonz-Convert-Linux','austoonz-Convert-Windows')) {
-    $builds = (Get-CBBuildIdListForProject -ProjectName $project | Select-Object -First 1| Get-CBBuildBatch).Builds
+$buildStatus = foreach ($project in @('austoonz-Convert-Linux', 'austoonz-Convert-Windows')) {
+    $builds = (Get-CBBuildIdListForProject -ProjectName $project | Select-Object -First 1 | Get-CBBuildBatch).Builds
     foreach ($build in $builds) {
         [PSCustomObject]([ordered]@{
-            Project = $project
-            ResolvedSourceVersion = $build.ResolvedSourceVersion
-            BuildStatus = $build.BuildStatus
-        })
+                Project               = $project
+                ResolvedSourceVersion = $build.ResolvedSourceVersion
+                BuildStatus           = $build.BuildStatus
+            })
     }
 }
 
@@ -20,4 +20,4 @@ if ($uniqueBuildStatus.Count -ne 1 -and $uniqueBuildStatus -ne 'SUCCEEDED') {
     Write-Host 'At least one build failed. Failing...'
 }
 
-Write-Host 'We had a succesful build. Finding output artifact...'
+Write-Host 'We had a successful build. Finding output artifact...'
