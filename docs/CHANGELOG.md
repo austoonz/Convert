@@ -1,6 +1,6 @@
 # Changelog
 
-## Version v1.2.2 (2023-02-04)
+## Version v1.3.1 (2023-03-01)
 
 * Module Changes:
     * Minor spelling corrections throughout
