@@ -10,6 +10,7 @@
         * Updated CHANGELOG to pass markdown linter, remove duplicate titles, and increase readability
         * Removed duplicate copy of additional CHANGELOG that contained outdated information
         * Placed CHANGELOG in correct location so that Read the docs can correctly display the correct CHANGELOG
+    * Improved Read the docs integration by moving to Python 3 based build
 
 ## Version v1.2.1 (2023-02-04)
 
