@@ -12,6 +12,11 @@
         * Placed CHANGELOG in correct location so that Read the docs can correctly display the correct CHANGELOG
     * Improved Read the docs integration by moving to Python 3 based build
 
+## Version v1.3.0 (2023-02-15)
+
+* **New Functions**:
+    * `ConvertTo-Hash`
+
 ## Version v1.2.1 (2023-02-04)
 
 * **Fixes**:
