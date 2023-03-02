@@ -17,18 +17,14 @@ Describe $function {
         $null = $string, $bytes
     }
     It 'Returns a Base64 Encoded String' {
-        $expected = 'ewANAAoAIAAgACIARgBvAG8AIgA6ACAAIgBCAGEAcgAiACwADQAKACAAIAAiAEgAZQBsAGwAbwAiADoAIAAiAFcAbwByAGwAZAAiAA0ACgB9AA=='
-
         $assertion = ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
-        $assertion | Should -BeExactly $expected
+        $assertion | ConvertFrom-Base64ToString | Should -BeExactly $string
         $assertion | Should -BeOfType 'String'
     }
 
     It 'Returns a Base64 Encoded String with compression' {
-        $expected = 'H4sIAAAAAAAACqtm4GXgYlAAQiUGN4Z8IFRisALznBgSGYqAtA6SCg+GVIYcIESoCgeyi4AiKUA2SF0tAwCaJHY2UgAAAA=='
-
         $assertion = ConvertFrom-ByteArrayToBase64 -ByteArray $bytes -Compress
-        $assertion | Should -BeExactly $expected
+        $assertion | ConvertFrom-Base64ToString -Decompress | Should -BeExactly $string
         $assertion | Should -BeOfType 'String'
     }
 
