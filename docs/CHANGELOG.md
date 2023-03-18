@@ -1,5 +1,10 @@
 # Changelog
 
+## Version v1.5.0 (2023-03-17)
+
+* **New Functions**:
+  * `ConvertFrom-HashTable`
+
 ## Version v1.4.0 (2023-02-27)
 
 ### ConvertFrom-ByteArrayToBase64

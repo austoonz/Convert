@@ -2,7 +2,7 @@
 Module Name: Convert
 Module Guid: d87140ad-7077-477a-b517-758954215e87
 Download Help Link: NA
-Help Version: 1.3.0
+Help Version: 1.5.0
 Locale: en-US
 ---
 
@@ -49,6 +49,10 @@ Converts a string to a byte array object.
 ### [ConvertFrom-EscapedUrl](ConvertFrom-EscapedUrl.md)
 
 Converts an escaped URL back to a standard Url.
+
+### [ConvertFrom-HashTable](ConvertFrom-HashTable.md)
+
+Converts HashTable objects to PSCustomObject objects.
 
 ### [ConvertFrom-MemoryStream](ConvertFrom-MemoryStream.md)
 

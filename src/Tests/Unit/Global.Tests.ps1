@@ -37,7 +37,7 @@ Describe -Name 'Module Manifest' -Fixture {
     Context -Name 'Exported Functions' -Fixture {
         It -Name 'Exports the correct number of functions' -Test {
             $assertion = Get-Command -Module $script:ModuleName -CommandType Function
-            $assertion | Should -HaveCount 28
+            $assertion | Should -HaveCount 29
         }
 
         It -Name '<_>' -TestCases @(
@@ -50,6 +50,7 @@ Describe -Name 'Module Manifest' -Fixture {
             'ConvertFrom-Clixml'
             'ConvertFrom-CompressedByteArrayToString'
             'ConvertFrom-EscapedUrl'
+            'ConvertFrom-HashTable'
             'ConvertFrom-MemoryStream'
             'ConvertFrom-MemoryStreamToBase64'
             'ConvertFrom-MemoryStreamToByteArray'
