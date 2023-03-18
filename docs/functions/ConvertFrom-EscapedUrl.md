@@ -27,9 +27,9 @@ Converts an escaped URL back to a standard Url.
 
 ```powershell
 ConvertFrom-EscapedUrl -Url 'http%3A%2F%2Ftest.com%3Fvalue%3Dmy%20value'
-
-Returns the string \`http://test.com?value=my value\`.
 ```
+
+Returns the string `http://test.com?value=my value`.
 
 ## PARAMETERS
 

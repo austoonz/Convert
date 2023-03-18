@@ -28,9 +28,9 @@ Converts a byte array to a base64 encoded string.
 ```powershell
 $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
 ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
-```
 
 H4sIAAAAAAAAC3NUKC4pysxLBwCMN9RgCAAAAA==
+```
 
 ## PARAMETERS
 
