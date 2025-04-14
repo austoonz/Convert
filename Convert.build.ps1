@@ -347,7 +347,7 @@ task CreateMarkdownHelp {
     $newModuleDocsContent.ToString().TrimEnd() | Out-File -FilePath $ModuleDocsPath -Force -Encoding:utf8
 
     $MissingDocumentation = Select-String -Path (Join-Path -Path $docsPath -ChildPath '\*.md') -Pattern '({{.*}})'
-    if ($MissingDocumentation.Count -gt 0) {
+    if (($MissingDocumentation | Where-Object {$_.Line -ne '{{ Fill ProgressAction Description }}'}).Count -gt 0) {
         Write-Host -ForegroundColor Yellow ''
         Write-Host -ForegroundColor Yellow '   The documentation that got generated resulted in missing sections which should be filled out.'
         Write-Host -ForegroundColor Yellow '   Please review the following sections in your comment based help, fill out missing information and rerun this build:'

@@ -41,24 +41,17 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Convert an object to compressed base64 string' -Test {
-            $assertion = ConvertTo-Base64 -String $String -Encoding Unicode -Compress
-
-            # Each platform performs these convertions with compression differently.
-            # Leaving alone for now, will re-evaluate this in a future release.
-            if ($PSEdition -eq 'Desktop') {
-                $Expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6) {
-                $Expected = 'H4sIAAAAAAAACwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7) {
-                $Expected = 'H4sIAAAAAAAACgthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            } elseif ($IsLinux) {
-                $Expected = 'H4sIAAAAAAAAAwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            } elseif ($IsMacOS) {
-                $Expected = 'H4sIAAAAAAAAEwthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            } else {
-                $Expected = 'H4sIAAAAAAAEAAthyGDIZChm8ARiX4ZKhmCGEoYioEgeQzoDAC8A9r4cAAAA'
-            }
-            $assertion | Should -BeExactly $Expected
+            $encoding = 'Unicode'
+            $base64 = ConvertTo-Base64 -String $String -Encoding $encoding -Compress
+            $bytes = [System.Convert]::FromBase64String($base64)
+            $inputStream = [System.IO.MemoryStream]::new($bytes)
+            $output = [System.IO.MemoryStream]::new()
+            $gzipStream = [System.IO.Compression.GzipStream]::new($inputStream, ([IO.Compression.CompressionMode]::Decompress))
+            $gzipStream.CopyTo($output)
+            $gzipStream.Close()
+            $inputStream.Close()
+            $assertion = [System.Text.Encoding]::$encoding.GetString($output.ToArray())
+            $assertion | Should -BeExactly $String
         }
     }
 

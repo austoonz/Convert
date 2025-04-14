@@ -98,6 +98,9 @@ Converts a date time represented in Unix time to a PowerShell DateTime object.
 
 Converts a string to a base64 encoded string.
 
+### [ConvertTo-Celsius](ConvertTo-Celsius.md)
+Converts a temperature from Fahrenheit to Celsius.
+
 ### [ConvertTo-Clixml](ConvertTo-Clixml.md)
 
 Converts an object to Clixml.
@@ -105,6 +108,9 @@ Converts an object to Clixml.
 ### [ConvertTo-EscapedUrl](ConvertTo-EscapedUrl.md)
 
 Converts a URL to an escaped Url.
+
+### [ConvertTo-Fahrenheit](ConvertTo-Fahrenheit.md)
+Converts a temperature from Celsius to Fahrenheit.
 
 ### [ConvertTo-Hash](ConvertTo-Hash.md)
 
