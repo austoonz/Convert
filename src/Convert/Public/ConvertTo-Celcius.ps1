@@ -55,6 +55,7 @@
 function ConvertTo-Celsius {
     [CmdletBinding()]
     [OutputType([double])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns','')]
     param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
