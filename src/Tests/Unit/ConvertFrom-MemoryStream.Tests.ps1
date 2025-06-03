@@ -140,11 +140,11 @@ Describe -Name $function -Fixture {
                 $writer.Write($string)
                 $writer.Flush()
 
-                # Disposing the StreamWriter will cause the function call to throw with 'Stream was not readable.'
+                # Disposing the StreamWriter will cause the function call to throw with either 'Cannot access a closed Stream.' or 'Stream was not readable.'
                 $writer.Dispose()
 
                 $assertion = ConvertFrom-MemoryStream -MemoryStream $stream -ToBase64 -ErrorAction Continue 2>&1
-                $assertion.Exception.InnerException.Message | Should -BeExactly 'Stream was not readable.'
+                $assertion.Exception.InnerException.Message | Should -BeIn @('Cannot access a closed Stream.', 'Stream was not readable.')
             }
         }
     }
@@ -231,7 +231,7 @@ Describe -Name $function -Fixture {
                 $writer.Write($string)
                 $writer.Flush()
 
-                # Disposing the StreamWriter will cause the function call to throw with 'Stream was not readable.'
+                # Disposing the StreamWriter will cause the function call to throw with either 'Cannot access a closed Stream.' or 'Stream was not readable.'
                 $writer.Dispose()
 
                 { ConvertFrom-MemoryStream -MemoryStream $stream -ToString -ErrorAction Stop } | Should -Throw
@@ -245,11 +245,11 @@ Describe -Name $function -Fixture {
                 $writer.Write($string)
                 $writer.Flush()
 
-                # Disposing the StreamWriter will cause the function call to throw with 'Stream was not readable.'
+                # Disposing the StreamWriter will cause the function call to throw with either 'Cannot access a closed Stream.' or 'Stream was not readable.'
                 $writer.Dispose()
 
                 $assertion = ConvertFrom-MemoryStream -MemoryStream $stream -ToString -ErrorAction Continue 2>&1
-                $assertion.Exception.InnerException.Message | Should -BeExactly 'Stream was not readable.'
+                $assertion.Exception.InnerException.Message | Should -BeIn @('Cannot access a closed Stream.', 'Stream was not readable.')
             }
         }
     }

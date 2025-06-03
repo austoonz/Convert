@@ -60,7 +60,7 @@
         $stream1,$stream2 | ConvertFrom-MemoryStreamToByteArray
 
     .OUTPUTS
-        [String[]]
+        [Byte[]]
 
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToByteArray/
@@ -103,17 +103,12 @@ function ConvertFrom-MemoryStreamToByteArray {
 
         foreach ($object in $inputObject) {
             try {
-                $reader = [System.IO.StreamReader]::new($object)
                 if ($PSCmdlet.ParameterSetName -eq 'MemoryStream') {
                     $object.Position = 0
                 }
                 $object.ToArray()
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
-            } finally {
-                if ($reader) {
-                    $reader.Dispose()
-                }
             }
         }
     }

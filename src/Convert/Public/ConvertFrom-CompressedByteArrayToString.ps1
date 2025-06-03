@@ -14,7 +14,7 @@
         Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
 
     .EXAMPLE
-        $bytes = ConvertFrom-CompressedByteArrayToString -String 'A string'
+        $bytes = ConvertFrom-CompressedByteArrayToString -ByteArray $byteArray
         $bytes.GetType()
 
         IsPublic IsSerial Name                                     BaseType
@@ -28,7 +28,7 @@
         True     True     Byte                                     System.ValueType
 
     .OUTPUTS
-        [Byte[]]
+        [String]
 
     .LINK
         http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/
@@ -67,6 +67,10 @@ function ConvertFrom-CompressedByteArrayToString {
             [System.Text.Encoding]::$Encoding.GetString($output.ToArray())
         } catch {
             Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+        } finally {
+            if ($inputStream) {$inputStream.Dispose()}
+            if ($gzipStream) {$gzipStream.Dispose()}
+            if ($output) {$output.Dispose()}
         }
     }
 }

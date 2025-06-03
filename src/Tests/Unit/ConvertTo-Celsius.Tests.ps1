@@ -9,7 +9,7 @@ Import-Module $pathToManifest -Force
 
 Describe $function {
     Context 'Function usage' {
-        It 'Converts <Fahrenheit>°F to <Celcius>°C' -ForEach @(
+        It 'Converts <Fahrenheit>°F to <Celsius>°C' -ForEach @(
             @{ Celsius = 0; Fahrenheit = 32 }
             @{ Celsius = 100; Fahrenheit = 212 }
             @{ Celsius = -40; Fahrenheit = -40 }
@@ -26,7 +26,7 @@ Describe $function {
         }
 
         Context 'Rounds to 2 decimal places' {
-            It 'Converts <Fahrenheit>°F to <Celcius>°C' -ForEach @(
+            It 'Converts <Fahrenheit>°F to <Celsius>°C' -ForEach @(
                 @{ Celsius = 37.7; Fahrenheit = 99.86 }
                 @{ Celsius = 37.77; Fahrenheit = 99.99 }
                 @{ Celsius = 37.78; Fahrenheit = 99.999 }

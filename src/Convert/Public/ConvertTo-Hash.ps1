@@ -26,10 +26,14 @@ function ConvertTo-Hash {
     [Alias('Get-Hash')]
     param (
         [Parameter(ParameterSetName='String', ValueFromPipeline, ValueFromPipelineByPropertyName)]
-        [string]$String,
+        [string[]]$String,
 
         [ValidateSet('MD5', 'SHA1', 'SHA256', 'SHA384', 'SHA512')]
-        [string]$Algorithm = 'SHA256'
+        [string]$Algorithm = 'SHA256',
+
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [String]
+        $Encoding = 'UTF8'
     )
 
     begin {
@@ -39,11 +43,15 @@ function ConvertTo-Hash {
     process {
         foreach ($s in $String) {
             $sb = [System.Text.StringBuilder]::new()
-            $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create($Algorithm)
-            $hashAlgorithm.ComputeHash([System.Text.Encoding]::ASCII.GetBytes($s)) | ForEach-Object {
+            $hashAlgorithm.ComputeHash([System.Text.Encoding]::$Encoding.GetBytes($s)) | ForEach-Object {
                 $null = $sb.Append('{0:X2}' -f $_)
             }
             $sb.ToString()
         }
+    }
+
+    end {
+        if ($hashAlgorithm) {$hashAlgorithm.Dispose()}
+        if ($sb) {$null = $sb.Clear()}
     }
 }

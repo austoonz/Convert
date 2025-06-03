@@ -29,7 +29,7 @@ function ConvertTo-TitleCase {
 
     process {
         foreach ($s in $String) {
-            ([CultureInfo]::CurrentCulture).TextInfo.ToTitleCase($s)
+            ([System.Globalization.CultureInfo]::CurrentCulture).TextInfo.ToTitleCase($s)
         }
     }
 }

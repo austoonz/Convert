@@ -103,4 +103,4 @@ The formula used is: °C = (°F - 32) × 5/9
 ## RELATED LINKS
 
 [http://convert.readthedocs.io/en/latest/functions/ConvertTo-Fahrenheit/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-Fahrenheit/)
-[https://en.wikipedia.org/wiki/Celcius](https://en.wikipedia.org/wiki/Celcius)
+[https://en.wikipedia.org/wiki/Celsius](https://en.wikipedia.org/wiki/Celsius)

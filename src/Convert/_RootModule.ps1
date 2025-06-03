@@ -1,1 +1,1 @@
-$script:EPOCH_TIME = Get-Date -Year 1970 -Month 1 -Day 1
+$script:EPOCH_TIME = (Get-Date -Date '1970-01-01T00:00:00Z').ToUniversalTime()

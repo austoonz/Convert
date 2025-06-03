@@ -114,16 +114,16 @@ function ConvertFrom-MemoryStreamToString {
 
         foreach ($object in $inputObject) {
             try {
-                $reader = [System.IO.StreamReader]::new($object)
                 if ($PSCmdlet.ParameterSetName -eq 'MemoryStream') {
                     $object.Position = 0
                 }
+                $reader = [System.IO.StreamReader]::new($object)
                 $reader.ReadToEnd()
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             } finally {
                 if ($reader) {
-                    $reader.Dispose()
+                    #$reader.Dispose()
                 }
             }
         }

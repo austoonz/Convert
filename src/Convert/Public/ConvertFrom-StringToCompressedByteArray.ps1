@@ -73,6 +73,10 @@ function ConvertFrom-StringToCompressedByteArray {
                 $byteArrayObject
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+            } finally {
+                if ($byteArray) {$byteArray.Clear()}
+                if ($gzipStream) {$gzipStream.Dispose()}
+                if ($output) {$output.Dispose()}
             }
         }
     }
