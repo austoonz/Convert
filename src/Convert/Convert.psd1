@@ -99,6 +99,7 @@
         'ConvertTo-EscapedUrl'
         'ConvertTo-Fahrenheit'
         'ConvertTo-Hash'
+        'ConvertTo-HmacHash'
         'ConvertTo-MemoryStream'
         'ConvertTo-String'
         'ConvertTo-TitleCase'
