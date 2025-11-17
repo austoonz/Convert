@@ -6,3 +6,6 @@ DeploymentArtifacts
 coverage.xml
 test_report.xml
 test_report_build.xml
+
+# Rust
+/lib/target
