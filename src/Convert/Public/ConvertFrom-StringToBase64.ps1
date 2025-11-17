@@ -81,18 +81,36 @@ function ConvertFrom-StringToBase64 {
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         foreach ($s in $String) {
             try {
                 if ($Compress) {
+                    # Keep existing .NET implementation for compressed Base64
+                    # Compression will be migrated to Rust in a later task
                     $bytes = ConvertFrom-StringToCompressedByteArray -String $s -Encoding $Encoding
+                    [System.Convert]::ToBase64String($bytes)
                 } else {
-                    $bytes = [System.Text.Encoding]::$Encoding.GetBytes($s)
+                    # Use Rust implementation for non-compressed Base64 encoding
+                    $ptr = $nullPtr
+                    try {
+                        $ptr = [ConvertCoreInterop]::string_to_base64($s, $Encoding)
+                        
+                        if ($ptr -eq $nullPtr) {
+                            # Get detailed error from Rust
+                            $errorMsg = GetRustError -DefaultMessage "Encoding '$Encoding' is not supported"
+                            throw "Base64 encoding failed: $errorMsg"
+                        }
+                        
+                        [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+                    } finally {
+                        if ($ptr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_string($ptr)
+                        }
+                    }
                 }
-
-                [System.Convert]::ToBase64String($bytes)
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
