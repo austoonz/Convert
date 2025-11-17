@@ -1,13 +1,14 @@
-# This file is used for development and testing only
-# The build process (Invoke-Build) compiles all .ps1 files into a single .psm1
+# RustInterop.ps1
+# Platform interop layer for Rust convert_core library
+# This file will be compiled into the built module's .psm1 file
+
+# This code assumes the Rust library is already in the correct location
+# relative to the module root (handled by the build process)
 
 $ErrorActionPreference = 'Stop'
-$scriptPath = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Path)
 
-# For development/testing, we need to locate the Rust library in the source tree
-# The library should be at: src/Convert/bin/<architecture>/<libraryFileName>
-
-# Detect architecture
+# Detect architecture (x64, ARM64, or x86)
+# RuntimeInformation is available in both PowerShell Core and Windows PowerShell 5.1+
 $runtimeArch = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
 $architecture = switch ($runtimeArch) {
     ([System.Runtime.InteropServices.Architecture]::X64) { 'x64' }
@@ -17,11 +18,13 @@ $architecture = switch ($runtimeArch) {
     default { throw "Unsupported architecture: $runtimeArch" }
 }
 
-# Determine library filename and path
+# Determine library filename based on platform
 $libraryName = 'convert_core'
 if ($PSVersionTable.PSVersion.Major -lt 6) {
+    # Windows PowerShell (5.1 and earlier)
     $libraryFileName = "$libraryName.dll"
 } else {
+    # PowerShell Core (6.0+) - cross-platform
     if ($IsWindows) {
         $libraryFileName = "$libraryName.dll"
     } elseif ($IsLinux) {
@@ -33,28 +36,25 @@ if ($PSVersionTable.PSVersion.Major -lt 6) {
     }
 }
 
-$libraryPath = [System.IO.Path]::Combine($scriptPath, 'bin', $architecture, $libraryFileName)
+# In the built module, the library should be in: <ModuleRoot>/bin/<architecture>/<libraryFileName>
+$moduleRoot = $PSScriptRoot
+$libraryPath = [System.IO.Path]::Combine($moduleRoot, 'bin', $architecture, $libraryFileName)
 
-# Validate library exists (required for development/testing)
+# Validate library file exists
 if (-not [System.IO.File]::Exists($libraryPath)) {
     throw @"
 Rust library not found at: $libraryPath
 
-This is the development/testing module loader. The Rust library must be built before running tests.
+The Convert module requires the Rust library to be present in the module directory.
 
 Detected platform: $($PSVersionTable.Platform ?? 'Windows')
 Detected architecture: $architecture
+Expected filename: $libraryFileName
 
-To build the Rust library:
-1. Install Rust from https://rustup.rs
-2. Run from repository root:
-   cargo build --release --manifest-path lib/Cargo.toml
-3. Copy the library to: $scriptPath\bin\$architecture\
+If you installed this module from the PowerShell Gallery, please report this as a bug.
+If you're building from source, ensure you run the build script to compile the Rust library.
 
-Or use the build script:
-   .\build.ps1 -Configuration Release
-
-Expected library location: $libraryPath
+For more information, see: https://github.com/austoonz/Convert
 "@
 }
 
@@ -152,19 +152,4 @@ public static class ConvertCoreInterop {
 "@
 } catch {
     throw "Failed to load Rust library from '$libraryPath': $_"
-}
-
-# Dot-source all other .ps1 files (Public and Private functions)
-# Note: GetRustError function is in Private/GetRustError.ps1 and will be loaded here
-try {
-    $allFiles = [System.IO.Directory]::GetFiles($scriptPath, '*.ps1', [System.IO.SearchOption]::AllDirectories)
-    foreach ($file in $allFiles) {
-        $fileName = [System.IO.Path]::GetFileName($file)
-        if ($fileName -ne 'Convert.psm1') {
-            . $file
-        }
-    }
-} catch {
-    Write-Warning -Message ('{0}: {1}' -f $Function, $_.Exception.Message)
-    throw
 }
