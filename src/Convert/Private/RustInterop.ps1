@@ -60,38 +60,41 @@ For more information, see: https://github.com/austoonz/Convert
 
 # Load the Rust library via Add-Type with DllImport declarations
 try {
+    # Escape backslashes for C# string literal in DllImport
+    $escapedPath = $libraryPath.Replace('\', '\\')
+    
     Add-Type -TypeDefinition @"
 using System;
 using System.Runtime.InteropServices;
 
 public static class ConvertCoreInterop {
     // Base64 operations
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr string_to_base64(
         [MarshalAs(UnmanagedType.LPStr)] string input,
         [MarshalAs(UnmanagedType.LPStr)] string encoding);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr base64_to_string(
         [MarshalAs(UnmanagedType.LPStr)] string input,
         [MarshalAs(UnmanagedType.LPStr)] string encoding);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr bytes_to_base64(IntPtr bytes, UIntPtr length);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr base64_to_bytes(
         [MarshalAs(UnmanagedType.LPStr)] string input,
         out UIntPtr length);
 
     // Hash operations
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr compute_hash(
         [MarshalAs(UnmanagedType.LPStr)] string input,
         [MarshalAs(UnmanagedType.LPStr)] string algorithm,
         [MarshalAs(UnmanagedType.LPStr)] string encoding);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr compute_hmac(
         [MarshalAs(UnmanagedType.LPStr)] string input,
         IntPtr key,
@@ -99,54 +102,54 @@ public static class ConvertCoreInterop {
         [MarshalAs(UnmanagedType.LPStr)] string algorithm);
 
     // Compression operations
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr compress_string(
         [MarshalAs(UnmanagedType.LPStr)] string input,
         [MarshalAs(UnmanagedType.LPStr)] string encoding,
         out UIntPtr length);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr decompress_string(
         IntPtr bytes,
         UIntPtr length,
         [MarshalAs(UnmanagedType.LPStr)] string encoding);
 
     // URL operations
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr url_encode([MarshalAs(UnmanagedType.LPStr)] string input);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr url_decode([MarshalAs(UnmanagedType.LPStr)] string input);
 
     // Time conversions
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern long to_unix_time(
         int year, uint month, uint day,
         uint hour, uint minute, uint second,
         bool milliseconds);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool from_unix_time(
         long timestamp, bool milliseconds,
         out int year, out uint month, out uint day,
         out uint hour, out uint minute, out uint second);
 
     // Temperature conversions
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern double fahrenheit_to_celsius(double fahrenheit);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern double celsius_to_fahrenheit(double celsius);
 
     // Memory management
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern void free_string(IntPtr ptr);
 
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern void free_bytes(IntPtr ptr);
 
     // Error reporting
-    [DllImport("$libraryPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr get_last_error();
 }
 "@
