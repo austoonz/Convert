@@ -206,6 +206,60 @@ fn convert_string_to_bytes(input: &str, encoding: &str) -> Result<Vec<u8>, Strin
     }
 }
 
+/// Convert a byte array to Base64 encoding
+/// 
+/// # Safety
+/// This function is unsafe because it dereferences raw pointers.
+/// The caller must ensure that:
+/// - `bytes` is a valid pointer to a byte array or null
+/// - `length` accurately represents the number of bytes to read
+/// - The returned pointer must be freed using `free_string`
+#[unsafe(no_mangle)]
+pub extern "C" fn bytes_to_base64(
+    bytes: *const u8,
+    length: usize,
+) -> *mut c_char {
+    // Validate null pointer
+    if bytes.is_null() {
+        crate::error::set_error("Byte array pointer is null".to_string());
+        return std::ptr::null_mut();
+    }
+    
+    // Handle zero length case - encode empty byte array to empty string
+    if length == 0 {
+        match CString::new("") {
+            Ok(c_str) => {
+                crate::error::clear_error();
+                return c_str.into_raw();
+            }
+            Err(_) => {
+                crate::error::set_error("Failed to create empty C string".to_string());
+                return std::ptr::null_mut();
+            }
+        }
+    }
+    
+    // Create a slice from the raw pointer
+    let byte_slice = unsafe {
+        std::slice::from_raw_parts(bytes, length)
+    };
+    
+    // Encode to Base64
+    let encoded = general_purpose::STANDARD.encode(byte_slice);
+    
+    // Convert to C string
+    match CString::new(encoded) {
+        Ok(c_str) => {
+            crate::error::clear_error();
+            c_str.into_raw()
+        }
+        Err(_) => {
+            crate::error::set_error("Failed to create C string from Base64 result".to_string());
+            std::ptr::null_mut()
+        }
+    }
+}
+
 /// Convert bytes to a Rust string using the specified encoding
 fn convert_bytes_to_string(bytes: &[u8], encoding: &str) -> Result<String, String> {
     match encoding.to_uppercase().as_str() {
@@ -541,5 +595,161 @@ mod tests {
                 unsafe { crate::memory::free_string(result) };
             }
         }
+    }
+
+    // ========== Tests for bytes_to_base64 ==========
+    // RED PHASE: These tests will fail until bytes_to_base64 is implemented
+
+    #[test]
+    fn test_bytes_to_base64_happy_path() {
+        // Test: encode byte array [72, 101, 108, 108, 111] ("Hello") to "SGVsbG8="
+        let bytes: Vec<u8> = vec![72, 101, 108, 108, 111]; // "Hello" in ASCII
+        
+        let result = bytes_to_base64(bytes.as_ptr(), bytes.len());
+        
+        assert!(!result.is_null(), "Result should not be null");
+        let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+        assert_eq!(result_str, "SGVsbG8=", "Encoded bytes should produce 'SGVsbG8='");
+        unsafe { crate::memory::free_string(result) };
+    }
+
+    #[test]
+    fn test_bytes_to_base64_null_pointer() {
+        // Test: null pointer should return null
+        let result = bytes_to_base64(std::ptr::null(), 10);
+        
+        assert!(result.is_null(), "Null pointer should return null");
+    }
+
+    #[test]
+    fn test_bytes_to_base64_zero_length() {
+        // Test: zero length should encode to empty string
+        let bytes: Vec<u8> = vec![1, 2, 3]; // Data exists but length is 0
+        
+        let result = bytes_to_base64(bytes.as_ptr(), 0);
+        
+        assert!(!result.is_null(), "Result should not be null for zero length");
+        let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+        assert_eq!(result_str, "", "Zero length should encode to empty string");
+        unsafe { crate::memory::free_string(result) };
+    }
+
+    #[test]
+    fn test_bytes_to_base64_large_byte_array() {
+        // Test: 1MB byte array should encode successfully
+        let large_bytes: Vec<u8> = vec![65; 1024 * 1024]; // 1MB of 'A' (ASCII 65)
+        
+        let result = bytes_to_base64(large_bytes.as_ptr(), large_bytes.len());
+        
+        assert!(!result.is_null(), "Result should not be null for large byte array");
+        
+        // Verify the result is a valid pointer and can be freed
+        let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+        assert!(!result_str.is_empty(), "Result should not be empty for 1MB input");
+        
+        // Base64 encoding increases size by ~33%, so 1MB should produce ~1.33MB
+        assert!(result_str.len() > 1_000_000, "Encoded result should be larger than 1MB");
+        
+        unsafe { crate::memory::free_string(result) };
+    }
+
+    #[test]
+    fn test_bytes_to_base64_various_byte_patterns() {
+        // Test: various byte patterns encode correctly
+        let test_cases = vec![
+            (vec![0u8], "AA=="),                           // Single zero byte
+            (vec![255u8], "/w=="),                         // Single max byte
+            (vec![0, 1, 2, 3, 4], "AAECAwQ="),            // Sequential bytes
+            (vec![255, 254, 253, 252], "//79/A=="),       // High bytes
+        ];
+        
+        for (bytes, expected) in test_cases {
+            let result = bytes_to_base64(bytes.as_ptr(), bytes.len());
+            
+            assert!(!result.is_null(), "Result should not be null for byte pattern: {:?}", bytes);
+            let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+            assert_eq!(result_str, expected, "Byte pattern {:?} should encode to '{}'", bytes, expected);
+            
+            unsafe { crate::memory::free_string(result) };
+        }
+    }
+
+    #[test]
+    fn test_bytes_to_base64_binary_data() {
+        // Test: arbitrary binary data (not valid UTF-8)
+        let binary_data: Vec<u8> = vec![
+            0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG header
+        ];
+        
+        let result = bytes_to_base64(binary_data.as_ptr(), binary_data.len());
+        
+        assert!(!result.is_null(), "Result should not be null for binary data");
+        let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+        assert_eq!(result_str, "iVBORw0KGgo=", "PNG header should encode correctly");
+        
+        unsafe { crate::memory::free_string(result) };
+    }
+
+    #[test]
+    fn test_bytes_to_base64_empty_array() {
+        // Test: empty byte array (length 0) should encode to empty string
+        let empty_bytes: Vec<u8> = vec![];
+        
+        let result = bytes_to_base64(empty_bytes.as_ptr(), 0);
+        
+        assert!(!result.is_null(), "Result should not be null for empty array");
+        let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+        assert_eq!(result_str, "", "Empty array should encode to empty string");
+        
+        unsafe { crate::memory::free_string(result) };
+    }
+
+    #[test]
+    fn test_bytes_to_base64_round_trip_with_string_to_base64() {
+        // Test: bytes_to_base64 should produce same result as string_to_base64 for UTF-8 text
+        let text = "Test String 123!";
+        let bytes = text.as_bytes();
+        
+        // Encode using bytes_to_base64
+        let result_bytes = bytes_to_base64(bytes.as_ptr(), bytes.len());
+        assert!(!result_bytes.is_null(), "bytes_to_base64 should succeed");
+        
+        // Encode using string_to_base64
+        let text_cstring = CString::new(text).unwrap();
+        let encoding = CString::new("UTF8").unwrap();
+        let result_string = string_to_base64(text_cstring.as_ptr(), encoding.as_ptr());
+        assert!(!result_string.is_null(), "string_to_base64 should succeed");
+        
+        // Compare results
+        let bytes_result = unsafe { CStr::from_ptr(result_bytes).to_str().unwrap() };
+        let string_result = unsafe { CStr::from_ptr(result_string).to_str().unwrap() };
+        assert_eq!(bytes_result, string_result, 
+            "bytes_to_base64 and string_to_base64 should produce identical results for UTF-8 text");
+        
+        unsafe {
+            crate::memory::free_string(result_bytes);
+            crate::memory::free_string(result_string);
+        };
+    }
+
+    #[test]
+    fn test_bytes_to_base64_all_byte_values() {
+        // Test: all possible byte values (0-255) should encode without error
+        let all_bytes: Vec<u8> = (0..=255).collect();
+        
+        let result = bytes_to_base64(all_bytes.as_ptr(), all_bytes.len());
+        
+        assert!(!result.is_null(), "Result should not be null for all byte values");
+        let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+        assert!(!result_str.is_empty(), "Result should not be empty");
+        
+        // Verify it's valid Base64 (only contains Base64 characters)
+        let valid_base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+        for ch in result_str.chars() {
+            assert!(valid_base64_chars.contains(ch), 
+                "Result should only contain valid Base64 characters, found: {}", ch);
+        }
+        
+        unsafe { crate::memory::free_string(result) };
     }
 }
