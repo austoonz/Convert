@@ -155,12 +155,12 @@ public static class ConvertCoreInterop {
 }
 
 # Dot-source all other .ps1 files (Public and Private functions)
-# Note: GetRustError function is in Private/GetRustError.ps1 and will be loaded here
+# Note: Skip RustInterop.ps1 since the interop code is embedded above for development/testing
 try {
     $allFiles = [System.IO.Directory]::GetFiles($scriptPath, '*.ps1', [System.IO.SearchOption]::AllDirectories)
     foreach ($file in $allFiles) {
         $fileName = [System.IO.Path]::GetFileName($file)
-        if ($fileName -ne 'Convert.psm1') {
+        if ($fileName -ne 'Convert.psm1' -and $fileName -ne 'RustInterop.ps1') {
             . $file
         }
     }

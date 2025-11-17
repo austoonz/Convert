@@ -37,8 +37,8 @@ if ($PSVersionTable.PSVersion.Major -lt 6) {
 }
 
 # In the built module, the library should be in: <ModuleRoot>/bin/<architecture>/<libraryFileName>
-$moduleRoot = $PSScriptRoot
-$libraryPath = [System.IO.Path]::Combine($moduleRoot, 'bin', $architecture, $libraryFileName)
+# After build, all .ps1 files are combined into a single .psm1, so $PSScriptRoot is the module root
+$libraryPath = [System.IO.Path]::Combine($PSScriptRoot, 'bin', $architecture, $libraryFileName)
 
 # Validate library file exists
 if (-not [System.IO.File]::Exists($libraryPath)) {
