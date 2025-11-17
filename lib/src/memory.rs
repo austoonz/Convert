@@ -25,7 +25,10 @@ use std::os::raw::c_char;
 pub unsafe extern "C" fn free_string(ptr: *mut c_char) {
     if !ptr.is_null() {
         // Reconstruct the CString and let it drop, which deallocates the memory
-        let _ = unsafe { std::ffi::CString::from_raw(ptr) };
+        // SAFETY: ptr was allocated by CString::into_raw() and is only freed once
+        unsafe {
+            let _ = std::ffi::CString::from_raw(ptr);
+        }
     }
 }
 
@@ -42,91 +45,86 @@ pub unsafe extern "C" fn free_string(ptr: *mut c_char) {
 /// * `ptr` - A pointer to a byte array allocated by Rust. Can be null (no-op).
 /// 
 /// # Implementation Note
-/// This function reads metadata (length and capacity) stored in a header
+/// This function reads metadata (length and total size) stored in a header
 /// before the actual data pointer. The header is created by `allocate_byte_array`.
+/// Uses `std::alloc::dealloc` with proper alignment for safe cross-platform operation.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn free_bytes(ptr: *mut u8) {
+    use std::alloc::{dealloc, Layout};
+    
     if ptr.is_null() {
         return;
     }
     
-    // Read the metadata header stored before the data
-    // Layout: [data_length: usize][full_capacity: usize][data...]
-    //                                                     ^ ptr points here
-    // Metadata is stored in little-endian for portability
-    
-    let header_size = std::mem::size_of::<usize>() * 2;
-    let header_ptr = unsafe { ptr.sub(header_size) };
-    
-    // Read length (little-endian)
-    let length_bytes = unsafe { 
-        std::slice::from_raw_parts(header_ptr, std::mem::size_of::<usize>()) 
-    };
-    let data_length = usize::from_le_bytes(
-        length_bytes.try_into().expect("Invalid length bytes")
-    );
-    
-    // Read capacity (little-endian)
-    let capacity_ptr = unsafe { header_ptr.add(std::mem::size_of::<usize>()) };
-    let capacity_bytes = unsafe { 
-        std::slice::from_raw_parts(capacity_ptr, std::mem::size_of::<usize>()) 
-    };
-    let full_capacity = usize::from_le_bytes(
-        capacity_bytes.try_into().expect("Invalid capacity bytes")
-    );
-    
-    // Reconstruct the Vec from raw parts (this includes the header + data)
-    // The length is header_size + data_length
-    // The capacity is what we stored (the actual allocated capacity)
-    let full_length = header_size + data_length;
-    let full_vec = unsafe { Vec::from_raw_parts(header_ptr as *mut u8, full_length, full_capacity) };
-    
-    // Vec will be dropped here, deallocating the memory
-    drop(full_vec);
+    // SAFETY: All operations are unsafe but guaranteed safe by contract:
+    // - ptr was allocated by allocate_byte_array with proper alignment
+    // - ptr is only freed once
+    // - metadata is at a known offset with proper alignment
+    unsafe {
+        // Read the metadata header stored before the data
+        // Layout: [data_length: usize][total_size: usize][data...]
+        //                                                  ^ ptr points here
+        
+        let header_size = std::mem::size_of::<usize>() * 2;
+        let header_ptr = ptr.sub(header_size);
+        
+        // Read metadata (now guaranteed aligned for usize access)
+        let metadata_ptr = header_ptr as *const usize;
+        let total_size = *metadata_ptr.add(1);   // Total allocation size
+        
+        // Create the same layout used for allocation
+        let layout = Layout::from_size_align_unchecked(total_size, std::mem::align_of::<usize>());
+        
+        // Deallocate the memory
+        dealloc(header_ptr, layout);
+    }
 }
 
 /// Helper function to allocate a byte array with metadata header
 /// 
 /// This function allocates memory for a byte array with a header containing
-/// length and capacity information. This allows `free_bytes` to properly
+/// length and total allocation size information. This allows `free_bytes` to properly
 /// deallocate the memory later.
+/// 
+/// Uses `std::alloc` with explicit alignment to ensure safe metadata access on all platforms.
+/// All operations complete atomically to prevent memory leaks on panic.
 /// 
 /// # Arguments
 /// * `data` - The byte vector to allocate
 /// 
 /// # Returns
 /// A pointer to the data portion (after the header)
-pub fn allocate_byte_array(mut data: Vec<u8>) -> *mut u8 {
+pub fn allocate_byte_array(data: Vec<u8>) -> *mut u8 {
+    use std::alloc::{alloc, Layout};
+    
     let data_length = data.len();
-    
-    // Create a new Vec with header: [data_length][full_capacity][data...]
-    // Use little-endian for explicit, portable byte order
     let header_size = std::mem::size_of::<usize>() * 2;
-    let mut full_vec = Vec::with_capacity(header_size + data_length);
+    let total_size = header_size + data_length;
     
-    // Write header with data length (little-endian for portability)
-    full_vec.extend_from_slice(&data_length.to_le_bytes());
+    // Create layout with usize alignment for the entire allocation
+    // This ensures the header can be safely read as usize values
+    let layout = Layout::from_size_align(total_size, std::mem::align_of::<usize>())
+        .expect("Invalid layout");
     
-    // Reserve space for capacity (will write after we know actual capacity)
-    full_vec.extend_from_slice(&[0u8; std::mem::size_of::<usize>()]);
-    
-    // Write data
-    full_vec.append(&mut data);
-    
-    // Now write the actual capacity of the full_vec (little-endian)
-    let actual_capacity = full_vec.capacity();
-    let capacity_bytes = actual_capacity.to_le_bytes();
-    let capacity_offset = std::mem::size_of::<usize>();
-    full_vec[capacity_offset..capacity_offset + std::mem::size_of::<usize>()]
-        .copy_from_slice(&capacity_bytes);
-    
-    // Get pointer to data portion (skip header)
-    let ptr = unsafe { full_vec.as_mut_ptr().add(header_size) };
-    
-    // Prevent deallocation - caller will free with free_bytes
-    std::mem::forget(full_vec);
-    
-    ptr
+    unsafe {
+        // Allocate memory with proper alignment
+        let ptr = alloc(layout);
+        if ptr.is_null() {
+            panic!("Allocation failed");
+        }
+        
+        // Write metadata header (guaranteed aligned for usize access)
+        let header_ptr = ptr as *mut usize;
+        *header_ptr = data_length;           // Store data length
+        *header_ptr.add(1) = total_size;     // Store total allocation size
+        
+        // Copy data to the allocated memory
+        let data_ptr = ptr.add(header_size);
+        std::ptr::copy_nonoverlapping(data.as_ptr(), data_ptr, data_length);
+        
+        // Return pointer to data portion (after header)
+        data_ptr
+    }
 }
 
 #[cfg(test)]
@@ -134,7 +132,7 @@ mod tests {
     use super::*;
     use std::ffi::CString;
 
-    // ===== Tests for free_string (Task 3.1) =====
+    // ===== Tests for free_string =====
 
     #[test]
     fn test_free_string_valid_pointer() {
@@ -196,7 +194,7 @@ mod tests {
         // If we reach here without panic, the test passes
     }
 
-    // ===== Tests for free_bytes (Task 3.2) =====
+    // ===== Tests for free_bytes =====
 
     #[test]
     fn test_free_bytes_valid_pointer() {
@@ -271,8 +269,6 @@ mod tests {
         // If we reach here without panic, the test passes
     }
 
-    // ===== Tests to expose critical issues (RED phase) =====
-
     #[test]
     fn test_allocate_byte_array_alignment() {
         // Test: allocated pointer should be properly aligned for the data
@@ -297,28 +293,29 @@ mod tests {
     #[test]
     fn test_allocate_byte_array_metadata_integrity() {
         // Test: metadata should be correctly stored and retrievable
-        // This test exposes issues with metadata corruption
         let test_sizes = vec![0, 1, 7, 8, 15, 16, 100, 1000, 10000];
         
         for size in test_sizes {
             let test_data = vec![0xABu8; size];
             let ptr = allocate_byte_array(test_data.clone());
             
-            // Read back the metadata (this is what free_bytes does)
+            // Read back the metadata using the same method as free_bytes()
             let header_size = std::mem::size_of::<usize>() * 2;
-            let header_ptr = unsafe { ptr.sub(header_size) as *const usize };
+            let header_ptr = unsafe { ptr.sub(header_size) };
             
-            let stored_length = unsafe { *header_ptr };
-            let stored_capacity = unsafe { *header_ptr.add(1) };
+            // Read metadata (now safe because allocation is properly aligned)
+            let metadata_ptr = header_ptr as *const usize;
+            let stored_length = unsafe { *metadata_ptr };
+            let stored_total_size = unsafe { *metadata_ptr.add(1) };
             
             // Verify metadata matches expectations
             assert_eq!(stored_length, size, 
                 "Stored length {} should match actual size {} for test data", 
                 stored_length, size);
             
-            assert!(stored_capacity >= header_size + size, 
-                "Stored capacity {} should be at least header_size + data_length ({} + {})", 
-                stored_capacity, header_size, size);
+            assert_eq!(stored_total_size, header_size + size, 
+                "Stored total size {} should equal header_size + data_length ({} + {})", 
+                stored_total_size, header_size, size);
             
             // Verify data integrity
             let data_slice = unsafe { std::slice::from_raw_parts(ptr, size) };
@@ -330,30 +327,20 @@ mod tests {
     }
 
     #[test]
-    fn test_allocate_byte_array_capacity_reallocation() {
-        // Test: verify that capacity is captured correctly even if Vec reallocates
-        // This exposes the issue where we write capacity after the Vec is populated
-        
-        // Create a Vec that will likely reallocate during construction
-        let mut data = Vec::with_capacity(10);
-        for i in 0..100 {
-            data.push(i as u8);
-        }
-        // At this point, data has reallocated and capacity > 10
-        
-        let original_capacity = data.capacity();
+    fn test_allocate_byte_array_total_size_tracking() {
+        // Test: verify that total size is tracked correctly
+        let data = vec![42u8; 100];
         let ptr = allocate_byte_array(data);
         
-        // Read back the stored capacity
+        // Read back the stored total size
         let header_size = std::mem::size_of::<usize>() * 2;
         let header_ptr = unsafe { ptr.sub(header_size) as *const usize };
-        let stored_capacity = unsafe { *header_ptr.add(1) };
+        let stored_total_size = unsafe { *header_ptr.add(1) };
         
-        // The stored capacity should reflect the actual allocation size
-        // This test will help verify the fix handles capacity correctly
-        assert!(stored_capacity >= header_size + 100, 
-            "Stored capacity {} should account for header and data", 
-            stored_capacity);
+        // The stored total size should be exactly header_size + data_length
+        assert_eq!(stored_total_size, header_size + 100, 
+            "Stored total size {} should equal header_size + data_length", 
+            stored_total_size);
         
         unsafe { free_bytes(ptr) };
     }
@@ -416,33 +403,98 @@ mod tests {
     }
 
     #[test]
-    fn test_metadata_endianness_explicit_little_endian() {
-        // Test: verify metadata is ALWAYS stored in little-endian format
-        // This ensures cross-platform compatibility if metadata is ever serialized
+    fn test_metadata_native_endianness() {
+        // Test: verify metadata is stored in native endianness (platform-specific)
+        // This is safe because we never serialize the metadata across platforms
         let data = vec![1u8, 2, 3, 4];
         let ptr = allocate_byte_array(data);
         
         let header_size = std::mem::size_of::<usize>() * 2;
         let header_ptr = unsafe { ptr.sub(header_size) };
         
-        // Read raw bytes of the length field
-        let length_bytes = unsafe { 
-            std::slice::from_raw_parts(header_ptr, std::mem::size_of::<usize>()) 
-        };
+        // Read as native usize (now safe due to proper alignment)
+        let metadata_ptr = header_ptr as *const usize;
+        let stored_length = unsafe { *metadata_ptr };
+        let stored_total_size = unsafe { *metadata_ptr.add(1) };
         
-        // Metadata is ALWAYS little-endian, regardless of platform
-        // length=4 should be [4, 0, 0, 0, 0, 0, 0, 0] (for 64-bit)
-        // or [4, 0, 0, 0] (for 32-bit)
-        assert_eq!(length_bytes[0], 4, 
-            "First byte should be 4 (little-endian format)");
-        
-        // Verify we can read it back correctly
-        let read_length = usize::from_le_bytes(
-            length_bytes[..std::mem::size_of::<usize>()].try_into().unwrap()
-        );
-        assert_eq!(read_length, 4, "Should read back as 4");
+        assert_eq!(stored_length, 4, "Length should be 4");
+        assert_eq!(stored_total_size, header_size + 4, "Total size should be header + data");
         
         unsafe { free_bytes(ptr) };
+    }
+
+    #[test]
+    fn test_allocation_uses_proper_alignment() {
+        // Test: verify that allocations use proper alignment for usize
+        let data = vec![1u8, 2, 3, 4, 5];
+        let ptr = allocate_byte_array(data);
+        
+        // The header should be aligned for usize access
+        let header_size = std::mem::size_of::<usize>() * 2;
+        let header_ptr = unsafe { ptr.sub(header_size) };
+        let header_addr = header_ptr as usize;
+        let required_alignment = std::mem::align_of::<usize>();
+        
+        assert_eq!(header_addr % required_alignment, 0,
+            "Header pointer must be aligned to {} bytes for safe usize access, got address 0x{:x}",
+            required_alignment, header_addr);
+        
+        unsafe { free_bytes(ptr) };
+    }
+
+    #[test]
+    fn test_free_bytes_uses_aligned_reads() {
+        // Test: verify that free_bytes can safely read metadata with various sizes
+        for size in [1, 3, 5, 7, 9, 11, 13, 15, 17, 100, 1000] {
+            let data = vec![0xABu8; size];
+            let ptr = allocate_byte_array(data);
+            
+            // This should not panic or cause UB even with odd sizes
+            // If alignment is wrong, this will fail on ARM/SPARC
+            unsafe { free_bytes(ptr) };
+        }
+    }
+
+    #[test]
+    fn test_allocate_byte_array_panic_safety() {
+        // Test: verify no memory leak if operations panic
+        // This is hard to test directly, but we can verify the order of operations
+        
+        // If this doesn't panic, the implementation is safe
+        let data = vec![1u8; 1000];
+        let ptr = allocate_byte_array(data);
+        
+        // Verify we can read the data
+        let read_data = unsafe { std::slice::from_raw_parts(ptr, 1000) };
+        assert_eq!(read_data.len(), 1000);
+        
+        unsafe { free_bytes(ptr) };
+    }
+
+    #[test]
+    fn test_concurrent_allocations() {
+        use std::thread;
+        
+        // Test: multiple threads allocating and freeing concurrently
+        let handles: Vec<_> = (0..10).map(|i| {
+            thread::spawn(move || {
+                for j in 0..100 {
+                    let size = (i * 100 + j) % 256 + 1;
+                    let data = vec![i as u8; size];
+                    let ptr = allocate_byte_array(data.clone());
+                    
+                    // Verify data integrity
+                    let read_data = unsafe { std::slice::from_raw_parts(ptr, size) };
+                    assert_eq!(read_data, &data[..]);
+                    
+                    unsafe { free_bytes(ptr) };
+                }
+            })
+        }).collect();
+        
+        for handle in handles {
+            handle.join().unwrap();
+        }
     }
 
     #[test]

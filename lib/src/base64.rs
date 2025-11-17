@@ -261,7 +261,7 @@ pub extern "C" fn bytes_to_base64(
 /// This function is unsafe because it dereferences raw pointers.
 /// The caller must ensure that:
 /// - `input` is a valid null-terminated C string or null
-/// - `out_length` is a valid pointer to a usize or null
+/// - `out_length` is a valid pointer to a usize or null (optional)
 /// - The returned pointer must be freed using `free_bytes`
 #[unsafe(no_mangle)]
 pub extern "C" fn base64_to_bytes(
@@ -277,18 +277,14 @@ pub extern "C" fn base64_to_bytes(
         return std::ptr::null_mut();
     }
     
-    // Validate null pointer for out_length (required for safety)
-    if out_length.is_null() {
-        crate::error::set_error("Output length pointer is null".to_string());
-        return std::ptr::null_mut();
-    }
-    
     // Convert C string to Rust string
     let input_str = match unsafe { CStr::from_ptr(input).to_str() } {
         Ok(s) => s,
         Err(_) => {
             crate::error::set_error("Invalid UTF-8 in input string".to_string());
-            unsafe { *out_length = 0; }
+            if !out_length.is_null() {
+                unsafe { *out_length = 0; }
+            }
             return std::ptr::null_mut();
         }
     };
@@ -296,7 +292,9 @@ pub extern "C" fn base64_to_bytes(
     // Handle empty string case
     if input_str.is_empty() {
         crate::error::clear_error();
-        unsafe { *out_length = 0; }
+        if !out_length.is_null() {
+            unsafe { *out_length = 0; }
+        }
         // Allocate an empty Vec using the helper function
         return crate::memory::allocate_byte_array(Vec::<u8>::new());
     }
@@ -306,14 +304,18 @@ pub extern "C" fn base64_to_bytes(
         Ok(bytes) => bytes,
         Err(e) => {
             crate::error::set_error(format!("Failed to decode Base64: {}", e));
-            unsafe { *out_length = 0; }
+            if !out_length.is_null() {
+                unsafe { *out_length = 0; }
+            }
             return std::ptr::null_mut();
         }
     };
     
-    // Set output length
+    // Set output length (only if pointer provided)
     let length = decoded_bytes.len();
-    unsafe { *out_length = length; }
+    if !out_length.is_null() {
+        unsafe { *out_length = length; }
+    }
     
     // Allocate byte array with metadata header for proper deallocation
     crate::error::clear_error();
@@ -507,7 +509,6 @@ mod tests {
     }
 
     // ========== Tests for base64_to_string ==========
-    // RED PHASE: These tests will fail until base64_to_string is implemented
 
     #[test]
     fn test_base64_to_string_happy_path_utf8() {
@@ -651,7 +652,6 @@ mod tests {
     }
 
     // ========== Tests for bytes_to_base64 ==========
-    // RED PHASE: These tests will fail until bytes_to_base64 is implemented
 
     #[test]
     fn test_bytes_to_base64_happy_path() {
@@ -807,8 +807,6 @@ mod tests {
     }
 
     // ========== Tests for base64_to_bytes ==========
-    // RED PHASE: These tests will fail until base64_to_bytes is implemented
-    // Task 2.7: Write unit tests for base64_to_bytes
 
     #[test]
     fn test_base64_to_bytes_happy_path() {
@@ -1052,19 +1050,20 @@ mod tests {
 
     #[test]
     fn test_base64_to_bytes_null_output_length_pointer() {
-        // Test: null output length pointer should be handled gracefully
-        // This is an edge case - the function should either handle it or document that it's required
+        // Test: null output length pointer should be allowed (optional parameter)
         let input = CString::new("SGVsbG8=").unwrap();
         
-        // Note: This test documents expected behavior. If the function requires a valid pointer,
-        // it should return null. If it's optional, it should still work.
         let result = base64_to_bytes(input.as_ptr(), std::ptr::null_mut());
         
-        // For safety, we expect null when output length pointer is null
-        assert!(result.is_null(), "Null output length pointer should return null for safety");
+        // Should succeed even with null out_length pointer
+        assert!(!result.is_null(), "Should succeed with null out_length pointer");
+        
+        // Verify the data is correct
+        let data = unsafe { std::slice::from_raw_parts(result, 5) };
+        assert_eq!(data, &[72, 101, 108, 108, 111]);
+        
+        unsafe { crate::memory::free_bytes(result) };
     }
-
-    // ===== Tests to expose performance and edge case issues (RED phase) =====
 
     #[test]
     fn test_encoding_case_insensitivity_performance() {
@@ -1323,5 +1322,108 @@ mod tests {
             assert!(!result.is_null(), "Valid encoding '{}' should work", enc);
             unsafe { crate::memory::free_string(result) };
         }
+    }
+
+    #[test]
+    fn test_base64_to_bytes_null_output_length_allowed() {
+        // Test: null output length pointer should be allowed (optional parameter)
+        let input = CString::new("SGVsbG8=").unwrap();
+        
+        // Should work even with null out_length pointer
+        let result = base64_to_bytes(input.as_ptr(), std::ptr::null_mut());
+        
+        assert!(!result.is_null(), "Should succeed even with null out_length pointer");
+        
+        // We can still verify the data is correct by reading it
+        // (we know "SGVsbG8=" decodes to "Hello" which is 5 bytes)
+        let data = unsafe { std::slice::from_raw_parts(result, 5) };
+        assert_eq!(data, &[72, 101, 108, 108, 111]);
+        
+        unsafe { crate::memory::free_bytes(result) };
+    }
+
+    #[test]
+    fn test_concurrent_base64_operations() {
+        use std::thread;
+        
+        // Test: multiple threads using base64 functions concurrently
+        // Error handling should be thread-safe
+        let handles: Vec<_> = (0..10).map(|i| {
+            thread::spawn(move || {
+                let input = CString::new(format!("test{}", i)).unwrap();
+                let encoding = CString::new("UTF8").unwrap();
+                
+                // Encode
+                let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+                assert!(!result.is_null(), "Encoding should succeed in thread {}", i);
+                
+                // Decode
+                let decoded = base64_to_string(result, encoding.as_ptr());
+                assert!(!decoded.is_null(), "Decoding should succeed in thread {}", i);
+                
+                let decoded_str = unsafe { CStr::from_ptr(decoded).to_str().unwrap() };
+                assert_eq!(decoded_str, format!("test{}", i));
+                
+                unsafe {
+                    crate::memory::free_string(result);
+                    crate::memory::free_string(decoded);
+                }
+            })
+        }).collect();
+        
+        for handle in handles {
+            handle.join().unwrap();
+        }
+    }
+
+    #[test]
+    fn test_concurrent_error_isolation() {
+        use std::thread;
+        use std::sync::Arc;
+        use std::sync::atomic::{AtomicBool, Ordering};
+        
+        // Test: errors in one thread don't affect other threads
+        let success_flag = Arc::new(AtomicBool::new(true));
+        
+        let handles: Vec<_> = (0..5).map(|i| {
+            let flag = Arc::clone(&success_flag);
+            thread::spawn(move || {
+                // Thread with even ID will succeed, odd will fail
+                if i % 2 == 0 {
+                    let input = CString::new("Hello").unwrap();
+                    let encoding = CString::new("UTF8").unwrap();
+                    let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+                    
+                    if result.is_null() {
+                        flag.store(false, Ordering::SeqCst);
+                    } else {
+                        unsafe { crate::memory::free_string(result) };
+                    }
+                } else {
+                    // Trigger an error
+                    let encoding = CString::new("UTF8").unwrap();
+                    let result = string_to_base64(std::ptr::null(), encoding.as_ptr());
+                    
+                    // Should be null due to error
+                    if !result.is_null() {
+                        flag.store(false, Ordering::SeqCst);
+                    }
+                    
+                    // Check that error is set for THIS thread
+                    let error = crate::error::get_last_error();
+                    if error.is_null() {
+                        flag.store(false, Ordering::SeqCst);
+                    } else {
+                        unsafe { crate::memory::free_string(error) };
+                    }
+                }
+            })
+        }).collect();
+        
+        for handle in handles {
+            handle.join().unwrap();
+        }
+        
+        assert!(success_flag.load(Ordering::SeqCst), "All threads should handle errors correctly");
     }
 }
