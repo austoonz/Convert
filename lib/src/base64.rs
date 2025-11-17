@@ -302,11 +302,8 @@ pub extern "C" fn base64_to_bytes(
     if input_str.is_empty() {
         crate::error::clear_error();
         unsafe { *out_length = 0; }
-        // Allocate an empty Vec and return its pointer
-        let empty_vec = Vec::<u8>::new();
-        let ptr = empty_vec.as_ptr() as *mut u8;
-        std::mem::forget(empty_vec); // Prevent deallocation
-        return ptr;
+        // Allocate an empty Vec using the helper function
+        return crate::memory::allocate_byte_array(Vec::<u8>::new());
     }
     
     // Decode from Base64
@@ -323,13 +320,9 @@ pub extern "C" fn base64_to_bytes(
     let length = decoded_bytes.len();
     unsafe { *out_length = length; }
     
-    // Convert Vec to raw pointer
-    let mut bytes_vec = decoded_bytes;
-    let ptr = bytes_vec.as_mut_ptr();
-    std::mem::forget(bytes_vec); // Prevent deallocation - caller will free
-    
+    // Allocate byte array with metadata header for proper deallocation
     crate::error::clear_error();
-    ptr
+    crate::memory::allocate_byte_array(decoded_bytes)
 }
 
 /// Convert bytes to a Rust string using the specified encoding
