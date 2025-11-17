@@ -45,8 +45,8 @@ pub extern "C" fn string_to_base64(
         }
     };
     
-    // Check for deprecated UTF7 encoding
-    if encoding_str.eq_ignore_ascii_case("UTF7") {
+    // Check for deprecated UTF7 encoding (both UTF7 and UTF-7 variants)
+    if encoding_str.eq_ignore_ascii_case("UTF7") || encoding_str.eq_ignore_ascii_case("UTF-7") {
         crate::error::set_error("UTF7 encoding is deprecated and not supported".to_string());
         return std::ptr::null_mut();
     }
@@ -150,59 +150,54 @@ pub extern "C" fn base64_to_string(
 
 /// Convert a Rust string to bytes using the specified encoding
 fn convert_string_to_bytes(input: &str, encoding: &str) -> Result<Vec<u8>, String> {
-    match encoding.to_uppercase().as_str() {
-        "UTF8" | "UTF-8" => Ok(input.as_bytes().to_vec()),
-        
-        "ASCII" => {
-            // Validate that all characters are ASCII
-            if input.is_ascii() {
-                Ok(input.as_bytes().to_vec())
-            } else {
-                Err("String contains non-ASCII characters".to_string())
-            }
-        }
-        
-        "UNICODE" | "UTF16" | "UTF-16" => {
-            // Unicode in .NET typically means UTF-16LE
-            let utf16: Vec<u16> = input.encode_utf16().collect();
-            let mut bytes = Vec::with_capacity(utf16.len() * 2);
-            for word in utf16 {
-                bytes.push((word & 0xFF) as u8);
-                bytes.push((word >> 8) as u8);
-            }
-            Ok(bytes)
-        }
-        
-        "UTF32" | "UTF-32" => {
-            // UTF-32LE encoding
-            let mut bytes = Vec::with_capacity(input.chars().count() * 4);
-            for ch in input.chars() {
-                let code_point = ch as u32;
-                bytes.push((code_point & 0xFF) as u8);
-                bytes.push(((code_point >> 8) & 0xFF) as u8);
-                bytes.push(((code_point >> 16) & 0xFF) as u8);
-                bytes.push(((code_point >> 24) & 0xFF) as u8);
-            }
-            Ok(bytes)
-        }
-        
-        "BIGENDIANUNICODE" | "UTF16BE" | "UTF-16BE" => {
-            // UTF-16BE encoding
-            let utf16: Vec<u16> = input.encode_utf16().collect();
-            let mut bytes = Vec::with_capacity(utf16.len() * 2);
-            for word in utf16 {
-                bytes.push((word >> 8) as u8);
-                bytes.push((word & 0xFF) as u8);
-            }
-            Ok(bytes)
-        }
-        
-        "DEFAULT" => {
-            // Default encoding is UTF-8
+    // Use eq_ignore_ascii_case to avoid allocating with to_uppercase()
+    if encoding.eq_ignore_ascii_case("UTF8") || encoding.eq_ignore_ascii_case("UTF-8") {
+        Ok(input.as_bytes().to_vec())
+    } else if encoding.eq_ignore_ascii_case("ASCII") {
+        // Validate that all characters are ASCII
+        if input.is_ascii() {
             Ok(input.as_bytes().to_vec())
+        } else {
+            Err("String contains non-ASCII characters".to_string())
         }
-        
-        _ => Err(format!("Unsupported encoding: {}", encoding))
+    } else if encoding.eq_ignore_ascii_case("UNICODE") 
+        || encoding.eq_ignore_ascii_case("UTF16") 
+        || encoding.eq_ignore_ascii_case("UTF-16") {
+        // Unicode in .NET typically means UTF-16LE
+        let utf16: Vec<u16> = input.encode_utf16().collect();
+        let mut bytes = Vec::with_capacity(utf16.len() * 2);
+        for word in utf16 {
+            bytes.push((word & 0xFF) as u8);
+            bytes.push((word >> 8) as u8);
+        }
+        Ok(bytes)
+    } else if encoding.eq_ignore_ascii_case("UTF32") || encoding.eq_ignore_ascii_case("UTF-32") {
+        // UTF-32LE encoding
+        let mut bytes = Vec::with_capacity(input.chars().count() * 4);
+        for ch in input.chars() {
+            let code_point = ch as u32;
+            bytes.push((code_point & 0xFF) as u8);
+            bytes.push(((code_point >> 8) & 0xFF) as u8);
+            bytes.push(((code_point >> 16) & 0xFF) as u8);
+            bytes.push(((code_point >> 24) & 0xFF) as u8);
+        }
+        Ok(bytes)
+    } else if encoding.eq_ignore_ascii_case("BIGENDIANUNICODE") 
+        || encoding.eq_ignore_ascii_case("UTF16BE") 
+        || encoding.eq_ignore_ascii_case("UTF-16BE") {
+        // UTF-16BE encoding
+        let utf16: Vec<u16> = input.encode_utf16().collect();
+        let mut bytes = Vec::with_capacity(utf16.len() * 2);
+        for word in utf16 {
+            bytes.push((word >> 8) as u8);
+            bytes.push((word & 0xFF) as u8);
+        }
+        Ok(bytes)
+    } else if encoding.eq_ignore_ascii_case("DEFAULT") {
+        // Default encoding is UTF-8
+        Ok(input.as_bytes().to_vec())
+    } else {
+        Err(format!("Unsupported encoding: {}", encoding))
     }
 }
 
@@ -327,78 +322,71 @@ pub extern "C" fn base64_to_bytes(
 
 /// Convert bytes to a Rust string using the specified encoding
 fn convert_bytes_to_string(bytes: &[u8], encoding: &str) -> Result<String, String> {
-    match encoding.to_uppercase().as_str() {
-        "UTF8" | "UTF-8" => {
+    // Use eq_ignore_ascii_case to avoid allocating with to_uppercase()
+    if encoding.eq_ignore_ascii_case("UTF8") || encoding.eq_ignore_ascii_case("UTF-8") {
+        String::from_utf8(bytes.to_vec())
+            .map_err(|e| format!("Invalid UTF-8 bytes: {}", e))
+    } else if encoding.eq_ignore_ascii_case("ASCII") {
+        // Validate that all bytes are ASCII
+        if bytes.iter().all(|&b| b < 128) {
             String::from_utf8(bytes.to_vec())
-                .map_err(|e| format!("Invalid UTF-8 bytes: {}", e))
+                .map_err(|e| format!("Invalid ASCII bytes: {}", e))
+        } else {
+            Err("Bytes contain non-ASCII values".to_string())
+        }
+    } else if encoding.eq_ignore_ascii_case("UNICODE") 
+        || encoding.eq_ignore_ascii_case("UTF16") 
+        || encoding.eq_ignore_ascii_case("UTF-16") {
+        // Unicode in .NET typically means UTF-16LE
+        if bytes.len() % 2 != 0 {
+            return Err("Invalid UTF-16 byte length (must be even)".to_string());
         }
         
-        "ASCII" => {
-            // Validate that all bytes are ASCII
-            if bytes.iter().all(|&b| b < 128) {
-                String::from_utf8(bytes.to_vec())
-                    .map_err(|e| format!("Invalid ASCII bytes: {}", e))
-            } else {
-                Err("Bytes contain non-ASCII values".to_string())
-            }
+        let mut utf16_chars = Vec::with_capacity(bytes.len() / 2);
+        for chunk in bytes.chunks_exact(2) {
+            let word = u16::from_le_bytes([chunk[0], chunk[1]]);
+            utf16_chars.push(word);
         }
         
-        "UNICODE" | "UTF16" | "UTF-16" => {
-            // Unicode in .NET typically means UTF-16LE
-            if bytes.len() % 2 != 0 {
-                return Err("Invalid UTF-16 byte length (must be even)".to_string());
-            }
-            
-            let mut utf16_chars = Vec::with_capacity(bytes.len() / 2);
-            for chunk in bytes.chunks_exact(2) {
-                let word = u16::from_le_bytes([chunk[0], chunk[1]]);
-                utf16_chars.push(word);
-            }
-            
-            String::from_utf16(&utf16_chars)
-                .map_err(|e| format!("Invalid UTF-16 bytes: {}", e))
+        String::from_utf16(&utf16_chars)
+            .map_err(|e| format!("Invalid UTF-16 bytes: {}", e))
+    } else if encoding.eq_ignore_ascii_case("UTF32") || encoding.eq_ignore_ascii_case("UTF-32") {
+        // UTF-32LE encoding
+        if bytes.len() % 4 != 0 {
+            return Err("Invalid UTF-32 byte length (must be multiple of 4)".to_string());
         }
         
-        "UTF32" | "UTF-32" => {
-            // UTF-32LE encoding
-            if bytes.len() % 4 != 0 {
-                return Err("Invalid UTF-32 byte length (must be multiple of 4)".to_string());
+        let mut result = String::new();
+        for chunk in bytes.chunks_exact(4) {
+            let code_point = u32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]);
+            match char::from_u32(code_point) {
+                Some(ch) => result.push(ch),
+                None => return Err(format!("Invalid UTF-32 code point: {}", code_point)),
             }
-            
-            let mut result = String::new();
-            for chunk in bytes.chunks_exact(4) {
-                let code_point = u32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]);
-                match char::from_u32(code_point) {
-                    Some(ch) => result.push(ch),
-                    None => return Err(format!("Invalid UTF-32 code point: {}", code_point)),
-                }
-            }
-            Ok(result)
+        }
+        Ok(result)
+    } else if encoding.eq_ignore_ascii_case("BIGENDIANUNICODE") 
+        || encoding.eq_ignore_ascii_case("UTF16BE") 
+        || encoding.eq_ignore_ascii_case("UTF-16BE") {
+        // UTF-16BE encoding
+        if bytes.len() % 2 != 0 {
+            return Err("Invalid UTF-16BE byte length (must be even)".to_string());
         }
         
-        "BIGENDIANUNICODE" | "UTF16BE" | "UTF-16BE" => {
-            // UTF-16BE encoding
-            if bytes.len() % 2 != 0 {
-                return Err("Invalid UTF-16BE byte length (must be even)".to_string());
-            }
-            
-            let mut utf16_chars = Vec::with_capacity(bytes.len() / 2);
-            for chunk in bytes.chunks_exact(2) {
-                let word = u16::from_be_bytes([chunk[0], chunk[1]]);
-                utf16_chars.push(word);
-            }
-            
-            String::from_utf16(&utf16_chars)
-                .map_err(|e| format!("Invalid UTF-16BE bytes: {}", e))
+        let mut utf16_chars = Vec::with_capacity(bytes.len() / 2);
+        for chunk in bytes.chunks_exact(2) {
+            let word = u16::from_be_bytes([chunk[0], chunk[1]]);
+            utf16_chars.push(word);
         }
         
-        "DEFAULT" => {
-            // Default encoding is UTF-8
-            String::from_utf8(bytes.to_vec())
-                .map_err(|e| format!("Invalid UTF-8 bytes: {}", e))
-        }
-        
-        _ => Err(format!("Unsupported encoding: {}", encoding))
+        String::from_utf16(&utf16_chars)
+            .map_err(|e| format!("Invalid UTF-16BE bytes: {}", e))
+    } else if encoding.eq_ignore_ascii_case("DEFAULT") {
+        // Default encoding is UTF-8
+        String::from_utf8(bytes.to_vec())
+            .map_err(|e| format!("Invalid UTF-8 bytes: {}", e))
+    } else {
+        Err(format!("Unsupported encoding: {}", encoding))
     }
 }
 
@@ -1074,5 +1062,266 @@ mod tests {
         
         // For safety, we expect null when output length pointer is null
         assert!(result.is_null(), "Null output length pointer should return null for safety");
+    }
+
+    // ===== Tests to expose performance and edge case issues (RED phase) =====
+
+    #[test]
+    fn test_encoding_case_insensitivity_performance() {
+        // Test: verify that encoding names are case-insensitive
+        // This also documents the performance concern with to_uppercase()
+        let input = CString::new("Test").unwrap();
+        let encoding_variants = vec![
+            "utf8", "UTF8", "Utf8", "uTf8",
+            "ascii", "ASCII", "Ascii",
+            "unicode", "UNICODE", "Unicode",
+        ];
+        
+        for encoding in encoding_variants {
+            let enc_cstring = CString::new(encoding).unwrap();
+            let result = string_to_base64(input.as_ptr(), enc_cstring.as_ptr());
+            
+            assert!(!result.is_null(), 
+                "Encoding '{}' should be recognized (case-insensitive)", encoding);
+            
+            unsafe { crate::memory::free_string(result) };
+        }
+    }
+
+    #[test]
+    fn test_encoding_name_with_hyphens() {
+        // Test: verify that encoding names with hyphens work
+        let input = CString::new("Test").unwrap();
+        let encoding_variants = vec![
+            ("UTF-8", "UTF8"),
+            ("UTF-16", "UTF16"),
+            ("UTF-32", "UTF32"),
+            ("UTF-16BE", "UTF16BE"),
+        ];
+        
+        for (hyphenated, non_hyphenated) in encoding_variants {
+            let enc1 = CString::new(hyphenated).unwrap();
+            let enc2 = CString::new(non_hyphenated).unwrap();
+            
+            let result1 = string_to_base64(input.as_ptr(), enc1.as_ptr());
+            let result2 = string_to_base64(input.as_ptr(), enc2.as_ptr());
+            
+            // Both should work and produce the same result
+            assert!(!result1.is_null(), "Encoding '{}' should work", hyphenated);
+            assert!(!result2.is_null(), "Encoding '{}' should work", non_hyphenated);
+            
+            let str1 = unsafe { CStr::from_ptr(result1).to_str().unwrap() };
+            let str2 = unsafe { CStr::from_ptr(result2).to_str().unwrap() };
+            
+            assert_eq!(str1, str2, 
+                "Encodings '{}' and '{}' should produce identical results", 
+                hyphenated, non_hyphenated);
+            
+            unsafe {
+                crate::memory::free_string(result1);
+                crate::memory::free_string(result2);
+            }
+        }
+    }
+
+    #[test]
+    fn test_utf7_rejection_is_documented() {
+        // Test: UTF7 should be explicitly rejected with clear error message
+        let input = CString::new("Hello").unwrap();
+        let utf7_variants = vec!["UTF7", "utf7", "Utf7", "UTF-7", "utf-7"];
+        
+        for variant in utf7_variants {
+            let encoding = CString::new(variant).unwrap();
+            let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+            
+            assert!(result.is_null(), 
+                "UTF7 variant '{}' should be rejected", variant);
+            
+            // Verify error message is set
+            let error = crate::error::get_last_error();
+            assert!(!error.is_null(), "Error message should be set for UTF7 variant '{}'", variant);
+            
+            let error_str = unsafe { CStr::from_ptr(error).to_str().unwrap() };
+            
+            // All variants should now be caught by the explicit UTF7 check
+            assert!(error_str.contains("UTF7") || error_str.contains("deprecated"), 
+                "Error message for '{}' should mention UTF7 or deprecated, got: {}", 
+                variant, error_str);
+            
+            unsafe { crate::memory::free_string(error) };
+        }
+    }
+
+    #[test]
+    fn test_ascii_encoding_rejects_non_ascii() {
+        // Test: ASCII encoding should reject strings with non-ASCII characters
+        let non_ascii_strings = vec![
+            "Hello 🌍",           // Emoji
+            "Café",               // Accented character
+            "日本語",             // Japanese
+            "Hello\u{0080}",      // First non-ASCII character
+        ];
+        
+        let encoding = CString::new("ASCII").unwrap();
+        
+        for test_str in non_ascii_strings {
+            let input = CString::new(test_str).unwrap();
+            let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+            
+            assert!(result.is_null(), 
+                "ASCII encoding should reject non-ASCII string: {}", test_str);
+            
+            // Verify error message mentions non-ASCII
+            let error = crate::error::get_last_error();
+            assert!(!error.is_null(), "Error should be set for non-ASCII input");
+            
+            let error_str = unsafe { CStr::from_ptr(error).to_str().unwrap() };
+            assert!(error_str.contains("ASCII") || error_str.contains("non-ASCII"), 
+                "Error should mention ASCII issue, got: {}", error_str);
+            
+            unsafe { crate::memory::free_string(error) };
+        }
+    }
+
+    #[test]
+    fn test_ascii_encoding_accepts_valid_ascii() {
+        // Test: ASCII encoding should accept valid ASCII strings
+        let ascii_strings = vec![
+            "Hello",
+            "123",
+            "!@#$%^&*()",
+            "The quick brown fox",
+            "\t\n\r",
+        ];
+        
+        let encoding = CString::new("ASCII").unwrap();
+        
+        for test_str in ascii_strings {
+            let input = CString::new(test_str).unwrap();
+            let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+            
+            assert!(!result.is_null(), 
+                "ASCII encoding should accept valid ASCII string: {}", test_str);
+            
+            unsafe { crate::memory::free_string(result) };
+        }
+    }
+
+    #[test]
+    fn test_utf16_byte_order() {
+        // Test: verify UTF-16 uses little-endian byte order (UTF-16LE)
+        let input = CString::new("A").unwrap(); // 'A' = U+0041
+        let encoding = CString::new("UTF16").unwrap();
+        
+        let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+        assert!(!result.is_null(), "UTF16 encoding should succeed");
+        
+        // Decode to verify byte order
+        let mut out_length: usize = 0;
+        let bytes_ptr = base64_to_bytes(result, &mut out_length as *mut usize);
+        
+        assert_eq!(out_length, 2, "UTF-16 'A' should be 2 bytes");
+        let bytes = unsafe { std::slice::from_raw_parts(bytes_ptr, out_length) };
+        
+        // UTF-16LE: 'A' (U+0041) = [0x41, 0x00]
+        assert_eq!(bytes[0], 0x41, "First byte should be 0x41 (little-endian)");
+        assert_eq!(bytes[1], 0x00, "Second byte should be 0x00");
+        
+        unsafe {
+            crate::memory::free_string(result);
+            crate::memory::free_bytes(bytes_ptr);
+        }
+    }
+
+    #[test]
+    fn test_utf16be_byte_order() {
+        // Test: verify UTF-16BE uses big-endian byte order
+        let input = CString::new("A").unwrap(); // 'A' = U+0041
+        let encoding = CString::new("BigEndianUnicode").unwrap();
+        
+        let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+        assert!(!result.is_null(), "UTF16BE encoding should succeed");
+        
+        // Decode to verify byte order
+        let mut out_length: usize = 0;
+        let bytes_ptr = base64_to_bytes(result, &mut out_length as *mut usize);
+        
+        assert_eq!(out_length, 2, "UTF-16BE 'A' should be 2 bytes");
+        let bytes = unsafe { std::slice::from_raw_parts(bytes_ptr, out_length) };
+        
+        // UTF-16BE: 'A' (U+0041) = [0x00, 0x41]
+        assert_eq!(bytes[0], 0x00, "First byte should be 0x00 (big-endian)");
+        assert_eq!(bytes[1], 0x41, "Second byte should be 0x41");
+        
+        unsafe {
+            crate::memory::free_string(result);
+            crate::memory::free_bytes(bytes_ptr);
+        }
+    }
+
+    #[test]
+    fn test_utf32_encoding_size() {
+        // Test: verify UTF-32 uses 4 bytes per character
+        let input = CString::new("AB").unwrap();
+        let encoding = CString::new("UTF32").unwrap();
+        
+        let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+        assert!(!result.is_null(), "UTF32 encoding should succeed");
+        
+        // Decode to verify size
+        let mut out_length: usize = 0;
+        let bytes_ptr = base64_to_bytes(result, &mut out_length as *mut usize);
+        
+        assert_eq!(out_length, 8, "UTF-32 'AB' should be 8 bytes (2 chars × 4 bytes)");
+        
+        unsafe {
+            crate::memory::free_string(result);
+            crate::memory::free_bytes(bytes_ptr);
+        }
+    }
+
+    #[test]
+    fn test_default_encoding_is_utf8() {
+        // Test: verify that "Default" encoding behaves like UTF-8
+        let input = CString::new("Hello 🌍").unwrap();
+        
+        let utf8_enc = CString::new("UTF8").unwrap();
+        let default_enc = CString::new("Default").unwrap();
+        
+        let result_utf8 = string_to_base64(input.as_ptr(), utf8_enc.as_ptr());
+        let result_default = string_to_base64(input.as_ptr(), default_enc.as_ptr());
+        
+        assert!(!result_utf8.is_null(), "UTF8 encoding should succeed");
+        assert!(!result_default.is_null(), "Default encoding should succeed");
+        
+        let str_utf8 = unsafe { CStr::from_ptr(result_utf8).to_str().unwrap() };
+        let str_default = unsafe { CStr::from_ptr(result_default).to_str().unwrap() };
+        
+        assert_eq!(str_utf8, str_default, 
+            "Default encoding should produce same result as UTF8");
+        
+        unsafe {
+            crate::memory::free_string(result_utf8);
+            crate::memory::free_string(result_default);
+        }
+    }
+
+    #[test]
+    fn test_encoding_with_invalid_utf8_in_encoding_name() {
+        // Test: verify handling of invalid UTF-8 in encoding parameter
+        // This is a safety test for the encoding parameter validation
+        let input = CString::new("Hello").unwrap();
+        
+        // Create a CString with invalid UTF-8 (this is tricky, as CString validates)
+        // Instead, we test that the UTF-8 validation in the function works
+        // by ensuring valid encodings work
+        let valid_encodings = vec!["UTF8", "ASCII", "Unicode"];
+        
+        for enc in valid_encodings {
+            let encoding = CString::new(enc).unwrap();
+            let result = string_to_base64(input.as_ptr(), encoding.as_ptr());
+            assert!(!result.is_null(), "Valid encoding '{}' should work", enc);
+            unsafe { crate::memory::free_string(result) };
+        }
     }
 }
