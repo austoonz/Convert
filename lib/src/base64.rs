@@ -483,7 +483,6 @@ mod tests {
 
     #[test]
     fn test_string_to_base64_various_encodings() {
-        // Test: various supported encodings should work
         let input = CString::new("Test").unwrap();
         let encodings = vec!["UTF8", "ASCII", "Unicode", "UTF32", "BigEndianUnicode", "Default"];
 
@@ -630,7 +629,6 @@ mod tests {
 
     #[test]
     fn test_base64_to_string_malformed_base64() {
-        // Test: malformed Base64 (wrong padding, invalid characters)
         let malformed_inputs = vec![
             "SGVsbG8",      // Missing padding
             "SGVs bG8=",    // Space in middle
@@ -644,7 +642,6 @@ mod tests {
             let result = base64_to_string(input.as_ptr(), encoding.as_ptr());
 
             // Some Base64 decoders are lenient, so we just verify it doesn't crash
-            // If it returns null, that's acceptable for malformed input
             if !result.is_null() {
                 unsafe { crate::memory::free_string(result) };
             }
