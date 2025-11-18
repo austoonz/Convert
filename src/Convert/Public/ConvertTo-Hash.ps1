@@ -37,21 +37,32 @@ function ConvertTo-Hash {
     )
 
     begin {
-        $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create($Algorithm)
+        $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         foreach ($s in $String) {
-            $sb = [System.Text.StringBuilder]::new()
-            $hashAlgorithm.ComputeHash([System.Text.Encoding]::$Encoding.GetBytes($s)) | ForEach-Object {
-                $null = $sb.Append('{0:X2}' -f $_)
+            $ptr = $nullPtr
+            try {
+                # Call Rust implementation for hash computation
+                $ptr = [ConvertCoreInterop]::compute_hash($s, $Algorithm, $Encoding)
+                
+                if ($ptr -eq $nullPtr) {
+                    $errorMsg = GetRustError -DefaultMessage "Hash computation failed for algorithm '$Algorithm' with encoding '$Encoding'"
+                    throw $errorMsg
+                }
+                
+                # Marshal the result back to PowerShell
+                [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+            } catch {
+                Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+            } finally {
+                # Always free the allocated memory
+                if ($ptr -ne $nullPtr) {
+                    [ConvertCoreInterop]::free_string($ptr)
+                }
             }
-            $sb.ToString()
         }
-    }
-
-    end {
-        if ($hashAlgorithm) {$hashAlgorithm.Dispose()}
-        if ($sb) {$null = $sb.Clear()}
     }
 }

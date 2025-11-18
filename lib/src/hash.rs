@@ -84,32 +84,32 @@ pub extern "C" fn compute_hash(
         }
     };
     
-    // Compute hash based on algorithm
+    // Compute hash based on algorithm (uppercase hex for .NET compatibility)
     let hash_hex = match algorithm_str.to_uppercase().as_str() {
         "MD5" => {
             let mut hasher = Md5::new();
             hasher.update(&bytes);
-            format!("{:x}", hasher.finalize())
+            format!("{:X}", hasher.finalize())
         }
         "SHA1" => {
             let mut hasher = Sha1::new();
             hasher.update(&bytes);
-            format!("{:x}", hasher.finalize())
+            format!("{:X}", hasher.finalize())
         }
         "SHA256" => {
             let mut hasher = Sha256::new();
             hasher.update(&bytes);
-            format!("{:x}", hasher.finalize())
+            format!("{:X}", hasher.finalize())
         }
         "SHA384" => {
             let mut hasher = Sha384::new();
             hasher.update(&bytes);
-            format!("{:x}", hasher.finalize())
+            format!("{:X}", hasher.finalize())
         }
         "SHA512" => {
             let mut hasher = Sha512::new();
             hasher.update(&bytes);
-            format!("{:x}", hasher.finalize())
+            format!("{:X}", hasher.finalize())
         }
         _ => {
             crate::error::set_error(format!("Unsupported algorithm: {}. Supported: MD5, SHA1, SHA256, SHA384, SHA512", algorithm_str));
@@ -200,7 +200,7 @@ pub extern "C" fn compute_hmac(
     // Convert input to bytes (always UTF-8 for HMAC)
     let input_bytes = input_str.as_bytes();
     
-    // Compute HMAC based on algorithm
+    // Compute HMAC based on algorithm (uppercase hex for .NET compatibility)
     let hmac_hex = match algorithm_str.to_uppercase().as_str() {
         "MD5" => {
             type HmacMd5 = Hmac<Md5>;
@@ -212,7 +212,7 @@ pub extern "C" fn compute_hmac(
                 }
             };
             mac.update(input_bytes);
-            format!("{:x}", mac.finalize().into_bytes())
+            format!("{:X}", mac.finalize().into_bytes())
         }
         "SHA1" => {
             type HmacSha1 = Hmac<Sha1>;
@@ -224,7 +224,7 @@ pub extern "C" fn compute_hmac(
                 }
             };
             mac.update(input_bytes);
-            format!("{:x}", mac.finalize().into_bytes())
+            format!("{:X}", mac.finalize().into_bytes())
         }
         "SHA256" => {
             type HmacSha256 = Hmac<Sha256>;
@@ -236,7 +236,7 @@ pub extern "C" fn compute_hmac(
                 }
             };
             mac.update(input_bytes);
-            format!("{:x}", mac.finalize().into_bytes())
+            format!("{:X}", mac.finalize().into_bytes())
         }
         "SHA384" => {
             type HmacSha384 = Hmac<Sha384>;
@@ -248,7 +248,7 @@ pub extern "C" fn compute_hmac(
                 }
             };
             mac.update(input_bytes);
-            format!("{:x}", mac.finalize().into_bytes())
+            format!("{:X}", mac.finalize().into_bytes())
         }
         "SHA512" => {
             type HmacSha512 = Hmac<Sha512>;
@@ -260,7 +260,7 @@ pub extern "C" fn compute_hmac(
                 }
             };
             mac.update(input_bytes);
-            format!("{:x}", mac.finalize().into_bytes())
+            format!("{:X}", mac.finalize().into_bytes())
         }
         _ => {
             crate::error::set_error(format!("Unsupported algorithm: {}. Supported: MD5, SHA1, SHA256, SHA384, SHA512", algorithm_str));
@@ -336,11 +336,11 @@ mod tests {
     #[test]
     fn test_compute_hash_known_vectors() {
         let test_cases = vec![
-            ("MD5", "098f6bcd4621d373cade4e832627b4f6"),
-            ("SHA1", "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"),
-            ("SHA256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"),
-            ("SHA384", "768412320f7b0aa5812fce428dc4706b3cae50e02a64caa16a782249bfe8efc4b7ef1ccb126255d196047dfedf17a0a9"),
-            ("SHA512", "ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff"),
+            ("MD5", "098F6BCD4621D373CADE4E832627B4F6"),
+            ("SHA1", "A94A8FE5CCB19BA61C4C0873D391E987982FBBD3"),
+            ("SHA256", "9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08"),
+            ("SHA384", "768412320F7B0AA5812FCE428DC4706B3CAE50E02A64CAA16A782249BFE8EFC4B7EF1CCB126255D196047DFEDF17A0A9"),
+            ("SHA512", "EE26B0DD4AF7E749AA1A8EE3C10AE9923F618980772E473F8819A5D4940E0DB27AC185F8A0E1D5F84F88BC887FD67B143732C304CC5FA9AD8E6F57F50028A8FF"),
         ];
 
         for (algorithm, expected_hash) in test_cases {
@@ -415,7 +415,7 @@ mod tests {
         let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
         assert_eq!(
             result_str,
-            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
             "SHA256 hash of empty string should match known vector"
         );
         unsafe { crate::memory::free_string(result) };
@@ -439,11 +439,11 @@ mod tests {
     #[test]
     fn test_compute_hmac_known_vectors() {
         let test_cases = vec![
-            ("MD5", "63d6baf65df6bdee8f32b332e0930669"),
-            ("SHA1", "1aa349585ed7ecbd3b9c486a30067e395ca4b356"),
-            ("SHA256", "0329a06b62cd16b33eb6792be8c60b158d89a2ee3a876fce9a881ebb488c0914"),
-            ("SHA384", "4e54a97be947e471e89cdd22c25b8ff704f458fdfcebd8a79a366ff0e52b607fe3f1e52bd1a839f89396d1a4b2cbe570"),
-            ("SHA512", "f8a4f0a209167bc192a1bffaa01ecdb09e06c57f96530d92ec9ccea0090d290e55071306d6b654f26ae0c8721f7e48a2d7130b881151f2cec8d61d941a6be88a"),
+            ("MD5", "63D6BAF65DF6BDEE8F32B332E0930669"),
+            ("SHA1", "1AA349585ED7ECBD3B9C486A30067E395CA4B356"),
+            ("SHA256", "0329A06B62CD16B33EB6792BE8C60B158D89A2EE3A876FCE9A881EBB488C0914"),
+            ("SHA384", "4E54A97BE947E471E89CDD22C25B8FF704F458FDFCEBD8A79A366FF0E52B607FE3F1E52BD1A839F89396D1A4B2CBE570"),
+            ("SHA512", "F8A4F0A209167BC192A1BFFAA01ECDB09E06C57F96530D92EC9CCEA0090D290E55071306D6B654F26AE0C8721F7E48A2D7130B881151F2CEC8D61D941A6BE88A"),
         ];
 
         let input = CString::new("test").unwrap();
