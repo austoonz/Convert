@@ -9,6 +9,10 @@ use std::io::{Write, Read};
 
 /// Compress a string using Gzip compression
 /// 
+/// Converts the input string to bytes using the specified encoding, then compresses
+/// the bytes using Gzip compression. The compressed data is returned as a byte array
+/// with metadata header for proper deallocation.
+/// 
 /// # Safety
 /// This function is unsafe because it dereferences raw pointers.
 /// The caller must ensure that:
@@ -19,7 +23,7 @@ use std::io::{Write, Read};
 /// 
 /// # Arguments
 /// * `input` - The string to compress
-/// * `encoding` - The character encoding to use (UTF8, ASCII, Unicode, etc.)
+/// * `encoding` - The character encoding to use (UTF8, ASCII, Unicode, UTF32, BigEndianUnicode, Default)
 /// * `out_length` - Pointer to store the length of compressed data
 /// 
 /// # Returns
@@ -116,6 +120,10 @@ pub extern "C" fn compress_string(
 
 /// Decompress a Gzip-compressed byte array to a string
 /// 
+/// Decompresses the input byte array using Gzip, then converts the decompressed
+/// bytes to a string using the specified encoding. Handles special characters,
+/// Unicode, and various encodings correctly.
+/// 
 /// # Safety
 /// This function is unsafe because it dereferences raw pointers.
 /// The caller must ensure that:
@@ -127,7 +135,7 @@ pub extern "C" fn compress_string(
 /// # Arguments
 /// * `bytes` - Pointer to compressed byte array
 /// * `length` - Length of compressed data
-/// * `encoding` - The character encoding to use for the output string
+/// * `encoding` - The character encoding to use for the output string (UTF8, ASCII, Unicode, UTF32, BigEndianUnicode, Default)
 /// 
 /// # Returns
 /// Pointer to decompressed string, or null on error
