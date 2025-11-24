@@ -528,8 +528,18 @@ task BuildRustLibrary {
         throw 'Built library not found at: {0}' -f $sourceLibrary
     }
 
-    # Copy the library to the module's bin directory
-    $moduleBinPath = [System.IO.Path]::Combine($script:ModuleSourcePath, 'bin')
+    # Detect architecture
+    $runtimeArch = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
+    $architecture = switch ($runtimeArch) {
+        ([System.Runtime.InteropServices.Architecture]::X64) { 'x64' }
+        ([System.Runtime.InteropServices.Architecture]::Arm64) { 'ARM64' }
+        ([System.Runtime.InteropServices.Architecture]::X86) { 'x86' }
+        ([System.Runtime.InteropServices.Architecture]::Arm) { 'ARM' }
+        default { throw "Unsupported architecture: $runtimeArch" }
+    }
+
+    # Copy the library to the module's bin/<architecture> directory
+    $moduleBinPath = [System.IO.Path]::Combine($script:ModuleSourcePath, 'bin', $architecture)
     
     if (-not [System.IO.Directory]::Exists($moduleBinPath)) {
         $null = New-Item -Path $moduleBinPath -ItemType Directory -Force
@@ -541,6 +551,7 @@ task BuildRustLibrary {
     Write-Host ('    Copied {0}' -f $libraryFileName) -ForegroundColor Green
     Write-Host ('      From: {0}' -f $sourceLibrary) -ForegroundColor Gray
     Write-Host ('      To:   {0}' -f $destinationLibrary) -ForegroundColor Gray
+    Write-Host ('      Architecture: {0}' -f $architecture) -ForegroundColor Gray
 
     Write-Host ''
     Write-Host '  Rust Library: Build Complete' -ForegroundColor Green
@@ -557,12 +568,18 @@ task Build BuildRustLibrary, {
     Copy-Item -Path $script:ModuleManifestFile -Destination $script:ArtifactsPath -Recurse -ErrorAction Stop
 
     Write-Host '    Copying Rust library binaries' -ForegroundColor Green
-    $sourceBinPath = [System.IO.Path]::Combine($script:ModuleSourcePath, 'bin')
-    $destBinPath = [System.IO.Path]::Combine($script:ArtifactsPath, 'bin')
+    $sourceBinPath = Join-Path -Path $script:ModuleSourcePath -ChildPath 'bin'
+    $destBinPath = Join-Path -Path $script:ArtifactsPath -ChildPath 'bin'
     
-    if ([System.IO.Directory]::Exists($sourceBinPath)) {
-        Copy-Item -Path $sourceBinPath -Destination $destBinPath -Recurse -Force -ErrorAction Stop
-        Write-Host "      Copied bin folder from: $sourceBinPath" -ForegroundColor Gray
+    if (Test-Path -Path $sourceBinPath) {
+        # Create destination bin directory if it doesn't exist
+        if (-not (Test-Path -Path $destBinPath)) {
+            $null = New-Item -Path $destBinPath -ItemType Directory -Force
+        }
+        # Copy contents of bin folder, not the folder itself
+        $sourceBinContents = Join-Path -Path $sourceBinPath -ChildPath '*'
+        Copy-Item -Path $sourceBinContents -Destination $destBinPath -Recurse -Force -ErrorAction Stop
+        Write-Host "      Copied bin folder contents from: $sourceBinPath" -ForegroundColor Gray
     } else {
         Write-Warning "      Rust library bin folder not found at: $sourceBinPath"
         Write-Warning '      The module will not work without the Rust library.'
