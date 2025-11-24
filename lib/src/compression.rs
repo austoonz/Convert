@@ -518,4 +518,18 @@ mod tests {
         
         assert!(result.is_null(), "Result should be null for empty compressed data");
     }
+
+    #[test]
+    fn test_decompress_string_emoji() {
+        // Test: emoji characters should round-trip correctly
+        let original = "Hello 👋 World 🌍";
+        let result = round_trip(original, "UTF8");
+        
+        assert_eq!(result, original, "Emoji should round-trip correctly");
+        
+        // Verify the bytes are correct
+        let original_bytes = original.as_bytes();
+        let result_bytes = result.as_bytes();
+        assert_eq!(result_bytes, original_bytes, "Bytes should match exactly");
+    }
 }

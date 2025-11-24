@@ -1,4 +1,4 @@
-$moduleName = 'Convert'
+﻿$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
@@ -84,6 +84,41 @@ Describe -Name $function -Fixture {
             # Just verify that an error was thrown
             $assertion | Should -Not -BeNullOrEmpty
             $assertion.Exception.Message | Should -Match 'Decompression failed'
+        }
+    }
+
+    Context 'Edge Cases' {
+        It 'Handles string with special characters (newlines, tabs, symbols)' {
+            $specialString = "Hello`nWorld`t!@#$%^&*()"
+            $compressed = ConvertFrom-StringToCompressedByteArray -String $specialString -Encoding 'UTF8'
+            $decompressed = ConvertFrom-CompressedByteArrayToString -ByteArray $compressed -Encoding 'UTF8'
+            
+            $decompressed | Should -BeExactly $specialString
+        }
+
+        It 'Handles Unicode characters (emoji)' {
+            $unicodeString = 'Hello 👋 World 🌍'
+            $compressed = ConvertFrom-StringToCompressedByteArray -String $unicodeString -Encoding 'UTF8'
+            $decompressed = ConvertFrom-CompressedByteArrayToString -ByteArray $compressed -Encoding 'UTF8'
+            
+            $decompressed | Should -BeExactly $unicodeString
+        }
+
+        It 'Handles very long string (1MB+)' {
+            $longString = 'A' * 1MB
+            $compressed = ConvertFrom-StringToCompressedByteArray -String $longString -Encoding 'UTF8'
+            $decompressed = ConvertFrom-CompressedByteArrayToString -ByteArray $compressed -Encoding 'UTF8'
+            
+            $decompressed | Should -BeExactly $longString
+            $decompressed.Length | Should -Be 1MB
+        }
+
+        It 'Handles whitespace-only string' {
+            $whitespaceString = '   '
+            $compressed = ConvertFrom-StringToCompressedByteArray -String $whitespaceString -Encoding 'UTF8'
+            $decompressed = ConvertFrom-CompressedByteArrayToString -ByteArray $compressed -Encoding 'UTF8'
+            
+            $decompressed | Should -BeExactly $whitespaceString
         }
     }
 }
