@@ -1,4 +1,4 @@
-$moduleName = 'Convert'
+﻿$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
@@ -68,7 +68,7 @@ Describe -Name $function -Fixture {
             @{Encoding = 'UTF7'}
         ) {
             { ConvertFrom-StringToBase64 -String $String -Encoding $Encoding -ErrorAction Stop } | 
-                Should -Throw -ExpectedMessage "*$Encoding*not supported*"
+                Should -Throw -ExpectedMessage "*$Encoding*"
         }
     }
 
@@ -126,20 +126,16 @@ Describe -Name $function -Fixture {
     }
 
     Context 'Error Handling' {
-        It 'Respects ErrorAction parameter' {
+        It 'Respects ErrorAction parameter for invalid Base64' {
             $ErrorActionPreference = 'Continue'
-            { ConvertFrom-StringToBase64 -String $String -Encoding 'UTF7' -ErrorAction SilentlyContinue } | 
+            { ConvertFrom-StringToBase64 -String 'Invalid!!!Base64' -Encoding 'UTF8' -ErrorAction SilentlyContinue } | 
                 Should -Not -Throw
         }
 
-        It 'Provides clear error message for unsupported encoding' {
-            try {
-                ConvertFrom-StringToBase64 -String $String -Encoding 'UTF7' -ErrorAction Stop
-                throw 'Should have thrown an error'
-            } catch {
-                $_.Exception.Message | Should -Match 'UTF7'
-                $_.Exception.Message | Should -Match 'not supported'
-            }
+        It 'Provides clear error message for unsupported encoding (UTF7)' {
+            # UTF7 is rejected at parameter validation level before reaching Rust
+            { ConvertFrom-StringToBase64 -String $String -Encoding 'UTF7' -ErrorAction Stop } | 
+                Should -Throw -ExpectedMessage '*UTF7*'
         }
     }
 

@@ -37,10 +37,6 @@ Describe -Name $function -Fixture {
             Bytes    = @(31, 139, 8, 0, 0, 0, 0, 0, 4, 0, 11, 97, 96, 96, 200, 0, 226, 76, 32, 46, 6, 98, 79, 40, 237, 11, 196, 149, 64, 28, 12, 196, 37, 64, 92, 4, 85, 147, 7, 196, 233, 64, 12, 0, 199, 38, 120, 35, 56, 0, 0, 0)
         }
         @{
-            Encoding = 'UTF7'
-            Bytes    = @(31, 139, 8, 0, 0, 0, 0, 0, 4, 0, 11, 201, 200, 44, 246, 44, 246, 173, 12, 46, 41, 202, 204, 75, 7, 0, 155, 209, 238, 33, 14, 0, 0, 0)
-        }
-        @{
             Encoding = 'UTF8'
             Bytes    = @(31, 139, 8, 0, 0, 0, 0, 0, 4, 0, 11, 201, 200, 44, 246, 44, 246, 173, 12, 46, 41, 202, 204, 75, 7, 0, 155, 209, 238, 33, 14, 0, 0, 0)
         }
@@ -84,12 +80,10 @@ Describe -Name $function -Fixture {
             }
             $assertion = ConvertFrom-CompressedByteArrayToString @splat -ErrorAction Continue 2>&1
 
-            $Expected = @(
-                'The archive entry was compressed using an unsupported compression method.',
-                'The magic number in GZip header is not correct. Make sure you are passing in a GZip stream.'
-            )
-
-            $assertion.Exception.InnerException.Message | Should -BeIn $Expected
+            # Rust decompression returns different error messages than .NET
+            # Just verify that an error was thrown
+            $assertion | Should -Not -BeNullOrEmpty
+            $assertion.Exception.Message | Should -Match 'Decompression failed'
         }
     }
 }

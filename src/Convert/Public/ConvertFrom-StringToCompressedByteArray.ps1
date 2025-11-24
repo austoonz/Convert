@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .EXAMPLE
         $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
@@ -45,13 +45,14 @@ function ConvertFrom-StringToCompressedByteArray {
         [String[]]
         $String,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8'
     )
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
@@ -61,22 +62,31 @@ function ConvertFrom-StringToCompressedByteArray {
             # Byte arrays merged.
             $byteArrayObject = [System.Collections.Generic.List[Byte[]]]::new()
             try {
-                $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
-
-                [System.IO.MemoryStream] $output = [System.IO.MemoryStream]::new()
-                $gzipStream = [System.IO.Compression.GzipStream]::new($output, ([IO.Compression.CompressionMode]::Compress))
-                $gzipStream.Write( $byteArray, 0, $byteArray.Length )
-                $gzipStream.Close()
-                $output.Close()
-
-                $null = $byteArrayObject.Add($output.ToArray())
-                $byteArrayObject
+                # Use Rust implementation for compression
+                $ptr = $nullPtr
+                try {
+                    $length = [UIntPtr]::Zero
+                    $ptr = [ConvertCoreInterop]::compress_string($s, $Encoding, [ref]$length)
+                    
+                    if ($ptr -eq $nullPtr) {
+                        # Get detailed error from Rust
+                        $errorMsg = GetRustError -DefaultMessage "Encoding '$Encoding' is not supported or compression failed"
+                        throw "Compression failed: $errorMsg"
+                    }
+                    
+                    # Marshal byte array from Rust
+                    $bytes = New-Object byte[] $length.ToUInt64()
+                    [System.Runtime.InteropServices.Marshal]::Copy($ptr, $bytes, 0, $bytes.Length)
+                    
+                    $null = $byteArrayObject.Add($bytes)
+                    $byteArrayObject
+                } finally {
+                    if ($ptr -ne $nullPtr) {
+                        [ConvertCoreInterop]::free_bytes($ptr)
+                    }
+                }
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
-            } finally {
-                if ($byteArray) {$byteArray.Clear()}
-                if ($gzipStream) {$gzipStream.Dispose()}
-                if ($output) {$output.Dispose()}
             }
         }
     }

@@ -1,4 +1,4 @@
-$moduleName = 'Convert'
+﻿$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
@@ -97,18 +97,16 @@ Describe -Name $function -Fixture {
     }
 
     Context -Name 'Error Handling' -Fixture {
-        It -Name 'Respects ErrorAction parameter' -Test {
-            { ConvertTo-Hash -String $String -Encoding 'UTF7' -ErrorAction SilentlyContinue } | 
-                Should -Not -Throw
+        It -Name 'Rejects UTF7 encoding at parameter validation level' -Test {
+            # UTF7 is rejected at parameter validation level before reaching Rust
+            { ConvertTo-Hash -String $String -Encoding 'UTF7' -ErrorAction Stop } | 
+                Should -Throw -ExpectedMessage '*UTF7*'
         }
 
         It -Name 'Provides clear error message for unsupported encoding' -Test {
-            try {
-                ConvertTo-Hash -String $String -Encoding 'UTF7' -ErrorAction Stop
-                throw 'Should have thrown an error'
-            } catch {
-                $_.Exception.Message | Should -Match 'UTF7|not supported|deprecated'
-            }
+            # UTF7 is rejected at parameter validation level
+            { ConvertTo-Hash -String $String -Encoding 'UTF7' -ErrorAction Stop } | 
+                Should -Throw -ExpectedMessage '*UTF7*'
         }
     }
 

@@ -18,13 +18,13 @@ Describe $function {
     }
     It 'Returns a Base64 Encoded String' {
         $assertion = ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
-        $assertion | ConvertFrom-Base64ToString | Should -BeExactly $string
+        $assertion | ConvertFrom-Base64ToString -Encoding Unicode | Should -BeExactly $string
         $assertion | Should -BeOfType 'String'
     }
 
     It 'Returns a Base64 Encoded String with compression' {
         $assertion = ConvertFrom-ByteArrayToBase64 -ByteArray $bytes -Compress
-        $assertion | ConvertFrom-Base64ToString -Decompress | Should -BeExactly $string
+        $assertion | ConvertFrom-Base64ToString -Encoding Unicode -Decompress | Should -BeExactly $string
         $assertion | Should -BeOfType 'String'
     }
 

@@ -104,7 +104,7 @@ function ConvertTo-HmacHash {
         [ValidateSet('HMACSHA256', 'HMACSHA384', 'HMACSHA512')]
         [string]$Algorithm = 'HMACSHA256',
         
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]$Encoding = 'UTF8',
         
         [ValidateSet('Hex', 'Base64', 'ByteArray')]

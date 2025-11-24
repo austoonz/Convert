@@ -37,10 +37,6 @@ Describe -Name $function -Fixture {
             Expected = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
         }
         @{
-            Encoding = 'UTF7'
-            Expected = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
             Encoding = 'UTF8'
             Expected = 'VGhpc0lzTXlTdHJpbmc='
         }

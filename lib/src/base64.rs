@@ -149,7 +149,7 @@ pub extern "C" fn base64_to_string(
 }
 
 /// Convert a Rust string to bytes using the specified encoding
-fn convert_string_to_bytes(input: &str, encoding: &str) -> Result<Vec<u8>, String> {
+pub(crate) fn convert_string_to_bytes(input: &str, encoding: &str) -> Result<Vec<u8>, String> {
     // Use eq_ignore_ascii_case to avoid allocating with to_uppercase()
     if encoding.eq_ignore_ascii_case("UTF8") || encoding.eq_ignore_ascii_case("UTF-8") {
         Ok(input.as_bytes().to_vec())
@@ -323,7 +323,7 @@ pub extern "C" fn base64_to_bytes(
 }
 
 /// Convert bytes to a Rust string using the specified encoding
-fn convert_bytes_to_string(bytes: &[u8], encoding: &str) -> Result<String, String> {
+pub(crate) fn convert_bytes_to_string(bytes: &[u8], encoding: &str) -> Result<String, String> {
     // Use eq_ignore_ascii_case to avoid allocating with to_uppercase()
     if encoding.eq_ignore_ascii_case("UTF8") || encoding.eq_ignore_ascii_case("UTF-8") {
         String::from_utf8(bytes.to_vec())

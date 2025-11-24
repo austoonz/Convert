@@ -115,17 +115,8 @@ Describe -Name $function -Fixture {
 
             $assertion = ConvertTo-Base64 -MemoryStream $stream -Encoding UTF8 -Compress
 
-            if ($PSEdition -eq 'Desktop') {
-                $Expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6) {
-                $Expected = 'H4sIAAAAAAAACwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7) {
-                $Expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            } elseif ($IsLinux) {
-                $Expected = 'H4sIAAAAAAAAAwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            } elseif ($IsMacOS) {
-                $Expected = 'H4sIAAAAAAAAEwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
+            # Rust compression produces consistent output across platforms
+            $Expected = 'H4sIAAAAAAAA/wvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
 
             $assertion | Should -BeExactly $Expected
 
@@ -141,17 +132,8 @@ Describe -Name $function -Fixture {
 
             $assertion = $stream | ConvertTo-Base64 -Encoding UTF8 -Compress
 
-            if ($PSEdition -eq 'Desktop') {
-                $Expected = 'H4sIAAAAAAAEAAvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 6) {
-                $Expected = 'H4sIAAAAAAAACwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            } elseif ($IsWindows -and $PSVersionTable.PSVersion.Major -eq 7) {
-                $Expected = 'H4sIAAAAAAAACgvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            } elseif ($IsLinux) {
-                $Expected = 'H4sIAAAAAAAAAwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            } elseif ($IsMacOS) {
-                $Expected = 'H4sIAAAAAAAAEwvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
-            }
+            # Rust compression produces consistent output across platforms
+            $Expected = 'H4sIAAAAAAAA/wvJyCz2LPatDC4pysxLBwCb0e4hDgAAAA=='
             $assertion | Should -BeExactly $Expected
 
             $stream.Dispose()

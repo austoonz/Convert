@@ -31,7 +31,7 @@ function ConvertTo-Hash {
         [ValidateSet('MD5', 'SHA1', 'SHA256', 'SHA384', 'SHA512')]
         [string]$Algorithm = 'SHA256',
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8'
     )

@@ -43,7 +43,6 @@ Describe -Name $function -Fixture {
         @{Encoding = 'Default' }
         @{Encoding = 'Unicode' }
         @{Encoding = 'UTF32' }
-        @{Encoding = 'UTF7' }
         @{Encoding = 'UTF8' }
     ) -Fixture {
         It -Name 'Converts a <Encoding> Encoded string to a byte array' -Test {

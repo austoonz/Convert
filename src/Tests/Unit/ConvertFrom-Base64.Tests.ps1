@@ -49,9 +49,6 @@ Describe -Name $function -Fixture {
             Encoding = 'UTF32'
         }
         @{
-            Encoding = 'UTF7'
-        }
-        @{
             Encoding = 'UTF8'
         }
     ) -Fixture {
@@ -118,10 +115,6 @@ Describe -Name $function -Fixture {
         @{
             Encoding = 'UTF32'
             Base64   = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
-        }
-        @{
-            Encoding = 'UTF7'
-            Base64   = 'VGhpc0lzTXlTdHJpbmc='
         }
         @{
             Encoding = 'UTF8'

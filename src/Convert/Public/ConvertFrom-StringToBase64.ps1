@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER Compress
         If supplied, the output will be compressed using Gzip.
@@ -70,7 +70,7 @@ function ConvertFrom-StringToBase64 {
         [String[]]
         $String,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 
@@ -88,10 +88,29 @@ function ConvertFrom-StringToBase64 {
         foreach ($s in $String) {
             try {
                 if ($Compress) {
-                    # Keep existing .NET implementation for compressed Base64
-                    # Compression will be migrated to Rust in a later task
-                    $bytes = ConvertFrom-StringToCompressedByteArray -String $s -Encoding $Encoding
-                    [System.Convert]::ToBase64String($bytes)
+                    # Use Rust compression, then .NET Base64 encoding
+                    $compressPtr = $nullPtr
+                    try {
+                        $length = [UIntPtr]::Zero
+                        $compressPtr = [ConvertCoreInterop]::compress_string($s, $Encoding, [ref]$length)
+                        
+                        if ($compressPtr -eq $nullPtr) {
+                            # Get detailed error from Rust
+                            $errorMsg = GetRustError -DefaultMessage "Encoding '$Encoding' is not supported or compression failed"
+                            throw "Compression failed: $errorMsg"
+                        }
+                        
+                        # Marshal byte array from Rust
+                        $bytes = New-Object byte[] $length.ToUInt64()
+                        [System.Runtime.InteropServices.Marshal]::Copy($compressPtr, $bytes, 0, $bytes.Length)
+                        
+                        # Use .NET for Base64 encoding
+                        [System.Convert]::ToBase64String($bytes)
+                    } finally {
+                        if ($compressPtr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_bytes($compressPtr)
+                        }
+                    }
                 } else {
                     # Use Rust implementation for non-compressed Base64 encoding
                     $ptr = $nullPtr
