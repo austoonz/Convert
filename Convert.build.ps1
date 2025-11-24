@@ -68,8 +68,8 @@ Enter-Build {
     $script:ModuleFiles = Join-Path -Path $script:ModuleSourcePath -ChildPath '*'
 
     $script:ModuleManifestFile = Join-Path -Path $script:ModuleSourcePath -ChildPath "$($script:ModuleName).psd1"
-    Import-Module $script:ModuleManifestFile
-
+    
+    # Read manifest info without importing the module (which requires the Rust library)
     if ($PSVersionTable.PSVersion.Major -ge 7) {
         $manifestInfo = Import-PowerShellDataFile -Path $script:ModuleManifestFile
         $script:ModuleVersion = $manifestInfo.ModuleVersion
@@ -132,19 +132,77 @@ Enter-Build {
         $pesterConfiguration.TestResult.OutputFormat = 'JUnitXml'
         $pesterConfiguration.Output.Verbosity = 'Detailed'
 
-        Write-Build White '      Performing Pester Unit Tests...'
-        $testResults = Invoke-Pester -Configuration $pesterConfiguration
+        Write-Build White '      Performing Pester Unit Tests in new process...'
+        
+        # Run tests in a new PowerShell process to avoid DLL locking issues
+        # This ensures the Rust library can be loaded fresh for each test run
+        $pwshCommand = if ($PSVersionTable.PSVersion.Major -ge 6) { 'pwsh' } else { 'powershell' }
+        
+        # Build the Pester command to run in the new process
+        $testPath = $UnitTestPath
+        $testReportPath = Join-Path -Path $script:RepositoryRoot -ChildPath $TestReportFileName
+        $coveragePath = Join-Path -Path $script:RepositoryRoot -ChildPath 'coverage.xml'
+        
+        $pesterScript = @"
+Import-Module Pester
+`$config = New-PesterConfiguration
+`$config.Run.Path = '$testPath'
+`$config.Run.PassThru = `$true
+`$config.TestResult.Enabled = `$true
+`$config.TestResult.OutputPath = '$testReportPath'
+`$config.TestResult.OutputFormat = 'JUnitXml'
+`$config.Output.Verbosity = 'Detailed'
+"@
+        
+        if ($EnableCodeCoverage) {
+            $coverageFilesStr = ($CodeCoverageFiles | ForEach-Object { "'$_'" }) -join ','
+            $pesterScript += @"
 
-        # Output the details for each failed test (if running in CodeBuild)
-        if ($env:CODEBUILD_BUILD_ARN) {
-            $testResults.TestResult | ForEach-Object {
-                if ($_.Result -ne 'Passed') {
-                    $_
+`$config.CodeCoverage.Enabled = `$true
+`$config.CodeCoverage.CoveragePercentTarget = $($script:CodeCoverageThreshold)
+`$config.CodeCoverage.OutputPath = '$coveragePath'
+`$config.CodeCoverage.OutputFormat = '$($script:PesterOutputFormat)'
+`$config.CodeCoverage.Path = @($coverageFilesStr)
+"@
+        }
+        
+        $pesterScript += @"
+
+`$result = Invoke-Pester -Configuration `$config
+exit `$result.FailedCount
+"@
+        
+        # Run the tests in a new process
+        $process = Start-Process -FilePath $pwshCommand -ArgumentList '-NoProfile', '-Command', $pesterScript -Wait -PassThru -NoNewWindow
+        $numberFails = $process.ExitCode
+        
+        # Read the test results from the XML file for code coverage analysis
+        if ($EnableCodeCoverage -and (Test-Path -Path $testReportPath)) {
+            # Parse the JUnit XML to get test count
+            [xml]$testXml = Get-Content -Path $testReportPath
+            $totalTests = [int]$testXml.testsuites.tests
+            $failedTests = [int]$testXml.testsuites.failures
+            
+            Write-Host "      Tests: $totalTests total, $failedTests failed" -ForegroundColor $(if ($failedTests -eq 0) { 'Green' } else { 'Red' })
+            
+            # Check code coverage if enabled
+            if (Test-Path -Path $coveragePath) {
+                # Parse coverage XML
+                [xml]$coverageXml = Get-Content -Path $coveragePath
+                $commandsAnalyzed = [int]$coverageXml.coverage.'lines-valid'
+                $commandsExecuted = [int]$coverageXml.coverage.'lines-covered'
+                
+                if ($commandsAnalyzed -gt 0) {
+                    $coveragePercent = [math]::Round(($commandsExecuted / $commandsAnalyzed * 100), 2)
+                    Write-Host "      Code Coverage: $coveragePercent% ($commandsExecuted/$commandsAnalyzed commands)" -ForegroundColor $(if ($coveragePercent -ge $script:CodeCoverageThreshold) { 'Green' } else { 'Red' })
+                    
+                    assert([Int]$coveragePercent -ge $script:CodeCoverageThreshold) (
+                        ('Failed to meet code coverage threshold of {0}% with only {1}% coverage' -f $script:CodeCoverageThreshold, $coveragePercent)
+                    )
                 }
             }
         }
-
-        $numberFails = $testResults.FailedCount
+        
         assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
 
         if ($EnableCodeCoverage) {
@@ -422,14 +480,94 @@ task UpdateCBH {
     Write-Host ''
 }
 
+# Synopsis: Build the Rust library
+task BuildRustLibrary {
+    Write-Host ''
+    Write-Host '  Rust Library: Building...' -ForegroundColor Green
+    Write-Host ''
+
+    $libPath = [System.IO.Path]::Combine($script:RepositoryRoot, 'lib')
+    $cargoToml = [System.IO.Path]::Combine($libPath, 'Cargo.toml')
+
+    if (-not [System.IO.File]::Exists($cargoToml)) {
+        Write-Warning '    Cargo.toml not found. Skipping Rust build.'
+        Write-Host ''
+        return
+    }
+
+    # Check if cargo is available
+    $cargoCommand = Get-Command -Name 'cargo' -ErrorAction SilentlyContinue
+    if (-not $cargoCommand) {
+        throw 'Cargo not found. Please install Rust from https://rustup.rs'
+    }
+
+    Write-Host '    Running cargo build --release...' -ForegroundColor Green
+    
+    # Build the Rust library
+    $cargoArgs = @('build', '--release', '--manifest-path', $cargoToml)
+    & cargo @cargoArgs
+    
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Cargo build failed with exit code {0}' -f $LASTEXITCODE
+    }
+
+    # Determine the library file name and extension based on platform
+    $targetDir = [System.IO.Path]::Combine($libPath, 'target', 'release')
+    
+    if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+        $libraryFileName = 'convert_core.dll'
+    } elseif ($IsMacOS) {
+        $libraryFileName = 'libconvert_core.dylib'
+    } else {
+        $libraryFileName = 'libconvert_core.so'
+    }
+
+    $sourceLibrary = [System.IO.Path]::Combine($targetDir, $libraryFileName)
+    
+    if (-not [System.IO.File]::Exists($sourceLibrary)) {
+        throw 'Built library not found at: {0}' -f $sourceLibrary
+    }
+
+    # Copy the library to the module's bin directory
+    $moduleBinPath = [System.IO.Path]::Combine($script:ModuleSourcePath, 'bin')
+    
+    if (-not [System.IO.Directory]::Exists($moduleBinPath)) {
+        $null = New-Item -Path $moduleBinPath -ItemType Directory -Force
+    }
+
+    $destinationLibrary = [System.IO.Path]::Combine($moduleBinPath, $libraryFileName)
+    Copy-Item -Path $sourceLibrary -Destination $destinationLibrary -Force
+    
+    Write-Host ('    Copied {0}' -f $libraryFileName) -ForegroundColor Green
+    Write-Host ('      From: {0}' -f $sourceLibrary) -ForegroundColor Gray
+    Write-Host ('      To:   {0}' -f $destinationLibrary) -ForegroundColor Gray
+
+    Write-Host ''
+    Write-Host '  Rust Library: Build Complete' -ForegroundColor Green
+    Write-Host ''
+}
+
 # Synopsis: Builds the Module to the Artifacts folder
-task Build {
+task Build BuildRustLibrary, {
     Write-Host ''
     Write-Host '  Module Build: Starting...' -ForegroundColor Green
     Write-Host ''
 
     Write-Host '    Copying files to artifacts folder' -ForegroundColor Green
     Copy-Item -Path $script:ModuleManifestFile -Destination $script:ArtifactsPath -Recurse -ErrorAction Stop
+
+    Write-Host '    Copying Rust library binaries' -ForegroundColor Green
+    $sourceBinPath = [System.IO.Path]::Combine($script:ModuleSourcePath, 'bin')
+    $destBinPath = [System.IO.Path]::Combine($script:ArtifactsPath, 'bin')
+    
+    if ([System.IO.Directory]::Exists($sourceBinPath)) {
+        Copy-Item -Path $sourceBinPath -Destination $destBinPath -Recurse -Force -ErrorAction Stop
+        Write-Host "      Copied bin folder from: $sourceBinPath" -ForegroundColor Gray
+    } else {
+        Write-Warning "      Rust library bin folder not found at: $sourceBinPath"
+        Write-Warning '      The module will not work without the Rust library.'
+        Write-Warning '      Run: cargo build --release --manifest-path lib/Cargo.toml'
+    }
 
     Write-Host '    Combining scripts into the module root file' -ForegroundColor Green
     $scriptContent = [System.Text.StringBuilder]::new()

@@ -85,11 +85,15 @@ For more information, see: https://github.com/austoonz/Convert
 }
 
 # Load the Rust library via Add-Type with DllImport declarations
-try {
-    # Escape backslashes for C# string literal in DllImport
-    $escapedPath = $libraryPath.Replace('\', '\\')
-    
-    Add-Type -TypeDefinition @"
+# Check if the type is already loaded (can happen in test scenarios)
+$typeLoaded = $null -ne ([System.Management.Automation.PSTypeName]'ConvertCoreInterop').Type
+
+if (-not $typeLoaded) {
+    try {
+        # Escape backslashes for C# string literal in DllImport
+        $escapedPath = $libraryPath.Replace('\', '\\')
+        
+        Add-Type -TypeDefinition @"
 using System;
 using System.Runtime.InteropServices;
 
@@ -179,6 +183,7 @@ public static class ConvertCoreInterop {
     public static extern IntPtr get_last_error();
 }
 "@
-} catch {
-    throw "Failed to load Rust library from '$libraryPath': $_"
+    } catch {
+        throw "Failed to load Rust library from '$libraryPath': $_"
+    }
 }
