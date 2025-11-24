@@ -121,4 +121,63 @@ Describe -Name $function -Fixture {
             $decompressed | Should -BeExactly $whitespaceString
         }
     }
+
+    Context 'Error Handling' {
+        It 'Respects ErrorAction parameter - Stop' {
+            $invalidBytes = @(0, 1, 2, 3)
+            
+            { ConvertFrom-CompressedByteArrayToString -ByteArray $invalidBytes -Encoding 'UTF8' -ErrorAction Stop } | 
+                Should -Throw -ExpectedMessage '*Decompression failed*'
+        }
+
+        It 'Respects ErrorAction parameter - Continue' {
+            $invalidBytes = @(0, 1, 2, 3)
+            
+            $result = ConvertFrom-CompressedByteArrayToString -ByteArray $invalidBytes -Encoding 'UTF8' -ErrorAction Continue 2>&1
+            
+            $result | Should -Not -BeNullOrEmpty
+            $result.Exception.Message | Should -Match 'Decompression failed'
+        }
+
+        It 'Respects ErrorAction parameter - SilentlyContinue' {
+            $invalidBytes = @(0, 1, 2, 3)
+            
+            $result = ConvertFrom-CompressedByteArrayToString -ByteArray $invalidBytes -Encoding 'UTF8' -ErrorAction SilentlyContinue
+            
+            $result | Should -BeNullOrEmpty
+        }
+
+        It 'Provides clear error message for invalid compressed data' {
+            $invalidBytes = @(255, 254, 253, 252, 251)
+            
+            try {
+                ConvertFrom-CompressedByteArrayToString -ByteArray $invalidBytes -Encoding 'UTF8' -ErrorAction Stop
+                throw 'Should have thrown an error'
+            } catch {
+                $_.Exception.Message | Should -Match 'Decompression failed'
+                $_.Exception.Message | Should -Not -BeNullOrEmpty
+                $_.Exception.Message.Length | Should -BeGreaterThan 10
+            }
+        }
+
+        It 'Handles null byte array gracefully' {
+            try {
+                ConvertFrom-CompressedByteArrayToString -ByteArray $null -Encoding 'UTF8' -ErrorAction Stop
+                throw 'Should have thrown an error'
+            } catch {
+                $_.Exception.Message | Should -Match 'null|empty|cannot be null'
+            }
+        }
+
+        It 'Handles empty byte array gracefully' {
+            $emptyBytes = @()
+            
+            try {
+                ConvertFrom-CompressedByteArrayToString -ByteArray $emptyBytes -Encoding 'UTF8' -ErrorAction Stop
+                throw 'Should have thrown an error'
+            } catch {
+                $_.Exception.Message | Should -Match 'null|empty|Decompression failed'
+            }
+        }
+    }
 }

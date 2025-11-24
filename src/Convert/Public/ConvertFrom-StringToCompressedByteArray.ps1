@@ -57,24 +57,18 @@ function ConvertFrom-StringToCompressedByteArray {
 
     process {
         foreach ($s in $String) {
-            # Creating a generic list to ensure an array of string being handed in
-            # outputs an array of Byte arrays, rather than a single array with both
-            # Byte arrays merged.
             $byteArrayObject = [System.Collections.Generic.List[Byte[]]]::new()
             try {
-                # Use Rust implementation for compression
                 $ptr = $nullPtr
                 try {
                     $length = [UIntPtr]::Zero
                     $ptr = [ConvertCoreInterop]::compress_string($s, $Encoding, [ref]$length)
                     
                     if ($ptr -eq $nullPtr) {
-                        # Get detailed error from Rust
-                        $errorMsg = GetRustError -DefaultMessage "Encoding '$Encoding' is not supported or compression failed"
-                        throw "Compression failed: $errorMsg"
+                        $errorMsg = GetRustError -DefaultMessage "Compression failed for encoding '$Encoding'"
+                        throw $errorMsg
                     }
                     
-                    # Marshal byte array from Rust
                     $bytes = New-Object byte[] $length.ToUInt64()
                     [System.Runtime.InteropServices.Marshal]::Copy($ptr, $bytes, 0, $bytes.Length)
                     

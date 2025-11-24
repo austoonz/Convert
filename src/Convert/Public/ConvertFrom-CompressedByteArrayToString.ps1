@@ -57,7 +57,6 @@ function ConvertFrom-CompressedByteArrayToString {
 
     process {
         try {
-            # Use Rust implementation for decompression
             $ptr = $nullPtr
             try {
                 # Pin the byte array in memory and get a pointer to it
@@ -69,12 +68,10 @@ function ConvertFrom-CompressedByteArrayToString {
                     $ptr = [ConvertCoreInterop]::decompress_string($byteArrayPtr, $length, $Encoding)
                     
                     if ($ptr -eq $nullPtr) {
-                        $errorMsg = GetRustError -DefaultMessage "Encoding '$Encoding' is not supported or decompression failed"
-                        throw "Decompression failed: $errorMsg"
+                        $errorMsg = GetRustError -DefaultMessage "Decompression failed for encoding '$Encoding'"
+                        throw $errorMsg
                     }
                     
-                    # Rust decompresses bytes and interprets them using the specified encoding,
-                    # then returns the result as a UTF-8 encoded C string (Rust's CString format)
                     [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
                 } finally {
                     if ($pinnedArray.IsAllocated) {

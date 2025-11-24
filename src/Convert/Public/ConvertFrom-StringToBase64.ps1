@@ -88,23 +88,19 @@ function ConvertFrom-StringToBase64 {
         foreach ($s in $String) {
             try {
                 if ($Compress) {
-                    # Use Rust compression, then .NET Base64 encoding
                     $compressPtr = $nullPtr
                     try {
                         $length = [UIntPtr]::Zero
                         $compressPtr = [ConvertCoreInterop]::compress_string($s, $Encoding, [ref]$length)
                         
                         if ($compressPtr -eq $nullPtr) {
-                            # Get detailed error from Rust
-                            $errorMsg = GetRustError -DefaultMessage "Encoding '$Encoding' is not supported or compression failed"
-                            throw "Compression failed: $errorMsg"
+                            $errorMsg = GetRustError -DefaultMessage "Compression failed for encoding '$Encoding'"
+                            throw $errorMsg
                         }
                         
-                        # Marshal byte array from Rust
                         $bytes = New-Object byte[] $length.ToUInt64()
                         [System.Runtime.InteropServices.Marshal]::Copy($compressPtr, $bytes, 0, $bytes.Length)
                         
-                        # Use .NET for Base64 encoding
                         [System.Convert]::ToBase64String($bytes)
                     } finally {
                         if ($compressPtr -ne $nullPtr) {
@@ -112,15 +108,13 @@ function ConvertFrom-StringToBase64 {
                         }
                     }
                 } else {
-                    # Use Rust implementation for non-compressed Base64 encoding
                     $ptr = $nullPtr
                     try {
                         $ptr = [ConvertCoreInterop]::string_to_base64($s, $Encoding)
                         
                         if ($ptr -eq $nullPtr) {
-                            # Get detailed error from Rust
-                            $errorMsg = GetRustError -DefaultMessage "Encoding '$Encoding' is not supported"
-                            throw "Base64 encoding failed: $errorMsg"
+                            $errorMsg = GetRustError -DefaultMessage "Base64 encoding failed for encoding '$Encoding'"
+                            throw $errorMsg
                         }
                         
                         [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
