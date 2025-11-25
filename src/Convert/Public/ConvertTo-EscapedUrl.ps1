@@ -29,8 +29,20 @@ function ConvertTo-EscapedUrl {
 
     process {
         foreach ($u in $Url) {
-            $escaped = [System.Uri]::EscapeDataString($u)
-            $escaped.Replace("~", '%7E').Replace("'", '%27')
+            $ptr = [IntPtr]::Zero
+            try {
+                $ptr = [ConvertCoreInterop]::url_encode($u)
+                if ($ptr -eq [IntPtr]::Zero) {
+                    $errorMessage = GetRustError
+                    Write-Error -Message $errorMessage
+                    continue
+                }
+                [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+            } finally {
+                if ($ptr -ne [IntPtr]::Zero) {
+                    [ConvertCoreInterop]::free_string($ptr)
+                }
+            }
         }
     }
 }
