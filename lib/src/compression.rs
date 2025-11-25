@@ -1,4 +1,9 @@
 //! Compression and decompression functions using Gzip
+//!
+//! This module provides compression and decompression using the `flate2` crate
+//! with default compression settings (level 6). The implementation uses streaming
+//! compression/decompression for memory efficiency, making it suitable for both
+//! small and large payloads.
 
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;

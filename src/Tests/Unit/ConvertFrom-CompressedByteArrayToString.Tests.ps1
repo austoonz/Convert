@@ -180,4 +180,58 @@ Describe -Name $function -Fixture {
             }
         }
     }
+
+    Context 'Performance and Memory' {
+        It 'Processes large batch efficiently' {
+            $batch = 1..100 | ForEach-Object { "TestString$_" }
+            $compressedBatch = $batch | ForEach-Object { 
+                ConvertFrom-StringToCompressedByteArray -String $_ -Encoding 'UTF8'
+            }
+            
+            $startTime = Get-Date
+            $results = $compressedBatch | ForEach-Object {
+                ConvertFrom-CompressedByteArrayToString -ByteArray $_ -Encoding 'UTF8'
+            }
+            $duration = (Get-Date) - $startTime
+            
+            $results | Should -HaveCount 100
+            $duration.TotalSeconds | Should -BeLessThan 5
+        }
+
+        It 'Handles very large compressed data (1MB+)' {
+            $largeString = 'A' * 1MB
+            $compressed = ConvertFrom-StringToCompressedByteArray -String $largeString -Encoding 'UTF8'
+            
+            $result = ConvertFrom-CompressedByteArrayToString -ByteArray $compressed -Encoding 'UTF8'
+            
+            $result | Should -Not -BeNullOrEmpty
+            $result.Length | Should -Be 1MB
+            $result | Should -BeExactly $largeString
+        }
+
+        It 'Processes repeated calls without memory leaks' {
+            $testString = 'MemoryTest'
+            $compressed = ConvertFrom-StringToCompressedByteArray -String $testString -Encoding 'UTF8'
+            $iterations = 1000
+            
+            [System.GC]::Collect()
+            [System.GC]::WaitForPendingFinalizers()
+            [System.GC]::Collect()
+            $memoryBefore = [System.GC]::GetTotalMemory($true)
+            
+            1..$iterations | ForEach-Object {
+                $result = ConvertFrom-CompressedByteArrayToString -ByteArray $compressed -Encoding 'UTF8'
+                $result | Should -Not -BeNullOrEmpty
+            }
+            
+            [System.GC]::Collect()
+            [System.GC]::WaitForPendingFinalizers()
+            [System.GC]::Collect()
+            $memoryAfter = [System.GC]::GetTotalMemory($true)
+            
+            $memoryGrowthMB = [Math]::Round(($memoryAfter - $memoryBefore) / 1MB, 2)
+            
+            $memoryGrowthMB | Should -BeLessThan 1
+        }
+    }
 }

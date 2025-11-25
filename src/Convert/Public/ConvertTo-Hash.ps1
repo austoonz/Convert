@@ -43,25 +43,24 @@ function ConvertTo-Hash {
 
     process {
         foreach ($s in $String) {
-            $ptr = $nullPtr
             try {
-                # Call Rust implementation for hash computation
-                $ptr = [ConvertCoreInterop]::compute_hash($s, $Algorithm, $Encoding)
-                
-                if ($ptr -eq $nullPtr) {
-                    $errorMsg = GetRustError -DefaultMessage "Hash computation failed for algorithm '$Algorithm' with encoding '$Encoding'"
-                    throw $errorMsg
+                $ptr = $nullPtr
+                try {
+                    $ptr = [ConvertCoreInterop]::compute_hash($s, $Algorithm, $Encoding)
+                    
+                    if ($ptr -eq $nullPtr) {
+                        $errorMsg = GetRustError -DefaultMessage "Hash computation failed for algorithm '$Algorithm' with encoding '$Encoding'"
+                        throw $errorMsg
+                    }
+                    
+                    [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+                } finally {
+                    if ($ptr -ne $nullPtr) {
+                        [ConvertCoreInterop]::free_string($ptr)
+                    }
                 }
-                
-                # Marshal the result back to PowerShell
-                [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
-            } finally {
-                # Always free the allocated memory
-                if ($ptr -ne $nullPtr) {
-                    [ConvertCoreInterop]::free_string($ptr)
-                }
             }
         }
     }
