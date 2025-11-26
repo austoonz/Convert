@@ -68,4 +68,94 @@ Describe -Name $function -Fixture {
             (($epochTime + [System.TimeSpan]::FromMilliseconds($assertion)) - $datetime).TotalMilliseconds | Should -BeLessThan 1000
         }
     }
+
+    Context -Name 'Edge Cases' -Fixture {
+        It -Name 'Handles epoch time (1970-01-01 00:00:00)' -Test {
+            $assertion = ConvertTo-UnixTime -DateTime $epochTime
+            $assertion | Should -Be 0
+        }
+
+        It -Name 'Handles far future dates' -Test {
+            $futureDate = Get-Date -Date '2100-01-01 00:00:00'
+            $assertion = ConvertTo-UnixTime -DateTime $futureDate
+            $assertion | Should -BeGreaterThan 0
+        }
+
+        It -Name 'Handles dates with second precision' -Test {
+            $dateTime = Get-Date -Date '2024-01-01 12:00:00'
+            $assertion = ConvertTo-UnixTime -DateTime $dateTime
+            $roundTrip = ConvertFrom-UnixTime -UnixTime $assertion
+            ($dateTime - $roundTrip).TotalSeconds | Should -BeLessThan 1
+        }
+    }
+
+    Context -Name 'Performance and Memory' -Fixture {
+        It -Name 'Processes large batch efficiently' -Test {
+            $batch = 1..100 | ForEach-Object { (Get-Date).AddDays($_) }
+            $startTime = Get-Date
+            $results = $batch | ConvertTo-UnixTime
+            $duration = (Get-Date) - $startTime
+            
+            $results | Should -HaveCount 100
+            $duration.TotalSeconds | Should -BeLessThan 5
+        }
+
+        It -Name 'Processes repeated calls without memory leaks' -Test {
+            $testDate = Get-Date
+            $iterations = 1000
+            
+            [System.GC]::Collect()
+            [System.GC]::WaitForPendingFinalizers()
+            [System.GC]::Collect()
+            $memoryBefore = [System.GC]::GetTotalMemory($true)
+            
+            1..$iterations | ForEach-Object {
+                $result = ConvertTo-UnixTime -DateTime $testDate
+                $result | Should -Not -BeNullOrEmpty
+            }
+            
+            [System.GC]::Collect()
+            [System.GC]::WaitForPendingFinalizers()
+            [System.GC]::Collect()
+            $memoryAfter = [System.GC]::GetTotalMemory($true)
+            
+            $memoryGrowthMB = [Math]::Round(($memoryAfter - $memoryBefore) / 1MB, 2)
+            $memoryGrowthMB | Should -BeLessThan 1
+        }
+    }
+
+    Context -Name 'Interop and Data Integrity' -Fixture {
+        It -Name 'Produces consistent output across multiple calls' -Test {
+            $testDate = Get-Date -Date '2024-06-15 14:30:00'
+            $result1 = ConvertTo-UnixTime -DateTime $testDate
+            $result2 = ConvertTo-UnixTime -DateTime $testDate
+            $result3 = ConvertTo-UnixTime -DateTime $testDate
+            
+            $result1 | Should -BeExactly $result2
+            $result2 | Should -BeExactly $result3
+        }
+
+        It -Name 'Round-trips correctly (seconds)' -Test {
+            $original = Get-Date -Date '2024-01-15 10:30:45'
+            $unixTime = ConvertTo-UnixTime -DateTime $original
+            $roundTrip = ConvertFrom-UnixTime -UnixTime $unixTime
+            
+            ($original - $roundTrip).TotalSeconds | Should -BeLessThan 1
+        }
+
+        It -Name 'Round-trips correctly (milliseconds)' -Test {
+            $original = Get-Date -Date '2024-01-15 10:30:45'
+            $unixTime = ConvertTo-UnixTime -DateTime $original -AsMilliseconds
+            $roundTrip = ConvertFrom-UnixTime -UnixTime $unixTime -FromMilliseconds
+            
+            ($original - $roundTrip).TotalSeconds | Should -BeLessThan 1
+        }
+
+        It -Name 'Returns correct type (long)' -Test {
+            $testDate = Get-Date
+            $result = ConvertTo-UnixTime -DateTime $testDate
+            
+            $result | Should -BeOfType [long]
+        }
+    }
 }

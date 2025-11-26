@@ -158,7 +158,7 @@ public static class ConvertCoreInterop {
         uint hour, uint minute, uint second,
         bool milliseconds);
 
-    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl, EntryPoint = "from_unix_time_ffi")]
     public static extern bool from_unix_time(
         long timestamp, bool milliseconds,
         out int year, out uint month, out uint day,

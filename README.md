@@ -127,3 +127,29 @@ Get-Help Convert
 # View help for a specific function
 Get-Help ConvertTo-Base64 -Full
 ```
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Development setup and prerequisites
+- Module architecture and build process
+- Coding standards and best practices
+- Testing guidelines
+- How to submit pull requests
+
+### Quick Start for Contributors
+
+```powershell
+# Clone the repository
+git clone https://github.com/austoonz/Convert.git
+cd Convert
+
+# Install Rust (required for building native library)
+# Visit: https://rustup.rs
+
+# Build the module
+Invoke-Build
+
+# Run tests
+Invoke-Build -Task Test
+```

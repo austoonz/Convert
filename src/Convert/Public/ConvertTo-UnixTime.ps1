@@ -46,10 +46,14 @@ function ConvertTo-UnixTime {
     )
 
     process {
-        if ($AsMilliseconds) {
-            [long][System.Math]::Round(($DateTime - $script:EPOCH_TIME).TotalMilliseconds)
-        } else {
-            [long][System.Math]::Round(($DateTime - $script:EPOCH_TIME).TotalSeconds)
-        }
+        [ConvertCoreInterop]::to_unix_time(
+            $DateTime.Year,
+            $DateTime.Month,
+            $DateTime.Day,
+            $DateTime.Hour,
+            $DateTime.Minute,
+            $DateTime.Second,
+            $AsMilliseconds.IsPresent
+        )
     }
 }
