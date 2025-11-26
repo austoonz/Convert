@@ -32,7 +32,8 @@ pub extern "C" fn url_encode(input: *const c_char) -> *mut c_char {
 
     // Define the set of characters to encode (everything except unreserved characters)
     // Unreserved characters per RFC 3986: A-Z a-z 0-9 - _ .
-    // Note: ~ is also unreserved per RFC 3986, but we encode it for compatibility with .NET
+    // Unreserved characters per RFC 3986: A-Z a-z 0-9 - _ . ~
+    // These characters are not encoded
     const FRAGMENT: &percent_encoding::AsciiSet = &percent_encoding::CONTROLS
         .add(b' ')
         .add(b'"')
@@ -61,8 +62,7 @@ pub extern "C" fn url_encode(input: *const c_char) -> *mut c_char {
         .add(b'!')
         .add(b'\'')
         .add(b'(')
-        .add(b')')
-        .add(b'~');
+        .add(b')');
 
     let encoded = percent_encoding::utf8_percent_encode(input_str, FRAGMENT).to_string();
 

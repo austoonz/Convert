@@ -1,7 +1,7 @@
 //! Error reporting mechanism with thread-local storage
 
 use std::cell::RefCell;
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::os::raw::c_char;
 
 thread_local! {
@@ -43,6 +43,7 @@ pub extern "C" fn get_last_error() -> *mut c_char {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::ffi::CStr;
 
     #[test]
     fn test_error_handling() {

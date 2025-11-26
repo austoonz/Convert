@@ -4,8 +4,6 @@
 //! This library provides C ABI exports for Base64 encoding/decoding, cryptographic
 //! hashing, compression, URL encoding, and time/temperature conversions.
 
-use std::ffi::{CStr, CString};
-use std::os::raw::c_char;
 
 // Module declarations
 mod base64;
