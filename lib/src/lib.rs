@@ -14,6 +14,7 @@ mod time;
 mod temperature;
 mod memory;
 mod error;
+mod encoding;
 
 // Re-export public functions from modules
 pub use base64::*;
@@ -24,3 +25,4 @@ pub use time::*;
 pub use temperature::*;
 pub use memory::*;
 pub use error::*;
+pub use encoding::*;

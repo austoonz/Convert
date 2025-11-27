@@ -183,11 +183,7 @@ function ConvertTo-Base64 {
         switch ($PSCmdlet.ParameterSetName) {
             'String' {
                 foreach ($s in $string) {
-                    if ($Compress) {
-                        ConvertFrom-StringToBase64 -String $s -Encoding $Encoding @convertSplat -Compress
-                    } else {
-                        ConvertFrom-StringToBase64 -String $s -Encoding $Encoding @convertSplat
-                    }
+                    ConvertFrom-StringToBase64 -String $s -Encoding $Encoding -Compress:$Compress @convertSplat
                 }
                 break
             }

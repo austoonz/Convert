@@ -253,7 +253,7 @@ mod tests {
     #[test]
     fn test_url_encode_unreserved_characters() {
         // Test: unreserved characters (- _ .) should not be encoded
-        // Notput = CString::new("test-file_name.txt~").unwrap();
+        let input = CString::new("test-file_name.txt~").unwrap();
         let result = EncodedString::new(url_encode(input.as_ptr()));
         
         assert!(!result.is_null(), "Result should not be null");

@@ -78,12 +78,28 @@ function ConvertFrom-StringToByteArray {
             # outputs an array of Byte arrays, rather than a single array with both
             # Byte arrays merged.
             $byteArrayObject = [System.Collections.Generic.List[Byte[]]]::new()
+            
+            $ptr = [IntPtr]::Zero
             try {
-                $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
+                $length = [UIntPtr]::Zero
+                $ptr = [ConvertCoreInterop]::string_to_bytes($s, $Encoding, [ref]$length)
+                
+                if ($ptr -eq [IntPtr]::Zero) {
+                    $errorMsg = GetRustError -DefaultMessage "String to byte array conversion failed for encoding '$Encoding'"
+                    throw $errorMsg
+                }
+                
+                $byteArray = New-Object byte[] $length.ToUInt64()
+                [System.Runtime.InteropServices.Marshal]::Copy($ptr, $byteArray, 0, $byteArray.Length)
+                
                 $null = $byteArrayObject.Add($byteArray)
                 $byteArrayObject
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+            } finally {
+                if ($ptr -ne [IntPtr]::Zero) {
+                    [ConvertCoreInterop]::free_bytes($ptr)
+                }
             }
         }
     }

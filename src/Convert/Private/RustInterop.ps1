@@ -117,6 +117,13 @@ public static class ConvertCoreInterop {
         [MarshalAs(UnmanagedType.LPUTF8Str)] string input,
         out UIntPtr length);
 
+    // Encoding operations
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr string_to_bytes(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string input,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding,
+        out UIntPtr length);
+
     // Hash operations
     [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr compute_hash(
