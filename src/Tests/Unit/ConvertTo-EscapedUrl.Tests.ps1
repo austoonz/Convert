@@ -1,4 +1,4 @@
-$moduleName = 'Convert'
+﻿$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
@@ -31,7 +31,7 @@ Describe $function {
         $expected = $expected.Replace('{', '%7B')
         $expected = $expected.Replace('|', '%7C')
         $expected = $expected.Replace('}', '%7D')
-        $expected = $expected.Replace('~', '%7E')
+        # Note: ~ is unreserved per RFC 3986 and should NOT be encoded
         $expected = $expected.Replace('"', '%22')
         $expected = $expected.Replace("'", '%27')
         $expected = $expected.Replace('+', '%2B')

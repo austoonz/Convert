@@ -288,12 +288,9 @@ Describe -Name $function -Fixture {
             $key = [byte[]]@(1..32)
             $largeData = "A" * 1000000  # 1MB string
             
-            $measure = Measure-Command {
-                $result = ConvertTo-HmacHash -InputObject $largeData -Key $key -Algorithm 'HMACSHA256'
-            }
+            $result = ConvertTo-HmacHash -InputObject $largeData -Key $key -Algorithm 'HMACSHA256'
             
             # Rust implementation should handle large inputs efficiently
-            # This test validates performance characteristics
             $result | Should -Not -BeNullOrEmpty
             $result.Length | Should -Be 64  # SHA256 hex length
         }

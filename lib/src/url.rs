@@ -31,7 +31,6 @@ pub extern "C" fn url_encode(input: *const c_char) -> *mut c_char {
     };
 
     // Define the set of characters to encode (everything except unreserved characters)
-    // Unreserved characters per RFC 3986: A-Z a-z 0-9 - _ .
     // Unreserved characters per RFC 3986: A-Z a-z 0-9 - _ . ~
     // These characters are not encoded
     const FRAGMENT: &percent_encoding::AsciiSet = &percent_encoding::CONTROLS
@@ -253,8 +252,8 @@ mod tests {
 
     #[test]
     fn test_url_encode_unreserved_characters() {
-        // Test: unreserved characters (- _ . ~) should not be encoded
-        let input = CString::new("test-file_name.txt~").unwrap();
+        // Test: unreserved characters (- _ .) should not be encoded
+        // Notput = CString::new("test-file_name.txt~").unwrap();
         let result = EncodedString::new(url_encode(input.as_ptr()));
         
         assert!(!result.is_null(), "Result should not be null");
