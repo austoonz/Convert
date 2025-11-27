@@ -132,24 +132,44 @@ pub extern "C" fn compute_hash(
 
 /// Compute an HMAC (Hash-based Message Authentication Code)
 /// 
+/// Computes a keyed-hash message authentication code using the specified
+/// cryptographic hash algorithm. The input is always treated as UTF-8 encoded.
+/// Returns the HMAC as an uppercase hexadecimal string for compatibility with
+/// .NET implementations.
+/// 
 /// # Safety
 /// This function is unsafe because it dereferences raw pointers.
 /// The caller must ensure that:
 /// - `input` is a valid null-terminated C string or null
-/// - `key` is a valid pointer to a byte array or null
+/// - `key` is a valid pointer to a byte array of at least `key_length` bytes or null
 /// - `key_length` accurately represents the number of key bytes
 /// - `algorithm` is a valid null-terminated C string or null
 /// - The returned pointer must be freed using `free_string`
+/// - This function is thread-safe: uses thread-local error storage
 /// 
 /// # Supported Algorithms
-/// - MD5
-/// - SHA1
-/// - SHA256
+/// - MD5 (not recommended for security-critical applications)
+/// - SHA1 (not recommended for security-critical applications)
+/// - SHA256 (recommended)
 /// - SHA384
 /// - SHA512
 /// 
+/// # Arguments
+/// * `input` - Null-terminated UTF-8 string to compute HMAC for
+/// * `key` - Byte array containing the secret key
+/// * `key_length` - Number of bytes in the key array
+/// * `algorithm` - Null-terminated string specifying the hash algorithm
+/// 
 /// # Returns
-/// Hex-encoded HMAC string, or null on error
+/// Pointer to null-terminated hex-encoded HMAC string, or null on error.
+/// The caller must free the returned pointer using `free_string`.
+/// 
+/// # Error Handling
+/// Returns null and sets thread-local error message on:
+/// - Null pointer arguments
+/// - Invalid UTF-8 in input or algorithm strings
+/// - Unsupported algorithm name
+/// - HMAC computation failure
 #[unsafe(no_mangle)]
 pub extern "C" fn compute_hmac(
     input: *const c_char,
@@ -175,7 +195,8 @@ pub extern "C" fn compute_hmac(
         return std::ptr::null_mut();
     }
     
-    // Convert C strings to Rust strings
+    // SAFETY: input is guaranteed non-null by check above
+    // CStr::from_ptr requires a valid null-terminated C string
     let input_str = match unsafe { CStr::from_ptr(input).to_str() } {
         Ok(s) => s,
         Err(_) => {
@@ -184,6 +205,8 @@ pub extern "C" fn compute_hmac(
         }
     };
     
+    // SAFETY: algorithm is guaranteed non-null by check above
+    // CStr::from_ptr requires a valid null-terminated C string
     let algorithm_str = match unsafe { CStr::from_ptr(algorithm).to_str() } {
         Ok(s) => s,
         Err(_) => {
@@ -192,7 +215,8 @@ pub extern "C" fn compute_hmac(
         }
     };
     
-    // Create key slice
+    // SAFETY: key is guaranteed non-null and key_length is provided by caller
+    // from_raw_parts requires that key points to at least key_length valid bytes
     let key_slice = unsafe {
         std::slice::from_raw_parts(key, key_length)
     };
@@ -200,70 +224,11 @@ pub extern "C" fn compute_hmac(
     // Convert input to bytes (always UTF-8 for HMAC)
     let input_bytes = input_str.as_bytes();
     
-    // Compute HMAC based on algorithm (uppercase hex for .NET compatibility)
-    let hmac_hex = match algorithm_str.to_uppercase().as_str() {
-        "MD5" => {
-            type HmacMd5 = Hmac<Md5>;
-            let mut mac = match HmacMd5::new_from_slice(key_slice) {
-                Ok(m) => m,
-                Err(_) => {
-                    crate::error::set_error("Failed to create HMAC instance".to_string());
-                    return std::ptr::null_mut();
-                }
-            };
-            mac.update(input_bytes);
-            format!("{:X}", mac.finalize().into_bytes())
-        }
-        "SHA1" => {
-            type HmacSha1 = Hmac<Sha1>;
-            let mut mac = match HmacSha1::new_from_slice(key_slice) {
-                Ok(m) => m,
-                Err(_) => {
-                    crate::error::set_error("Failed to create HMAC instance".to_string());
-                    return std::ptr::null_mut();
-                }
-            };
-            mac.update(input_bytes);
-            format!("{:X}", mac.finalize().into_bytes())
-        }
-        "SHA256" => {
-            type HmacSha256 = Hmac<Sha256>;
-            let mut mac = match HmacSha256::new_from_slice(key_slice) {
-                Ok(m) => m,
-                Err(_) => {
-                    crate::error::set_error("Failed to create HMAC instance".to_string());
-                    return std::ptr::null_mut();
-                }
-            };
-            mac.update(input_bytes);
-            format!("{:X}", mac.finalize().into_bytes())
-        }
-        "SHA384" => {
-            type HmacSha384 = Hmac<Sha384>;
-            let mut mac = match HmacSha384::new_from_slice(key_slice) {
-                Ok(m) => m,
-                Err(_) => {
-                    crate::error::set_error("Failed to create HMAC instance".to_string());
-                    return std::ptr::null_mut();
-                }
-            };
-            mac.update(input_bytes);
-            format!("{:X}", mac.finalize().into_bytes())
-        }
-        "SHA512" => {
-            type HmacSha512 = Hmac<Sha512>;
-            let mut mac = match HmacSha512::new_from_slice(key_slice) {
-                Ok(m) => m,
-                Err(_) => {
-                    crate::error::set_error("Failed to create HMAC instance".to_string());
-                    return std::ptr::null_mut();
-                }
-            };
-            mac.update(input_bytes);
-            format!("{:X}", mac.finalize().into_bytes())
-        }
-        _ => {
-            crate::error::set_error(format!("Unsupported algorithm: {}. Supported: MD5, SHA1, SHA256, SHA384, SHA512", algorithm_str));
+    // Compute HMAC using the specified algorithm
+    let hmac_hex = match compute_hmac_with_algorithm(algorithm_str, key_slice, input_bytes) {
+        Ok(hex) => hex,
+        Err(e) => {
+            crate::error::set_error(e);
             return std::ptr::null_mut();
         }
     };
@@ -279,6 +244,86 @@ pub extern "C" fn compute_hmac(
             std::ptr::null_mut()
         }
     }
+}
+
+/// Compute HMAC using the specified algorithm
+/// 
+/// Helper function that encapsulates the algorithm-specific HMAC computation.
+/// Returns uppercase hexadecimal string for .NET compatibility.
+/// 
+/// # Arguments
+/// * `algorithm` - Algorithm name (case-insensitive)
+/// * `key` - Secret key bytes
+/// * `input` - Input data bytes
+/// 
+/// # Returns
+/// Uppercase hex-encoded HMAC string, or error message
+fn compute_hmac_with_algorithm(
+    algorithm: &str,
+    key: &[u8],
+    input: &[u8],
+) -> Result<String, String> {
+    match algorithm.to_uppercase().as_str() {
+        "MD5" => compute_hmac_md5(key, input),
+        "SHA1" => compute_hmac_sha1(key, input),
+        "SHA256" => compute_hmac_sha256(key, input),
+        "SHA384" => compute_hmac_sha384(key, input),
+        "SHA512" => compute_hmac_sha512(key, input),
+        _ => Err(format!(
+            "Unsupported algorithm: {}. Supported: MD5, SHA1, SHA256, SHA384, SHA512",
+            algorithm
+        )),
+    }
+}
+
+/// Compute HMAC-MD5
+#[inline]
+fn compute_hmac_md5(key: &[u8], input: &[u8]) -> Result<String, String> {
+    type HmacMd5 = Hmac<Md5>;
+    let mut mac = HmacMd5::new_from_slice(key)
+        .map_err(|_| "Failed to create HMAC-MD5 instance".to_string())?;
+    mac.update(input);
+    Ok(format!("{:X}", mac.finalize().into_bytes()))
+}
+
+/// Compute HMAC-SHA1
+#[inline]
+fn compute_hmac_sha1(key: &[u8], input: &[u8]) -> Result<String, String> {
+    type HmacSha1 = Hmac<Sha1>;
+    let mut mac = HmacSha1::new_from_slice(key)
+        .map_err(|_| "Failed to create HMAC-SHA1 instance".to_string())?;
+    mac.update(input);
+    Ok(format!("{:X}", mac.finalize().into_bytes()))
+}
+
+/// Compute HMAC-SHA256
+#[inline]
+fn compute_hmac_sha256(key: &[u8], input: &[u8]) -> Result<String, String> {
+    type HmacSha256 = Hmac<Sha256>;
+    let mut mac = HmacSha256::new_from_slice(key)
+        .map_err(|_| "Failed to create HMAC-SHA256 instance".to_string())?;
+    mac.update(input);
+    Ok(format!("{:X}", mac.finalize().into_bytes()))
+}
+
+/// Compute HMAC-SHA384
+#[inline]
+fn compute_hmac_sha384(key: &[u8], input: &[u8]) -> Result<String, String> {
+    type HmacSha384 = Hmac<Sha384>;
+    let mut mac = HmacSha384::new_from_slice(key)
+        .map_err(|_| "Failed to create HMAC-SHA384 instance".to_string())?;
+    mac.update(input);
+    Ok(format!("{:X}", mac.finalize().into_bytes()))
+}
+
+/// Compute HMAC-SHA512
+#[inline]
+fn compute_hmac_sha512(key: &[u8], input: &[u8]) -> Result<String, String> {
+    type HmacSha512 = Hmac<Sha512>;
+    let mut mac = HmacSha512::new_from_slice(key)
+        .map_err(|_| "Failed to create HMAC-SHA512 instance".to_string())?;
+    mac.update(input);
+    Ok(format!("{:X}", mac.finalize().into_bytes()))
 }
 
 /// Convert a Rust string to bytes using the specified encoding
@@ -530,5 +575,48 @@ mod tests {
         );
 
         assert!(result.is_null(), "Unsupported algorithm should return null");
+    }
+
+    #[test]
+    fn test_compute_hmac_empty_input() {
+        let input = CString::new("").unwrap();
+        let key = b"secret";
+        let algorithm = CString::new("SHA256").unwrap();
+
+        let result = compute_hmac(
+            input.as_ptr(),
+            key.as_ptr(),
+            key.len(),
+            algorithm.as_ptr()
+        );
+
+        assert!(!result.is_null(), "Empty input should produce an HMAC");
+        let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+        assert_eq!(
+            result_str,
+            "F9E66E179B6747AE54108F82F8ADE8B3C25D76FD30AFDE6C395822C530196169",
+            "HMAC-SHA256 of empty string with key 'secret' should match known vector"
+        );
+        unsafe { crate::memory::free_string(result) };
+    }
+
+    #[test]
+    fn test_compute_hmac_large_input() {
+        let large_input = "A".repeat(1_000_000);
+        let input = CString::new(large_input).unwrap();
+        let key = b"secret";
+        let algorithm = CString::new("SHA256").unwrap();
+
+        let result = compute_hmac(
+            input.as_ptr(),
+            key.as_ptr(),
+            key.len(),
+            algorithm.as_ptr()
+        );
+
+        assert!(!result.is_null(), "Large input should produce an HMAC");
+        let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
+        assert_eq!(result_str.len(), 64, "HMAC-SHA256 should be 64 hex characters");
+        unsafe { crate::memory::free_string(result) };
     }
 }
