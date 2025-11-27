@@ -4,15 +4,18 @@ phases:
 
   install:
     runtime-versions:
-      dotnet: 6.x
+      dotnet: 8.x
 
     commands:
       - export PATH="$PATH:/root/.dotnet/tools"
-      - dotnet tool install PowerShell --global --version 7.2.8
+      - dotnet tool install --global PowerShell --version 7.4.13
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - export PATH="$PATH:$HOME/.cargo/bin"
 
   pre_build:
     commands:
       - pwsh -command '$PSVersionTable'
+      - cargo --version
       - pwsh -command './configure_aws_credential.ps1'
       - pwsh -command './install_nuget.ps1'
       - pwsh -command './install_modules.ps1'
