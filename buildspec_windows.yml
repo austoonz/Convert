@@ -2,6 +2,12 @@ version: 0.2
 
 phases:
 
+  install:
+    commands:
+      - choco install rust -y
+      - refreshenv
+      - cargo --version
+
   pre_build:
     commands:
       - powershell -file '.\configure_aws_credential.ps1'
@@ -30,5 +36,10 @@ reports:
   UnitTests:
     files:
       - 'test_report.xml'
+    discard-paths: yes
+    file-format: JUNITXML
+  PostBuildTests:
+    files:
+      - 'test_report_build.xml'
     discard-paths: yes
     file-format: JUNITXML

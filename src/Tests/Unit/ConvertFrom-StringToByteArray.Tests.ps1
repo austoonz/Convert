@@ -1,4 +1,4 @@
-$moduleName = 'Convert'
+﻿$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
@@ -124,7 +124,7 @@ Describe -Name $function -Fixture {
             $items = 1..100 | ForEach-Object { "TestString$_" }
             
             $measure = Measure-Command {
-                $result = $items | ConvertFrom-StringToByteArray -Encoding 'UTF8'
+                $null = $items | ConvertFrom-StringToByteArray -Encoding 'UTF8'
             }
             
             $measure.TotalSeconds | Should -BeLessThan 5
@@ -134,10 +134,9 @@ Describe -Name $function -Fixture {
             $largeString = 'A' * (1024 * 1024)
             
             $measure = Measure-Command {
-                $result = ConvertFrom-StringToByteArray -String $largeString -Encoding 'UTF8'
+                $null = ConvertFrom-StringToByteArray -String $largeString -Encoding 'UTF8'
             }
             
-            # Should complete in reasonable time
             $measure.TotalSeconds | Should -BeLessThan 2
         }
     }

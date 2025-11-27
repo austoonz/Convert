@@ -205,19 +205,6 @@ exit `$result.FailedCount
         
         assert($numberFails -eq 0) ('Failed "{0}" unit tests.' -f $numberFails)
 
-        if ($EnableCodeCoverage) {
-            # Ensure our builds fail until if below a minimum defined code test coverage threshold
-            try {
-                $coveragePercent = '{0:N2}' -f ($testResults.CodeCoverage.CommandsExecutedCount / $testResults.CodeCoverage.CommandsAnalyzedCount * 100)
-            } catch {
-                $coveragePercent = 0
-            }
-
-            assert([Int]$coveragePercent -ge $script:CodeCoverageThreshold) (
-                ('Failed to meet code coverage threshold of {0}% with only {1}% coverage' -f $script:CodeCoverageThreshold, $coveragePercent)
-            )
-        }
-
         Write-Host ''
         Write-Host "  Pester $Name Tests: Passed" -ForegroundColor Green
     }

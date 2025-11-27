@@ -1,4 +1,4 @@
-$moduleName = 'Convert'
+﻿$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 $pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
