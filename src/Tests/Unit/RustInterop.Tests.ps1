@@ -227,33 +227,27 @@ Describe -Name 'RustInterop' -Fixture {
         }
 
         It -Name 'Has url_encode method' -Test {
-            # URL encoding functions not yet implemented in Rust
-            Set-ItResult -Skipped -Because 'URL encoding functions not yet migrated to Rust'
+            $methodNames | Should -Contain 'url_encode'
         }
 
         It -Name 'Has url_decode method' -Test {
-            # URL encoding functions not yet implemented in Rust
-            Set-ItResult -Skipped -Because 'URL encoding functions not yet migrated to Rust'
+            $methodNames | Should -Contain 'url_decode'
         }
 
         It -Name 'Has to_unix_time method' -Test {
-            # Unix time functions not yet implemented in Rust
-            Set-ItResult -Skipped -Because 'Unix time functions not yet migrated to Rust'
+            $methodNames | Should -Contain 'to_unix_time'
         }
 
         It -Name 'Has from_unix_time method' -Test {
-            # Unix time functions not yet implemented in Rust
-            Set-ItResult -Skipped -Because 'Unix time functions not yet migrated to Rust'
+            $methodNames | Should -Contain 'from_unix_time'
         }
 
         It -Name 'Has fahrenheit_to_celsius method' -Test {
-            # Temperature conversion functions not yet implemented in Rust
-            Set-ItResult -Skipped -Because 'Temperature conversion functions not yet migrated to Rust'
+            $methodNames | Should -Contain 'fahrenheit_to_celsius'
         }
 
         It -Name 'Has celsius_to_fahrenheit method' -Test {
-            # Temperature conversion functions not yet implemented in Rust
-            Set-ItResult -Skipped -Because 'Temperature conversion functions not yet migrated to Rust'
+            $methodNames | Should -Contain 'celsius_to_fahrenheit'
         }
 
         It -Name 'Has free_string method' -Test {
@@ -295,13 +289,57 @@ Describe -Name 'RustInterop' -Fixture {
         }
 
         It -Name 'Can call fahrenheit_to_celsius without crashing' -Test {
-            # Temperature conversion functions not yet implemented in Rust
-            Set-ItResult -Skipped -Because 'Temperature conversion functions not yet migrated to Rust'
+            $result = [ConvertCoreInterop]::fahrenheit_to_celsius(32.0)
+            $result | Should -Be 0.0
         }
 
         It -Name 'Can call celsius_to_fahrenheit without crashing' -Test {
-            # Temperature conversion functions not yet implemented in Rust
-            Set-ItResult -Skipped -Because 'Temperature conversion functions not yet migrated to Rust'
+            $result = [ConvertCoreInterop]::celsius_to_fahrenheit(0.0)
+            $result | Should -Be 32.0
+        }
+
+        It -Name 'Can call url_encode without crashing' -Test {
+            $ptr = [IntPtr]::Zero
+            try {
+                $ptr = [ConvertCoreInterop]::url_encode('test value')
+                $ptr | Should -Not -Be ([IntPtr]::Zero)
+            } finally {
+                if ($ptr -ne [IntPtr]::Zero) {
+                    [ConvertCoreInterop]::free_string($ptr)
+                }
+            }
+        }
+
+        It -Name 'Can call url_decode without crashing' -Test {
+            $ptr = [IntPtr]::Zero
+            try {
+                $ptr = [ConvertCoreInterop]::url_decode('test%20value')
+                $ptr | Should -Not -Be ([IntPtr]::Zero)
+            } finally {
+                if ($ptr -ne [IntPtr]::Zero) {
+                    [ConvertCoreInterop]::free_string($ptr)
+                }
+            }
+        }
+
+        It -Name 'Can call to_unix_time without crashing' -Test {
+            $dateTime = [DateTime]::UtcNow
+            $result = [ConvertCoreInterop]::to_unix_time($dateTime.Year, $dateTime.Month, $dateTime.Day, $dateTime.Hour, $dateTime.Minute, $dateTime.Second, $false)
+            $result | Should -BeGreaterThan 0
+        }
+
+        It -Name 'Can call from_unix_time without crashing' -Test {
+            $unixTime = 1609459200
+            $year = 0
+            $month = 0
+            $day = 0
+            $hour = 0
+            $minute = 0
+            $second = 0
+            
+            $success = [ConvertCoreInterop]::from_unix_time($unixTime, $false, [ref]$year, [ref]$month, [ref]$day, [ref]$hour, [ref]$minute, [ref]$second)
+            $success | Should -BeTrue
+            $year | Should -BeGreaterThan 1970
         }
 
         It -Name 'Can retrieve error messages via get_last_error' -Test {

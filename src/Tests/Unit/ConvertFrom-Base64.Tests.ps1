@@ -171,4 +171,28 @@ Describe -Name $function -Fixture {
             $assertion.Exception.InnerException.Message | Should -BeIn $ExpectedList
         }
     }
+
+    Context 'Decompression Support' {
+        It 'Decompresses compressed Base64 string' {
+            $original = 'ThisIsMyString'
+            $compressed = ConvertFrom-StringToBase64 -String $original -Encoding UTF8 -Compress
+            $result = ConvertFrom-Base64 -Base64 $compressed -ToString -Decompress -Encoding UTF8
+            
+            $result | Should -BeExactly $original
+        }
+
+        It 'Handles large compressed data' {
+            $original = 'A' * 10000
+            $compressed = ConvertFrom-StringToBase64 -String $original -Encoding UTF8 -Compress
+            $result = ConvertFrom-Base64 -Base64 $compressed -ToString -Decompress -Encoding UTF8
+            
+            $result | Should -BeExactly $original
+        }
+
+        It 'Respects ErrorAction for decompression errors' {
+            $invalidCompressed = 'SGVsbG8='
+            $result = ConvertFrom-Base64 -Base64 $invalidCompressed -ToString -Decompress -Encoding UTF8 -ErrorAction SilentlyContinue
+            $result | Should -BeNullOrEmpty
+        }
+    }
 }

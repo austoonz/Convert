@@ -182,6 +182,13 @@ Describe -Name $function -Fixture {
                 Should -Throw -ExpectedMessage "InputObject cannot be null"
         }
 
+        It -Name "Rejects unsupported input type" -Test {
+            $key = [byte[]]@(1..32)
+            $unsupportedObject = [PSCustomObject]@{ Data = 'test' }
+            { ConvertTo-HmacHash -InputObject $unsupportedObject -Key $key -ErrorAction Stop } | 
+                Should -Throw -ExpectedMessage "*Unsupported input type*"
+        }
+
         It -Name "Supports SilentlyContinue error action" -Test {
             $key = [byte[]]@(1..32)
             # Create a scenario that would cause an error
@@ -189,6 +196,13 @@ Describe -Name $function -Fixture {
             $closedStream.Close()
             
             $result = ConvertTo-HmacHash -InputObject $closedStream -Key $key -ErrorAction SilentlyContinue
+            $result | Should -BeNullOrEmpty
+        }
+
+        It -Name "Respects ErrorAction Continue for unsupported types" -Test {
+            $key = [byte[]]@(1..32)
+            $unsupportedObject = [PSCustomObject]@{ Data = 'test' }
+            $result = ConvertTo-HmacHash -InputObject $unsupportedObject -Key $key -ErrorAction SilentlyContinue
             $result | Should -BeNullOrEmpty
         }
     }

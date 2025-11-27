@@ -33,4 +33,23 @@ Describe $function {
         $assertion = $Url | ConvertFrom-EscapedUrl
         $assertion | Should -BeExactly $expected
     }
+
+    Context 'Error Handling' {
+        It 'Handles invalid URL-encoded string' {
+            $result = ConvertFrom-EscapedUrl -Url '%ZZ' -ErrorAction SilentlyContinue
+            $result | Should -BeNullOrEmpty
+        }
+
+        It 'Respects ErrorAction Continue' {
+            $ErrorActionPreference = 'Continue'
+            $result = ConvertFrom-EscapedUrl -Url '%GG%HH' -ErrorAction SilentlyContinue
+            $result | Should -BeNullOrEmpty
+        }
+
+        It 'Provides error message for malformed input' {
+            $ErrorActionPreference = 'Continue'
+            ConvertFrom-EscapedUrl -Url '%' -ErrorAction SilentlyContinue -ErrorVariable err
+            $err | Should -Not -BeNullOrEmpty
+        }
+    }
 }
