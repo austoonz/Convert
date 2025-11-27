@@ -5,7 +5,6 @@ phases:
   install:
     commands:
       - choco install rust -y
-      - refreshenv
       - cargo --version
 
   pre_build:
