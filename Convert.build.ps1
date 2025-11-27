@@ -29,7 +29,7 @@
 #task . Clean, ValidateRequirements, Analyze, Test, Build, CreateHelp, CreateArtifact
 
 # Default Build
-task . Clean, ValidateRequirements, Analyze, Test, Build, CreateArtifact
+task . Clean, ValidateRequirements, Analyze, BuildRustLibrary, Test, Build, CreateArtifact
 
 # Local testing build process
 task TestLocal Clean, Analyze, Test
@@ -546,7 +546,7 @@ task BuildRustLibrary {
 }
 
 # Synopsis: Builds the Module to the Artifacts folder
-task Build BuildRustLibrary, {
+task Build {
     Write-Host ''
     Write-Host '  Module Build: Starting...' -ForegroundColor Green
     Write-Host ''
