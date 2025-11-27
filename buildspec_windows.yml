@@ -4,6 +4,8 @@ phases:
 
   install:
     commands:
+      - rustup update stable
+      - rustup default stable
       - cargo --version
 
   pre_build:
