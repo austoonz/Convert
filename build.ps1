@@ -986,9 +986,71 @@ function Invoke-PowerShellClean {
     return @{ Success = $true }
 }
 
+function Invoke-PowerShellPackage {
+    <#
+    .SYNOPSIS
+        Creates distribution ZIP package from assembled PowerShell module.
+    
+    .DESCRIPTION
+        Creates a ZIP archive of the Artifacts/ directory and places it in
+        DeploymentArtifacts/ for distribution. The ZIP file is named with
+        the module name and version.
+    
+    .PARAMETER Config
+        Build configuration object from Initialize-BuildEnvironment.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Config
+    )
+    
+    Write-Host 'Creating PowerShell module package...' -ForegroundColor Cyan
+    
+    if (-not [System.IO.Directory]::Exists($Config.ArtifactsPath)) {
+        Write-Host 'Artifacts directory not found. Run -Build first.' -ForegroundColor Red
+        return @{ Success = $false }
+    }
+    
+    $zipFileName = '{0}_{1}.zip' -f $Config.ModuleName, $Config.ModuleVersion
+    $zipFilePath = [System.IO.Path]::Combine($Config.DeploymentArtifactsPath, $zipFileName)
+    
+    if ([System.IO.File]::Exists($zipFilePath)) {
+        [System.IO.File]::Delete($zipFilePath)
+    }
+    
+    Write-Host "  Creating ZIP: $zipFileName" -ForegroundColor Gray
+    
+    if ($PSEdition -eq 'Desktop') {
+        Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
+    }
+    
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($Config.ArtifactsPath, $zipFilePath)
+    
+    $fileInfo = [System.IO.FileInfo]::new($zipFilePath)
+    $fileSizeMB = [math]::Round($fileInfo.Length / 1MB, 2)
+    
+    Write-Host "  Package created: $zipFileName ($fileSizeMB MB)" -ForegroundColor Green
+    Write-Host "  Location: $zipFilePath" -ForegroundColor Gray
+    
+    return @{
+        Success = $true
+        ZipFilePath = $zipFilePath
+        ZipFileName = $zipFileName
+    }
+}
+
 #endregion
 
 #region Parameter Validation
+
+# Expand workflows into individual actions
+if ($Full -or $CI) {
+    $Clean = $true
+    $Analyze = $true
+    $Test = $true
+    $Build = $true
+    $Package = $true
+}
 
 # Default language selection: if neither -Rust nor -PowerShell specified, enable both
 if (-not $Rust -and -not $PowerShell) {
@@ -1090,6 +1152,64 @@ try {
         if (-not $result.Success) {
             exit 1
         }
+    }
+    
+    if ($PowerShell -and $Package) {
+        $result = Invoke-PowerShellPackage -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    if ($PowerShell -and $Clean) {
+        $result = Invoke-PowerShellClean -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    if ($Rust -and $Clean) {
+        $result = Invoke-RustClean -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    # CI workflow: Upload artifacts to S3
+    if ($CI -and $config.IsCodeBuild) {
+        Write-Host ''
+        Write-Host 'CI Workflow: Uploading artifacts to S3...' -ForegroundColor Cyan
+        
+        $zipFileName = '{0}_{1}.zip' -f $config.ModuleName, $config.ModuleVersion
+        $zipFilePath = [System.IO.Path]::Combine($config.DeploymentArtifactsPath, $zipFileName)
+        
+        if ([System.IO.File]::Exists($zipFilePath)) {
+            $platform = if ($env:CODEBUILD_BUILD_ARN -like '*linux*') { 'linux' } else { 'windows' }
+            $ymd = [DateTime]::UtcNow.ToString('yyyyMMdd')
+            $hms = [DateTime]::UtcNow.ToString('hhmmss')
+            $zipFileNameWithPlatform = '{0}_{1}_{2}.{3}.{4}.zip' -f $config.ModuleName, $config.ModuleVersion, $ymd, $hms, $platform
+            
+            if ($env:CODEBUILD_WEBHOOK_HEAD_REF -and $env:CODEBUILD_WEBHOOK_TRIGGER) {
+                if ($env:CODEBUILD_WEBHOOK_HEAD_REF -eq 'refs/heads/master' -and $env:CODEBUILD_WEBHOOK_TRIGGER -eq 'branch/master') {
+                    $s3Bucket = $env:ARTIFACT_BUCKET
+                } else {
+                    $s3Bucket = $env:DEVELOPMENT_ARTIFACT_BUCKET
+                }
+                
+                $branch = $env:CODEBUILD_WEBHOOK_TRIGGER.Replace('branch/', '')
+                $s3Key = '{0}/{1}/{2}' -f $config.ModuleName, $branch, $zipFileNameWithPlatform
+                
+                Write-Host "  Uploading to s3://$s3Bucket/$s3Key" -ForegroundColor Gray
+                Write-S3Object -BucketName $s3Bucket -Key $s3Key -File $zipFilePath
+                Write-Host 'CI Workflow: Artifact uploaded successfully' -ForegroundColor Green
+            } else {
+                Write-Host 'CI Workflow: Not a webhook build, skipping S3 upload' -ForegroundColor Yellow
+            }
+        } else {
+            Write-Warning "CI Workflow: Artifact not found at $zipFilePath"
+        }
+        
+        Write-Host ''
     }
     
     exit 0
