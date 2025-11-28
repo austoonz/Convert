@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
     Converts a string to a hash.
 
@@ -25,7 +25,7 @@ function ConvertTo-Hash {
     [CmdletBinding()]
     [Alias('Get-Hash')]
     param (
-        [Parameter(ParameterSetName='String', ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [Parameter(ParameterSetName = 'String', ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [string[]]$String,
 
         [ValidateSet('MD5', 'SHA1', 'SHA256', 'SHA384', 'SHA512')]

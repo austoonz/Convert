@@ -1,4 +1,4 @@
-function GetRustError {
+﻿function GetRustError {
     <#
     .SYNOPSIS
         Retrieves the last error message from the Rust library.

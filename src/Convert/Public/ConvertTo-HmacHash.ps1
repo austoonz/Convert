@@ -145,8 +145,7 @@ function ConvertTo-HmacHash {
             if ($Key.Length -lt $minimumKeyLengths[$Algorithm]) {
                 Write-Warning "Key length ($($Key.Length) bytes) is less than recommended minimum ($($minimumKeyLengths[$Algorithm]) bytes) for $Algorithm"
             }
-        }
-        catch {
+        } catch {
             Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
         }
     }
@@ -244,12 +243,10 @@ function ConvertTo-HmacHash {
                         Hash = $result
                         Key = $generatedKey
                     }
-                }
-                else {
+                } else {
                     $result
                 }
-            }
-            finally {
+            } finally {
                 # Free Rust-allocated string memory
                 if ($ptr -ne [IntPtr]::Zero) {
                     [ConvertCoreInterop]::free_string($ptr)
@@ -260,8 +257,7 @@ function ConvertTo-HmacHash {
                     $keyHandle.Free()
                 }
             }
-        }
-        catch {
+        } catch {
             Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
         }
     }

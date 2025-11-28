@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts MemoryStream to a base64 encoded string.
 

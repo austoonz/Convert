@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
     Gets the current date time represented in Unix time.
 

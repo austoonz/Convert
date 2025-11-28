@@ -1,4 +1,4 @@
-# RustInterop.ps1
+﻿# RustInterop.ps1
 # Platform interop layer for Rust convert_core library
 # This file handles both development/testing and built module scenarios
 

@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts MemoryStream to a byte array.
 

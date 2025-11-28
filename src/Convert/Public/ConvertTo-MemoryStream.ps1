@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts an object to a MemoryStream object.
 
@@ -109,7 +109,7 @@ function ConvertTo-MemoryStream {
             'String' {
                 foreach ($s in $string) {
                     $params = @{
-                        String   = $s
+                        String = $s
                         Encoding = $Encoding
                     }
 

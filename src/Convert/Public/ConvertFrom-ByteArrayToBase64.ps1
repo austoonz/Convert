@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts a byte array to a base64 encoded string.
 

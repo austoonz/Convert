@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts an object to Clixml.
 

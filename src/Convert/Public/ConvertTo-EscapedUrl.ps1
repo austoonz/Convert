@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
     Converts a URL to an escaped Url.
 
