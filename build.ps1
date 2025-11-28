@@ -371,7 +371,7 @@ function Invoke-RustAnalyze {
     }
     
     Write-Host '  Running cargo clippy...' -ForegroundColor Gray
-    & cargo clippy --manifest-path $cargoTomlPath -- -D warnings
+    & cargo clippy --manifest-path $cargoTomlPath --all-targets -- -D warnings
     $clippyExitCode = $LASTEXITCODE
     $results += @{ Tool = 'clippy'; ExitCode = $clippyExitCode }
     if ($clippyExitCode -ne 0) {
@@ -467,7 +467,7 @@ function Invoke-RustFix {
     $fmtExitCode = $LASTEXITCODE
     
     Write-Host '  Running cargo clippy --fix...' -ForegroundColor Gray
-    & cargo clippy --manifest-path $cargoTomlPath --fix --allow-dirty --allow-staged
+    & cargo clippy --manifest-path $cargoTomlPath --all-targets --fix --allow-dirty --allow-staged
     $clippyExitCode = $LASTEXITCODE
     
     $modifiedFiles = @()
@@ -761,10 +761,11 @@ function Invoke-PowerShellAnalyze {
         Runs PSScriptAnalyzer on PowerShell module and test files.
     
     .DESCRIPTION
-        Executes PSScriptAnalyzer on src/Convert/ and src/Tests/ with appropriate exclusions
-        for each context. Module files exclude PSAvoidGlobalVars. Test files additionally
-        exclude PSAvoidUsingConvertToSecureStringWithPlainText and 
-        PSUseShouldProcessForStateChangingFunctions.
+        Executes PSScriptAnalyzer in a separate PowerShell process to avoid loading
+        the module and locking the Rust DLL. Analyzes src/Convert/ and src/Tests/
+        with appropriate exclusions for each context.
+        
+        CRITICAL: Analysis MUST run in a separate process to avoid DLL locking.
     
     .PARAMETER Config
         Build configuration object from Initialize-BuildEnvironment.
@@ -776,51 +777,69 @@ function Invoke-PowerShellAnalyze {
     
     Write-Host 'Running PowerShell code analysis...' -ForegroundColor Cyan
     
-    $allIssues = @()
-    
-    Write-Host '  Analyzing module files...' -ForegroundColor Gray
-    $moduleParams = @{
-        Path = $Config.SourcePath
-        ExcludeRule = @('PSAvoidGlobalVars')
+    $analyzerScript = @"
+Import-Module PSScriptAnalyzer -ErrorAction Stop
+
+`$allIssues = @()
+
+Write-Host '  Analyzing module files...' -ForegroundColor Gray
+`$moduleParams = @{
+    Path = '$($Config.SourcePath.Replace('\', '\\'))'
+    ExcludeRule = @('PSAvoidGlobalVars')
+    Severity = @('Error', 'Warning')
+    Recurse = `$true
+}
+
+`$moduleResults = Invoke-ScriptAnalyzer @moduleParams
+if (`$moduleResults) {
+    `$allIssues += `$moduleResults
+}
+
+if ([System.IO.Directory]::Exists('$($Config.TestsPath.Replace('\', '\\'))')) {
+    Write-Host '  Analyzing test files...' -ForegroundColor Gray
+    `$testParams = @{
+        Path = '$($Config.TestsPath.Replace('\', '\\'))'
+        ExcludeRule = @(
+            'PSAvoidUsingConvertToSecureStringWithPlainText'
+            'PSUseShouldProcessForStateChangingFunctions'
+            'PSAvoidGlobalVars'
+        )
         Severity = @('Error', 'Warning')
-        Recurse = $true
+        Recurse = `$true
     }
     
-    $moduleResults = Invoke-ScriptAnalyzer @moduleParams
-    if ($moduleResults) {
-        $allIssues += $moduleResults
+    `$testResults = Invoke-ScriptAnalyzer @testParams
+    if (`$testResults) {
+        `$allIssues += `$testResults
     }
+}
+
+if (`$allIssues.Count -gt 0) {
+    Write-Host ''
+    `$allIssues | Format-Table -AutoSize
+    Write-Host "Found `$(`$allIssues.Count) PSScriptAnalyzer issue(s)." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host 'PowerShell code analysis passed.' -ForegroundColor Green
+exit 0
+"@
     
-    if ([System.IO.Directory]::Exists($Config.TestsPath)) {
-        Write-Host '  Analyzing test files...' -ForegroundColor Gray
-        $testParams = @{
-            Path = $Config.TestsPath
-            ExcludeRule = @(
-                'PSAvoidUsingConvertToSecureStringWithPlainText'
-                'PSUseShouldProcessForStateChangingFunctions'
-                'PSAvoidGlobalVars'
-            )
-            Severity = @('Error', 'Warning')
-            Recurse = $true
+    $pwshCommand = if ($PSVersionTable.PSVersion.Major -ge 7) { 'pwsh' } else { 'powershell' }
+    
+    $process = Start-Process -FilePath $pwshCommand -ArgumentList '-NoProfile', '-Command', $analyzerScript -Wait -PassThru -NoNewWindow
+    $exitCode = $process.ExitCode
+    
+    if ($exitCode -eq 0) {
+        return @{
+            Success = $true
+            IssueCount = 0
         }
-        
-        $testResults = Invoke-ScriptAnalyzer @testParams
-        if ($testResults) {
-            $allIssues += $testResults
+    } else {
+        return @{
+            Success = $false
+            IssueCount = -1
         }
-    }
-    
-    if ($allIssues.Count -gt 0) {
-        Write-Host ''
-        $allIssues | Format-Table -AutoSize
-        Write-Host "Found $($allIssues.Count) PSScriptAnalyzer issue(s)." -ForegroundColor Red
-        throw 'One or more PSScriptAnalyzer errors/warnings were found.'
-    }
-    
-    Write-Host 'PowerShell code analysis passed.' -ForegroundColor Green
-    return @{
-        Success = $true
-        IssueCount = 0
     }
 }
 
@@ -830,9 +849,11 @@ function Invoke-PowerShellFix {
         Auto-formats PowerShell module files using Invoke-Formatter with OTBS style.
     
     .DESCRIPTION
-        Executes Invoke-Formatter on all .ps1 files in src/Convert/ using OTBS (One True
-        Brace Style) formatting. OTBS places opening braces on the same line as control
-        statements for consistent code style. Displays which files were modified.
+        Executes Invoke-Formatter in a separate PowerShell process to avoid loading
+        the module and locking the Rust DLL. Formats all .ps1 files in src/Convert/
+        using OTBS (One True Brace Style) formatting.
+        
+        CRITICAL: Formatting MUST run in a separate process to avoid DLL locking.
     
     .PARAMETER Config
         Build configuration object from Initialize-BuildEnvironment.
@@ -854,55 +875,70 @@ function Invoke-PowerShellFix {
         }
     }
     
-    $formatterSettings = @{
-        Rules = @{
-            PSPlaceOpenBrace = @{
-                Enable = $true
-                OnSameLine = $true
-                NewLineAfter = $true
-                IgnoreOneLineBlock = $true
-            }
-            PSPlaceCloseBrace = @{
-                Enable = $true
-                NoEmptyLineBefore = $true
-                IgnoreOneLineBlock = $true
-                NewLineAfter = $false
-            }
-            PSUseConsistentWhitespace = @{
-                Enable = $true
-                CheckOpenBrace = $true
-                CheckOpenParen = $true
-                CheckOperator = $true
-                CheckSeparator = $true
-            }
+    $formatterScript = @"
+Import-Module PSScriptAnalyzer -ErrorAction Stop
+
+`$repositoryRoot = '$($Config.RepositoryRoot.Replace('\', '\\'))'
+`$sourcePath = '$($Config.SourcePath.Replace('\', '\\'))'
+
+`$formatterSettings = @{
+    Rules = @{
+        PSPlaceOpenBrace = @{
+            Enable = `$true
+            OnSameLine = `$true
+            NewLineAfter = `$true
+            IgnoreOneLineBlock = `$true
+        }
+        PSPlaceCloseBrace = @{
+            Enable = `$true
+            NoEmptyLineBefore = `$true
+            IgnoreOneLineBlock = `$true
+            NewLineAfter = `$false
+        }
+        PSUseConsistentWhitespace = @{
+            Enable = `$true
+            CheckOpenBrace = `$true
+            CheckOpenParen = `$true
+            CheckOperator = `$true
+            CheckSeparator = `$true
         }
     }
+}
+
+`$files = [System.IO.Directory]::GetFiles(`$sourcePath, '*.ps1', [System.IO.SearchOption]::AllDirectories)
+`$modifiedFiles = @()
+
+foreach (`$file in `$files) {
+    `$contentBefore = [System.IO.File]::ReadAllText(`$file)
     
-    $modifiedFiles = @()
+    `$result = Invoke-Formatter -ScriptDefinition `$contentBefore -Settings `$formatterSettings
     
-    foreach ($file in $files) {
-        $contentBefore = [System.IO.File]::ReadAllText($file)
-        
-        $result = Invoke-Formatter -ScriptDefinition $contentBefore -Settings $formatterSettings
-        
-        if ($result -ne $contentBefore) {
-            $utf8WithBom = [System.Text.UTF8Encoding]::new($true)
-            [System.IO.File]::WriteAllText($file, $result, $utf8WithBom)
-            $relativePath = $file.Replace($Config.RepositoryRoot, '').TrimStart('\', '/')
-            $modifiedFiles += $relativePath
-            Write-Host "  Modified: $relativePath" -ForegroundColor Gray
-        }
+    if (`$result -ne `$contentBefore) {
+        `$utf8WithBom = [System.Text.UTF8Encoding]::new(`$true)
+        [System.IO.File]::WriteAllText(`$file, `$result, `$utf8WithBom)
+        `$relativePath = `$file.Replace(`$repositoryRoot, '').TrimStart('\', '/')
+        `$modifiedFiles += `$relativePath
+        Write-Host "  Modified: `$relativePath" -ForegroundColor Gray
     }
+}
+
+if (`$modifiedFiles.Count -eq 0) {
+    Write-Host 'All files already formatted correctly.' -ForegroundColor Green
+} else {
+    Write-Host "Formatted `$(`$modifiedFiles.Count) file(s)." -ForegroundColor Green
+}
+
+exit 0
+"@
     
-    if ($modifiedFiles.Count -eq 0) {
-        Write-Host 'All files already formatted correctly.' -ForegroundColor Green
-    } else {
-        Write-Host "Formatted $($modifiedFiles.Count) file(s)." -ForegroundColor Green
-    }
+    $pwshCommand = if ($PSVersionTable.PSVersion.Major -ge 7) { 'pwsh' } else { 'powershell' }
+    
+    $process = Start-Process -FilePath $pwshCommand -ArgumentList '-NoProfile', '-Command', $formatterScript -Wait -PassThru -NoNewWindow
+    $exitCode = $process.ExitCode
     
     return @{
-        Success = $true
-        ModifiedFiles = $modifiedFiles
+        Success = ($exitCode -eq 0)
+        ModifiedFiles = @()
     }
 }
 

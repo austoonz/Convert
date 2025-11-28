@@ -4,20 +4,20 @@ use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
 /// Encode a string for use in URLs using percent-encoding
-/// 
+///
 /// # Safety
 /// This function is unsafe because it dereferences raw pointers.
 /// The caller must ensure that:
 /// - `input` is a valid null-terminated C string or null
 /// - The returned pointer must be freed using `free_string`
-/// 
+///
 /// # Arguments
 /// * `input` - The string to encode
-/// 
+///
 /// # Returns
 /// Pointer to encoded string, or null on error
 #[unsafe(no_mangle)]
-pub extern "C" fn url_encode(input: *const c_char) -> *mut c_char {
+pub unsafe extern "C" fn url_encode(input: *const c_char) -> *mut c_char {
     if input.is_null() {
         return std::ptr::null_mut();
     }
@@ -75,20 +75,20 @@ pub extern "C" fn url_encode(input: *const c_char) -> *mut c_char {
 }
 
 /// Decode a percent-encoded URL string
-/// 
+///
 /// # Safety
 /// This function is unsafe because it dereferences raw pointers.
 /// The caller must ensure that:
 /// - `input` is a valid null-terminated C string or null
 /// - The returned pointer must be freed using `free_string`
-/// 
+///
 /// # Arguments
 /// * `input` - The percent-encoded string to decode
-/// 
+///
 /// # Returns
 /// Pointer to decoded string, or null on error
 #[unsafe(no_mangle)]
-pub extern "C" fn url_decode(input: *const c_char) -> *mut c_char {
+pub unsafe extern "C" fn url_decode(input: *const c_char) -> *mut c_char {
     if input.is_null() {
         return std::ptr::null_mut();
     }
@@ -108,7 +108,7 @@ pub extern "C" fn url_decode(input: *const c_char) -> *mut c_char {
             // Must be followed by exactly 2 hex digits
             let hex1 = chars.next();
             let hex2 = chars.next();
-            
+
             match (hex1, hex2) {
                 (Some(h1), Some(h2)) if h1.is_ascii_hexdigit() && h2.is_ascii_hexdigit() => {
                     // Valid percent sequence
@@ -181,8 +181,8 @@ mod tests {
     fn test_url_encode_happy_path() {
         // Test: encode "hello world" to "hello%20world"
         let input = CString::new("hello world").unwrap();
-        let result = EncodedString::new(url_encode(input.as_ptr()));
-        
+        let result = EncodedString::new(unsafe { url_encode(input.as_ptr()) });
+
         assert!(!result.is_null(), "Result should not be null");
         assert_eq!(result.to_str().unwrap(), "hello%20world");
     }
@@ -204,19 +204,27 @@ mod tests {
 
         for (input_str, expected) in test_cases {
             let input = CString::new(input_str).unwrap();
-            let result = EncodedString::new(url_encode(input.as_ptr()));
-            
-            assert!(!result.is_null(), "Result should not be null for: {}", input_str);
-            assert_eq!(result.to_str().unwrap(), expected, 
-                "Failed to encode: {}", input_str);
+            let result = EncodedString::new(unsafe { url_encode(input.as_ptr()) });
+
+            assert!(
+                !result.is_null(),
+                "Result should not be null for: {}",
+                input_str
+            );
+            assert_eq!(
+                result.to_str().unwrap(),
+                expected,
+                "Failed to encode: {}",
+                input_str
+            );
         }
     }
 
     #[test]
     fn test_url_encode_null_pointer() {
         // Test: null pointer should return null
-        let result = url_encode(std::ptr::null());
-        
+        let result = unsafe { url_encode(std::ptr::null()) };
+
         assert!(result.is_null(), "Result should be null for null pointer");
     }
 
@@ -224,9 +232,12 @@ mod tests {
     fn test_url_encode_empty_string() {
         // Test: empty string should return empty string
         let input = CString::new("").unwrap();
-        let result = EncodedString::new(url_encode(input.as_ptr()));
-        
-        assert!(!result.is_null(), "Result should not be null for empty string");
+        let result = EncodedString::new(unsafe { url_encode(input.as_ptr()) });
+
+        assert!(
+            !result.is_null(),
+            "Result should not be null for empty string"
+        );
         assert_eq!(result.to_str().unwrap(), "");
     }
 
@@ -234,8 +245,8 @@ mod tests {
     fn test_url_encode_already_encoded() {
         // Test: already encoded string should be double-encoded
         let input = CString::new("hello%20world").unwrap();
-        let result = EncodedString::new(url_encode(input.as_ptr()));
-        
+        let result = EncodedString::new(unsafe { url_encode(input.as_ptr()) });
+
         assert!(!result.is_null(), "Result should not be null");
         assert_eq!(result.to_str().unwrap(), "hello%2520world");
     }
@@ -244,8 +255,8 @@ mod tests {
     fn test_url_encode_alphanumeric_unchanged() {
         // Test: alphanumeric characters should not be encoded
         let input = CString::new("abc123XYZ").unwrap();
-        let result = EncodedString::new(url_encode(input.as_ptr()));
-        
+        let result = EncodedString::new(unsafe { url_encode(input.as_ptr()) });
+
         assert!(!result.is_null(), "Result should not be null");
         assert_eq!(result.to_str().unwrap(), "abc123XYZ");
     }
@@ -254,8 +265,8 @@ mod tests {
     fn test_url_encode_unreserved_characters() {
         // Test: unreserved characters (- _ .) should not be encoded
         let input = CString::new("test-file_name.txt~").unwrap();
-        let result = EncodedString::new(url_encode(input.as_ptr()));
-        
+        let result = EncodedString::new(unsafe { url_encode(input.as_ptr()) });
+
         assert!(!result.is_null(), "Result should not be null");
         assert_eq!(result.to_str().unwrap(), "test-file_name.txt~");
     }
@@ -266,8 +277,8 @@ mod tests {
     fn test_url_decode_happy_path() {
         // Test: decode "hello%20world" to "hello world"
         let input = CString::new("hello%20world").unwrap();
-        let result = EncodedString::new(url_decode(input.as_ptr()));
-        
+        let result = EncodedString::new(unsafe { url_decode(input.as_ptr()) });
+
         assert!(!result.is_null(), "Result should not be null");
         assert_eq!(result.to_str().unwrap(), "hello world");
     }
@@ -277,11 +288,11 @@ mod tests {
         // Test: encode then decode should return original string
         let original = "hello world & special=chars?test#anchor";
         let input = CString::new(original).unwrap();
-        
-        let encoded = EncodedString::new(url_encode(input.as_ptr()));
+
+        let encoded = EncodedString::new(unsafe { url_encode(input.as_ptr()) });
         assert!(!encoded.is_null(), "Encoded result should not be null");
-        
-        let decoded = EncodedString::new(url_decode(encoded.ptr));
+
+        let decoded = EncodedString::new(unsafe { url_decode(encoded.ptr) });
         assert!(!decoded.is_null(), "Decoded result should not be null");
         assert_eq!(decoded.to_str().unwrap(), original);
     }
@@ -289,8 +300,8 @@ mod tests {
     #[test]
     fn test_url_decode_null_pointer() {
         // Test: null pointer should return null
-        let result = url_decode(std::ptr::null());
-        
+        let result = unsafe { url_decode(std::ptr::null()) };
+
         assert!(result.is_null(), "Result should be null for null pointer");
     }
 
@@ -298,18 +309,21 @@ mod tests {
     fn test_url_decode_invalid_percent_encoding() {
         // Test: invalid percent encoding should return null
         let test_cases = vec![
-            "hello%2",      // Incomplete percent sequence
-            "hello%",       // Incomplete percent sequence
-            "hello%GG",     // Invalid hex characters
-            "hello%2G",     // Invalid hex character
+            "hello%2",  // Incomplete percent sequence
+            "hello%",   // Incomplete percent sequence
+            "hello%GG", // Invalid hex characters
+            "hello%2G", // Invalid hex character
         ];
 
         for input_str in test_cases {
             let input = CString::new(input_str).unwrap();
-            let result = url_decode(input.as_ptr());
-            
-            assert!(result.is_null(), 
-                "Result should be null for invalid encoding: {}", input_str);
+            let result = unsafe { url_decode(input.as_ptr()) };
+
+            assert!(
+                result.is_null(),
+                "Result should be null for invalid encoding: {}",
+                input_str
+            );
         }
     }
 
@@ -317,9 +331,12 @@ mod tests {
     fn test_url_decode_empty_string() {
         // Test: empty string should return empty string
         let input = CString::new("").unwrap();
-        let result = EncodedString::new(url_decode(input.as_ptr()));
-        
-        assert!(!result.is_null(), "Result should not be null for empty string");
+        let result = EncodedString::new(unsafe { url_decode(input.as_ptr()) });
+
+        assert!(
+            !result.is_null(),
+            "Result should not be null for empty string"
+        );
         assert_eq!(result.to_str().unwrap(), "");
     }
 }
