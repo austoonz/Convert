@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  build-and-test:
+    # Security: Prevent automatic execution of workflows from external forks
+    # pull_request_target runs in the base repo context (has access to secrets)
+    # This conditional blocks automatic execution for PRs from forks
+    # Repository owners must manually approve workflow runs from external contributors
+    # Each PR update requires re-approval to prevent malicious code injection
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+          - os: ubuntu-latest
+            platform: linux
+          - os: macos-latest
+            platform: macos
+    
+    steps:
+      # Checkout repository code
+      # Pin to v4.3.1 commit SHA for security
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      
+      # Setup Rust toolchain with automatic caching
+      # Pin to v1.15.2 commit SHA for security
+      # Caches Cargo registry, git dependencies, and build artifacts
+      # Cache key includes OS and Cargo.lock hash for isolation
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@1780873c7b576612439a134613cc4cc74ce5538c  # v1.15.2
+        with:
+          toolchain: stable
+          cache: true
+      
+      # Cache PowerShell modules to speed up builds
+      # Pin to v4.2.0 commit SHA for security
+      # Cache paths are OS-specific for PowerShell module directories
+      # Cache key includes OS and install_modules.ps1 hash for isolation
+      - name: Cache PowerShell modules
+        id: cache-psmodules
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4.2.0
+        with:
+          path: |
+            ~/.local/share/powershell/Modules
+            ~/Documents/PowerShell/Modules
+            ~/Documents/WindowsPowerShell/Modules
+          key: ${{ runner.os }}-psmodules-${{ hashFiles('install_modules.ps1') }}
+          restore-keys: |
+            ${{ runner.os }}-psmodules-
+      
+      # Install NuGet provider for PowerShell Gallery access
+      - name: Install NuGet provider
+        if: steps.cache-psmodules.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: ./install_nuget.ps1
+      
+      # Install required PowerShell modules (Pester, PSScriptAnalyzer, etc.)
+      - name: Install PowerShell modules
+        if: steps.cache-psmodules.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: ./install_modules.ps1
+      
+      # Build Rust library
+      - name: Build Rust library
+        shell: pwsh
+        run: .\build.ps1 -Rust -Build
+      
+      # Build PowerShell module
+      - name: Build PowerShell module
+        shell: pwsh
+        run: .\build.ps1 -PowerShell -Build
+      
+      # Run tests on Windows PowerShell 5.1 (Windows only)
+      - name: Run tests (Windows PowerShell 5.1)
+        if: matrix.os == 'windows-latest'
+        shell: powershell
+        run: .\build.ps1 -PowerShell -Test
+      
+      # Run tests on PowerShell LTS (all platforms)
+      - name: Run tests (PowerShell LTS)
+        shell: pwsh
+        run: .\build.ps1 -PowerShell -Test
+      
+      # Upload platform-specific module artifact
+      # Pin to v4.6.2 commit SHA for security
+      # Retention: 90 days for debugging and validation
+      - name: Upload platform artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: module-${{ matrix.platform }}
+          path: DeploymentArtifacts/
+          retention-days: 90
+      
+      # Upload test results (always run, even on failure)
+      # Pin to v4.6.2 commit SHA for security
+      # Retention: 90 days for test analysis
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: test-results-${{ matrix.platform }}
+          path: |
+            test_report.xml
+            test_report_build.xml
+            coverage.xml
+          retention-days: 90
