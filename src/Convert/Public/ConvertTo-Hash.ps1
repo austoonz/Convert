@@ -53,7 +53,7 @@ function ConvertTo-Hash {
                         throw $errorMsg
                     }
                     
-                    [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+                    ConvertPtrToString -Ptr $ptr
                 } finally {
                     if ($ptr -ne $nullPtr) {
                         [ConvertCoreInterop]::free_string($ptr)

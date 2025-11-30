@@ -9,4 +9,4 @@ test_report_build.xml
 
 # Rust
 /lib/target
-/src/Convert/bin
+/src/Convert/Private/bin

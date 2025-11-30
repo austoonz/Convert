@@ -211,7 +211,7 @@ function ConvertTo-HmacHash {
                 }
                 
                 # Marshal the hex string result from Rust memory to PowerShell string
-                $hexResult = [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+                $hexResult = ConvertPtrToString -Ptr $ptr
                 
                 # Convert hex result to requested output format
                 $result = switch ($OutputFormat) {

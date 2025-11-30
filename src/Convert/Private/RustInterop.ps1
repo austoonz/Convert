@@ -8,9 +8,9 @@ $ErrorActionPreference = 'Stop'
 $runtimeArch = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
 $architecture = switch ($runtimeArch) {
     ([System.Runtime.InteropServices.Architecture]::X64) { 'x64' }
-    ([System.Runtime.InteropServices.Architecture]::Arm64) { 'ARM64' }
+    ([System.Runtime.InteropServices.Architecture]::Arm64) { 'arm64' }
     ([System.Runtime.InteropServices.Architecture]::X86) { 'x86' }
-    ([System.Runtime.InteropServices.Architecture]::Arm) { 'ARM' }
+    ([System.Runtime.InteropServices.Architecture]::Arm) { 'arm' }
     default { throw "Unsupported architecture: $runtimeArch" }
 }
 
@@ -30,58 +30,35 @@ if ($PSVersionTable.PSVersion.Major -lt 6) {
     }
 }
 
-# Determine library path based on context
-# Development: $PSScriptRoot = src/Convert/Private, library at src/Convert/bin/<arch>/
-# Built module: $PSScriptRoot = <ModuleRoot>, library at <ModuleRoot>/bin/<arch>/
-$isDevelopment = [System.IO.Directory]::Exists([System.IO.Path]::Combine($PSScriptRoot, '..', 'Public'))
-
-if ($isDevelopment) {
-    # Development/testing: library is in parent directory's bin folder
-    $moduleRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($PSScriptRoot, '..'))
-    $libraryPath = [System.IO.Path]::Combine($moduleRoot, 'bin', $architecture, $libraryFileName)
-} else {
-    # Built module: library is in module root's bin folder
-    $libraryPath = [System.IO.Path]::Combine($PSScriptRoot, 'bin', $architecture, $libraryFileName)
-}
+# Library is always in $PSScriptRoot/bin/<arch>/
+# Development: $PSScriptRoot = src/Convert/Private
+# Built module: $PSScriptRoot = Artifacts (combined .psm1)
+$libraryPath = [System.IO.Path]::Combine($PSScriptRoot, 'bin', $architecture, $libraryFileName)
 
 # Validate library file exists
 if (-not [System.IO.File]::Exists($libraryPath)) {
-    if ($isDevelopment) {
-        throw @"
-Rust library not found at: $libraryPath
-
-This is the development/testing module loader. The Rust library must be built before running tests.
-
-Detected platform: $($PSVersionTable.Platform ?? 'Windows')
-Detected architecture: $architecture
-
-To build the Rust library:
-1. Install Rust from https://rustup.rs
-2. Run from repository root:
-   cargo build --release --manifest-path lib/Cargo.toml
-3. Copy the library to: $libraryPath
-
-Or use the build script:
-   .\Convert.build.ps1
-
-Expected library location: $libraryPath
-"@
+    $detectedPlatform = if ($PSVersionTable.PSVersion.Major -ge 6) {
+        if ($IsWindows) { 'Windows' }
+        elseif ($IsLinux) { 'Linux' }
+        elseif ($IsMacOS) { 'macOS' }
+        else { 'Unknown' }
     } else {
-        throw @"
+        'Windows'
+    }
+    
+    throw @"
 Rust library not found at: $libraryPath
 
-The Convert module requires the Rust library to be present in the module directory.
-
-Detected platform: $($PSVersionTable.Platform ?? 'Windows')
+Detected platform: $detectedPlatform
 Detected architecture: $architecture
 Expected filename: $libraryFileName
 
-If you installed this module from the PowerShell Gallery, please report this as a bug.
-If you're building from source, ensure you run the build script to compile the Rust library.
+To build the Rust library:
+1. Install Rust from https://rustup.rs
+2. Run: .\build.ps1 -Rust -Build
 
 For more information, see: https://github.com/austoonz/Convert
 "@
-    }
 }
 
 # Load the Rust library via Add-Type with DllImport declarations
@@ -184,6 +161,9 @@ public static class ConvertCoreInterop {
 
     [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern void free_bytes(IntPtr ptr);
+
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr string_to_bytes_copy(IntPtr ptr, out UIntPtr length);
 
     // Error reporting
     [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]

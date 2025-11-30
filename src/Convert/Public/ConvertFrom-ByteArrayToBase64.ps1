@@ -77,7 +77,7 @@ function ConvertFrom-ByteArrayToBase64 {
                 }
                 
                 # Convert C string pointer to PowerShell string
-                [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+                ConvertPtrToString -Ptr $ptr
             }
         } catch {
             Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference

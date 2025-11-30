@@ -1,10 +1,12 @@
 Describe -Name 'Module Manifest' -Fixture {
     BeforeAll {
+        $module = Get-Module -Name 'Convert'
+        if (-not $module) {
+            throw 'Convert module is not loaded. This should not happen in test context.'
+        }
         $script:ModuleName = 'Convert'
-        $script:ModuleRootPath = (Resolve-Path -Path ([System.IO.Path]::Combine($PSScriptRoot, '..', '..', $ModuleName))).Path
-        $script:ModuleManifestFilePath = Join-Path -Path $script:ModuleRootPath -ChildPath "$ModuleName.psd1"
-        $script:ModuleManifest = Get-Item -Path $script:ModuleManifestFilePath
-        $script:Manifest = Test-ModuleManifest -Path $script:ModuleManifest
+        $script:ModuleManifestFilePath = [System.IO.Path]::Combine($module.ModuleBase, "$script:ModuleName.psd1")
+        $script:Manifest = Test-ModuleManifest -Path $script:ModuleManifestFilePath
     }
 
     It -Name 'Has the correct root module' -Test {

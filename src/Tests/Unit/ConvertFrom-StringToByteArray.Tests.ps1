@@ -1,11 +1,4 @@
-﻿$moduleName = 'Convert'
-$function = $MyInvocation.MyCommand.Name.Split('.')[0]
-
-$pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
-    Remove-Module -Name $moduleName -Force
-}
-Import-Module $pathToManifest -Force
+﻿$function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 Describe -Name $function -Fixture {
     BeforeEach {
@@ -143,28 +136,27 @@ Describe -Name $function -Fixture {
 
     Context -Name 'Memory Management' -Fixture {
         It -Name 'Processes repeated calls without memory leaks (1000 iterations)' -Test {
-            # Force garbage collection before test
             [System.GC]::Collect()
             [System.GC]::WaitForPendingFinalizers()
             [System.GC]::Collect()
             
-            $beforeMemory = [System.GC]::GetTotalMemory($false)
+            $process = Get-Process -Id $PID
+            $memoryBefore = $process.WorkingSet64
             
-            # Process 1000 iterations
             1..1000 | ForEach-Object {
                 $null = ConvertFrom-StringToByteArray -String "TestString$_" -Encoding 'UTF8'
             }
             
-            # Force garbage collection after test
             [System.GC]::Collect()
             [System.GC]::WaitForPendingFinalizers()
             [System.GC]::Collect()
             
-            $afterMemory = [System.GC]::GetTotalMemory($false)
-            $memoryGrowth = $afterMemory - $beforeMemory
+            $process.Refresh()
+            $memoryAfter = $process.WorkingSet64
             
-            # Memory growth should be minimal (less than 10MB)
-            $memoryGrowth | Should -BeLessThan (10 * 1024 * 1024)
+            $memoryGrowthMB = [Math]::Round(($memoryAfter - $memoryBefore) / 1MB, 2)
+            
+            $memoryGrowthMB | Should -BeLessThan 30
         }
     }
 

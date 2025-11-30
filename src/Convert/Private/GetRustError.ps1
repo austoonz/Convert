@@ -41,7 +41,7 @@
     $errorPtr = [ConvertCoreInterop]::get_last_error()
     if ($errorPtr -ne [IntPtr]::Zero) {
         try {
-            [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($errorPtr)
+            ConvertPtrToString -Ptr $errorPtr
         } finally {
             [ConvertCoreInterop]::free_string($errorPtr)
         }

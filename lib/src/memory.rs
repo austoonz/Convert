@@ -2,6 +2,46 @@
 
 use std::os::raw::c_char;
 
+/// Copy a UTF-8 string pointer to a byte array for PowerShell 5.1 compatibility
+///
+/// This function copies a UTF-8 string to a byte array that PowerShell can read
+/// using Marshal.Copy, avoiding the PtrToStringUTF8 compatibility issue.
+///
+/// # Safety
+/// This function is unsafe because it dereferences a raw pointer.
+/// The caller must ensure that:
+/// - `ptr` points to a valid null-terminated UTF-8 string
+/// - `out_length` is a valid pointer to write the length
+///
+/// # Arguments
+/// * `ptr` - A pointer to a null-terminated UTF-8 string
+/// * `out_length` - Output parameter for the byte length (excluding null terminator)
+///
+/// # Returns
+/// A pointer to a byte array containing the UTF-8 bytes (without null terminator),
+/// or null if the input pointer is null. The caller must free this with `free_bytes`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn string_to_bytes_copy(
+    ptr: *const c_char,
+    out_length: *mut usize,
+) -> *mut u8 {
+    if ptr.is_null() || out_length.is_null() {
+        return std::ptr::null_mut();
+    }
+
+    unsafe {
+        // Convert C string to Rust string slice
+        let c_str = std::ffi::CStr::from_ptr(ptr);
+        let bytes = c_str.to_bytes(); // UTF-8 bytes without null terminator
+
+        // Write the length
+        *out_length = bytes.len();
+
+        // Allocate and copy the bytes
+        allocate_byte_array(bytes.to_vec())
+    }
+}
+
 /// Free a string allocated by Rust and returned to the caller
 ///
 /// # Safety

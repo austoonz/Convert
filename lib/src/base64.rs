@@ -343,7 +343,7 @@ pub(crate) fn convert_bytes_to_string(bytes: &[u8], encoding: &str) -> Result<St
         || encoding.eq_ignore_ascii_case("UTF-16")
     {
         // Unicode in .NET typically means UTF-16LE
-        if bytes.len() % 2 != 0 {
+        if !bytes.len().is_multiple_of(2) {
             return Err("Invalid UTF-16 byte length (must be even)".to_string());
         }
 
@@ -356,7 +356,7 @@ pub(crate) fn convert_bytes_to_string(bytes: &[u8], encoding: &str) -> Result<St
         String::from_utf16(&utf16_chars).map_err(|e| format!("Invalid UTF-16 bytes: {}", e))
     } else if encoding.eq_ignore_ascii_case("UTF32") || encoding.eq_ignore_ascii_case("UTF-32") {
         // UTF-32LE encoding
-        if bytes.len() % 4 != 0 {
+        if !bytes.len().is_multiple_of(4) {
             return Err("Invalid UTF-32 byte length (must be multiple of 4)".to_string());
         }
 
@@ -374,7 +374,7 @@ pub(crate) fn convert_bytes_to_string(bytes: &[u8], encoding: &str) -> Result<St
         || encoding.eq_ignore_ascii_case("UTF-16BE")
     {
         // UTF-16BE encoding
-        if bytes.len() % 2 != 0 {
+        if !bytes.len().is_multiple_of(2) {
             return Err("Invalid UTF-16BE byte length (must be even)".to_string());
         }
 

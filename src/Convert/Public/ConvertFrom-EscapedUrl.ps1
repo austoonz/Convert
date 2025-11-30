@@ -37,7 +37,7 @@ function ConvertFrom-EscapedUrl {
                     Write-Error -Message $errorMessage
                     continue
                 }
-                [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+                ConvertPtrToString -Ptr $ptr
             } finally {
                 if ($ptr -ne [IntPtr]::Zero) {
                     [ConvertCoreInterop]::free_string($ptr)

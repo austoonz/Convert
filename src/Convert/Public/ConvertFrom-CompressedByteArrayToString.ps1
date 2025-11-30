@@ -72,7 +72,7 @@ function ConvertFrom-CompressedByteArrayToString {
                         throw $errorMsg
                     }
                     
-                    [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($ptr)
+                    ConvertPtrToString -Ptr $ptr
                 } finally {
                     if ($pinnedArray.IsAllocated) {
                         $pinnedArray.Free()

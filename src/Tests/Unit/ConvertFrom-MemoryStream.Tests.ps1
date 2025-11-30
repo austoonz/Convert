@@ -1,11 +1,4 @@
-$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
-
-$pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
-    Remove-Module -Name $moduleName -Force
-}
-Import-Module $pathToManifest -Force
 
 Describe -Name $function -Fixture {
     BeforeEach {

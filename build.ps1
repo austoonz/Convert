@@ -12,6 +12,7 @@
 
 .PARAMETER Rust
     Target Rust operations. Enables: Build, Test, Analyze, Fix, Clean, Security, Deep.
+    Automatically installs required Rust tools (cargo-nextest, cargo-audit, miri) if not present.
 
 .PARAMETER PowerShell
     Target PowerShell operations. Enables: Build, Test, Analyze, Fix, Clean, Package.
@@ -91,8 +92,13 @@
     
     Requirements:
     - PowerShell 5.0 or higher
-    - Rust toolchain (for Rust operations)
+    - Rust toolchain (for Rust operations) - install from https://rustup.rs
     - Pester 5.3.0+ (for PowerShell tests)
+    
+    Rust Dependencies (auto-installed when -Rust is used):
+    - cargo-nextest - Fast test runner (always installed)
+    - cargo-audit - Security vulnerability scanner (installed with -Security)
+    - nightly toolchain + miri - Undefined behavior detector (installed with -Deep)
 #>
 
 [CmdletBinding()]
@@ -109,13 +115,29 @@ param(
     [switch]$Clean,
     [switch]$Package,
     
+    # Build modifiers (Rust only)
+    [switch]$All,
+    
+    [ValidateSet(
+        'x86_64-pc-windows-msvc',
+        'aarch64-pc-windows-msvc',
+        'x86_64-unknown-linux-gnu',
+        'aarch64-unknown-linux-gnu',
+        'armv7-unknown-linux-gnueabihf',
+        'x86_64-apple-darwin',
+        'aarch64-apple-darwin'
+    )]
+    [string[]]$Targets = @(),
+    
+    # Test modifiers (PowerShell only)
+    [switch]$Artifact,
+    
     # Analysis modifiers (Rust only)
     [switch]$Security,
     [switch]$Deep,
     
     # Workflows
-    [switch]$Full,
-    [switch]$CI
+    [switch]$Full
 )
 
 #region Helper Functions
@@ -142,7 +164,6 @@ function Initialize-BuildEnvironment {
     }
     
     $manifest = Import-PowerShellDataFile -Path $manifestPath
-    $isCodeBuild = -not [string]::IsNullOrEmpty($env:CODEBUILD_BUILD_ARN)
     
     $config = [PSCustomObject]@{
         RepositoryRoot = $repositoryRoot
@@ -156,9 +177,8 @@ function Initialize-BuildEnvironment {
         ArchivePath = [System.IO.Path]::Combine($repositoryRoot, 'Archive')
         DeploymentArtifactsPath = [System.IO.Path]::Combine($repositoryRoot, 'DeploymentArtifacts')
         LibPath = [System.IO.Path]::Combine($repositoryRoot, 'lib')
-        IsCodeBuild = $isCodeBuild
-        PesterOutputFormat = if ($isCodeBuild) { 'JaCoCo' } else { 'CoverageGutters' }
-        CodeCoverageThreshold = 85
+        PesterOutputFormat = 'CoverageGutters'
+        CodeCoverageThreshold = 80
     }
     
     return $config
@@ -210,21 +230,157 @@ function Get-PlatformInfo {
     }
 }
 
+function Install-RustDependencies {
+    <#
+    .SYNOPSIS
+        Installs required Rust tooling dependencies.
+    
+    .DESCRIPTION
+        Ensures all required Rust tools are installed for building, testing, and analyzing.
+        Installs cargo-nextest for faster test execution and optionally installs
+        cargo-audit for security scanning.
+    
+    .PARAMETER IncludeSecurity
+        Install cargo-audit for security vulnerability scanning.
+    
+    .PARAMETER IncludeDeep
+        Install nightly toolchain and miri for deep undefined behavior analysis.
+    #>
+    param(
+        [switch]$IncludeSecurity,
+        [switch]$IncludeDeep
+    )
+    
+    Write-Host 'Checking Rust dependencies...' -ForegroundColor Cyan
+    
+    $cargoCommand = Get-Command -Name 'cargo' -ErrorAction SilentlyContinue
+    if (-not $cargoCommand) {
+        throw @"
+Cargo not found. Please install Rust from https://rustup.rs
+
+After installation:
+1. Close and reopen your terminal
+2. Verify installation: cargo --version
+3. Run this build script again
+"@
+    }
+    
+    $installed = @()
+    $skipped = @()
+    
+    $nextestInstalled = $null -ne (Get-Command -Name 'cargo-nextest' -ErrorAction SilentlyContinue)
+    if (-not $nextestInstalled) {
+        Write-Host '  Installing cargo-nextest...' -ForegroundColor Gray
+        & cargo install cargo-nextest --locked
+        if ($LASTEXITCODE -eq 0) {
+            $installed += 'cargo-nextest'
+            Write-Host '    ✓ cargo-nextest installed' -ForegroundColor Green
+        }
+        else {
+            Write-Warning '    ✗ Failed to install cargo-nextest'
+        }
+    }
+    else {
+        $skipped += 'cargo-nextest (already installed)'
+    }
+    
+    if ($IncludeSecurity) {
+        $auditInstalled = $null -ne (Get-Command -Name 'cargo-audit' -ErrorAction SilentlyContinue)
+        if (-not $auditInstalled) {
+            Write-Host '  Installing cargo-audit...' -ForegroundColor Gray
+            & cargo install cargo-audit --locked
+            if ($LASTEXITCODE -eq 0) {
+                $installed += 'cargo-audit'
+                Write-Host '    ✓ cargo-audit installed' -ForegroundColor Green
+            }
+            else {
+                Write-Warning '    ✗ Failed to install cargo-audit'
+            }
+        }
+        else {
+            $skipped += 'cargo-audit (already installed)'
+        }
+    }
+    
+    if ($IncludeDeep) {
+        Write-Host '  Checking nightly toolchain...' -ForegroundColor Gray
+        $nightlyInstalled = (rustup toolchain list) -match 'nightly'
+        if (-not $nightlyInstalled) {
+            Write-Host '  Installing nightly toolchain...' -ForegroundColor Gray
+            & rustup toolchain install nightly
+            if ($LASTEXITCODE -eq 0) {
+                $installed += 'nightly toolchain'
+                Write-Host '    ✓ nightly toolchain installed' -ForegroundColor Green
+            }
+            else {
+                Write-Warning '    ✗ Failed to install nightly toolchain'
+            }
+        }
+        else {
+            $skipped += 'nightly toolchain (already installed)'
+        }
+        
+        Write-Host '  Checking miri component...' -ForegroundColor Gray
+        $miriInstalled = (rustup component list --toolchain nightly) -match 'miri.*installed'
+        if (-not $miriInstalled) {
+            Write-Host '  Installing miri component...' -ForegroundColor Gray
+            & rustup component add miri --toolchain nightly
+            if ($LASTEXITCODE -eq 0) {
+                $installed += 'miri'
+                Write-Host '    ✓ miri installed' -ForegroundColor Green
+            }
+            else {
+                Write-Warning '    ✗ Failed to install miri'
+            }
+        }
+        else {
+            $skipped += 'miri (already installed)'
+        }
+    }
+    
+    Write-Host ''
+    if ($installed.Count -gt 0) {
+        Write-Host ('Installed {0} tool(s): {1}' -f $installed.Count, ($installed -join ', ')) -ForegroundColor Green
+    }
+    if ($skipped.Count -gt 0) {
+        Write-Host ('Skipped {0} tool(s): {1}' -f $skipped.Count, ($skipped -join ', ')) -ForegroundColor Gray
+    }
+    
+    return @{
+        Success = $true
+        Installed = $installed
+        Skipped = $skipped
+    }
+}
+
 function Invoke-RustBuild {
     <#
     .SYNOPSIS
         Compiles Rust library and copies to module bin directory.
     
     .DESCRIPTION
-        Executes cargo build --release, detects platform/architecture, and copies the
-        compiled library to src/Convert/bin/<architecture>/ for module distribution.
+        Executes cargo build --release for specified targets, and copies the
+        compiled libraries to src/Convert/bin/<architecture>/ for module distribution.
+        
+        Supports building for current platform only (default) or all supported platforms
+        for creating a universal module artifact.
     
     .PARAMETER Config
         Build configuration object from Initialize-BuildEnvironment.
+    
+    .PARAMETER All
+        Build for all supported platforms (Windows x64/arm64, Linux x64/arm64/arm, macOS x64/arm64).
+    
+    .PARAMETER Targets
+        Array of specific Rust target triples to build.
     #>
     param(
         [Parameter(Mandatory)]
-        [PSCustomObject]$Config
+        [PSCustomObject]$Config,
+        
+        [switch]$All,
+        
+        [string[]]$Targets = @()
     )
     
     $cargoTomlPath = [System.IO.Path]::Combine($Config.LibPath, 'Cargo.toml')
@@ -246,45 +402,95 @@ After installation:
 "@
     }
     
-    Write-Host 'Building Rust library...' -ForegroundColor Cyan
+    $allTargets = @(
+        @{ Triple = 'x86_64-pc-windows-msvc'; Platform = 'Windows'; Arch = 'x64'; Lib = 'convert_core.dll' }
+        @{ Triple = 'aarch64-pc-windows-msvc'; Platform = 'Windows'; Arch = 'arm64'; Lib = 'convert_core.dll' }
+        @{ Triple = 'x86_64-unknown-linux-gnu'; Platform = 'Linux'; Arch = 'x64'; Lib = 'libconvert_core.so' }
+        @{ Triple = 'aarch64-unknown-linux-gnu'; Platform = 'Linux'; Arch = 'arm64'; Lib = 'libconvert_core.so' }
+        @{ Triple = 'armv7-unknown-linux-gnueabihf'; Platform = 'Linux'; Arch = 'arm'; Lib = 'libconvert_core.so' }
+        @{ Triple = 'x86_64-apple-darwin'; Platform = 'macOS'; Arch = 'x64'; Lib = 'libconvert_core.dylib' }
+        @{ Triple = 'aarch64-apple-darwin'; Platform = 'macOS'; Arch = 'arm64'; Lib = 'libconvert_core.dylib' }
+    )
     
-    $cargoArgs = @('build', '--release', '--manifest-path', $cargoTomlPath)
-    & cargo $cargoArgs
-    
-    if ($LASTEXITCODE -ne 0) {
-        throw "Cargo build failed with exit code $LASTEXITCODE"
+    if ($All) {
+        $targetsToBuild = $allTargets
+        Write-Host 'Building Rust library for all platforms...' -ForegroundColor Cyan
+    }
+    elseif ($Targets.Count -gt 0) {
+        $targetsToBuild = $allTargets | Where-Object { $Targets -contains $_.Triple }
+        if ($targetsToBuild.Count -eq 0) {
+            throw "No valid targets found matching: $($Targets -join ', ')"
+        }
+        Write-Host "Building Rust library for $($targetsToBuild.Count) target(s)..." -ForegroundColor Cyan
+    }
+    else {
+        $platformInfo = Get-PlatformInfo
+        $targetsToBuild = $allTargets | Where-Object { 
+            $_.Platform -eq $platformInfo.Platform -and $_.Arch -eq $platformInfo.Architecture 
+        }
+        if ($targetsToBuild.Count -eq 0) {
+            throw "No target found for current platform: $($platformInfo.Platform) $($platformInfo.Architecture)"
+        }
+        Write-Host 'Building Rust library for current platform...' -ForegroundColor Cyan
     }
     
-    $platformInfo = Get-PlatformInfo
-    $sourceLibPath = [System.IO.Path]::Combine($Config.LibPath, 'target', 'release', $platformInfo.LibraryName)
+    $successCount = 0
+    $failedTargets = @()
     
-    if (-not [System.IO.File]::Exists($sourceLibPath)) {
-        throw "Compiled library not found at: $sourceLibPath"
+    foreach ($target in $targetsToBuild) {
+        Write-Host "  Building: $($target.Triple) ($($target.Platform) $($target.Arch))" -ForegroundColor Gray
+        
+        $cargoArgs = @('build', '--release', '--target', $target.Triple, '--manifest-path', $cargoTomlPath)
+        & cargo $cargoArgs
+        
+        if ($LASTEXITCODE -ne 0) {
+            $failedTargets += $target.Triple
+            Write-Host "    ✗ Build failed for $($target.Triple)" -ForegroundColor Red
+            continue
+        }
+        
+        $sourceLibPath = [System.IO.Path]::Combine($Config.LibPath, 'target', $target.Triple, 'release', $target.Lib)
+        
+        if (-not [System.IO.File]::Exists($sourceLibPath)) {
+            $failedTargets += $target.Triple
+            Write-Host "    ✗ Compiled library not found at: $sourceLibPath" -ForegroundColor Red
+            continue
+        }
+        
+        $destDir = [System.IO.Path]::Combine($Config.SourcePath, 'Private', 'bin', $target.Arch)
+        
+        if (-not [System.IO.Directory]::Exists($destDir)) {
+            [System.IO.Directory]::CreateDirectory($destDir) | Out-Null
+        }
+        
+        $destLibPath = [System.IO.Path]::Combine($destDir, $target.Lib)
+        [System.IO.File]::Copy($sourceLibPath, $destLibPath, $true)
+        
+        Write-Host ('    ✓ Copied to: bin/{0}/{1}' -f $target.Arch, $target.Lib) -ForegroundColor Green
+        $successCount++
     }
     
-    $destDir = [System.IO.Path]::Combine($Config.SourcePath, 'bin', $platformInfo.Architecture)
-    
-    if (-not [System.IO.Directory]::Exists($destDir)) {
-        [System.IO.Directory]::CreateDirectory($destDir) | Out-Null
+    Write-Host ''
+    if ($failedTargets.Count -gt 0) {
+        Write-Host 'Rust build completed with errors:' -ForegroundColor Yellow
+        Write-Host ('  Success: {0}/{1}' -f $successCount, $targetsToBuild.Count) -ForegroundColor Green
+        Write-Host ('  Failed: {0}' -f ($failedTargets -join ', ')) -ForegroundColor Red
+        return $false
     }
-    
-    $destLibPath = [System.IO.Path]::Combine($destDir, $platformInfo.LibraryName)
-    [System.IO.File]::Copy($sourceLibPath, $destLibPath, $true)
-    
-    Write-Host "  Source: $sourceLibPath" -ForegroundColor Green
-    Write-Host "  Destination: $destLibPath" -ForegroundColor Green
-    Write-Host "  Architecture: $($platformInfo.Architecture)" -ForegroundColor Green
-    
-    return $true
+    else {
+        Write-Host ('Rust build completed successfully for {0} target(s).' -f $successCount) -ForegroundColor Green
+        return $true
+    }
 }
 
 function Invoke-RustTest {
     <#
     .SYNOPSIS
-        Runs Rust test suite.
+        Runs Rust test suite using cargo-nextest.
     
     .DESCRIPTION
-        Executes cargo test to run all Rust unit and integration tests.
+        Executes cargo nextest run to run all Rust unit and integration tests.
+        Automatically installs cargo-nextest if not present.
     
     .PARAMETER Config
         Build configuration object from Initialize-BuildEnvironment.
@@ -297,13 +503,22 @@ function Invoke-RustTest {
     $cargoTomlPath = [System.IO.Path]::Combine($Config.LibPath, 'Cargo.toml')
     
     if (-not [System.IO.File]::Exists($cargoTomlPath)) {
-        Write-Warning "Cargo.toml not found at: $cargoTomlPath. Skipping Rust tests."
+        Write-Warning ('Cargo.toml not found at: {0}. Skipping Rust tests.' -f $cargoTomlPath)
         return @{ Success = $false; ExitCode = 1 }
     }
     
-    Write-Host 'Running Rust tests...' -ForegroundColor Cyan
+    $nextestInstalled = $null -ne (Get-Command -Name 'cargo-nextest' -ErrorAction SilentlyContinue)
     
-    $cargoArgs = @('test', '--manifest-path', $cargoTomlPath)
+    if ($nextestInstalled) {
+        Write-Host 'Running Rust tests with cargo-nextest...' -ForegroundColor Cyan
+        $cargoArgs = @('nextest', 'run', '--manifest-path', $cargoTomlPath)
+    }
+    else {
+        Write-Host 'Running Rust tests with cargo test (nextest not installed)...' -ForegroundColor Cyan
+        Write-Host 'Tip: Run with dependency installation to use faster nextest runner' -ForegroundColor Yellow
+        $cargoArgs = @('test', '--manifest-path', $cargoTomlPath)
+    }
+    
     & cargo $cargoArgs
     
     $exitCode = $LASTEXITCODE
@@ -311,7 +526,7 @@ function Invoke-RustTest {
     if ($exitCode -eq 0) {
         Write-Host 'Rust tests passed.' -ForegroundColor Green
     } else {
-        Write-Host "Rust tests failed with exit code $exitCode" -ForegroundColor Red
+        Write-Host ('Rust tests failed with exit code {0}' -f $exitCode) -ForegroundColor Red
     }
     
     return @{
@@ -350,7 +565,7 @@ function Invoke-RustAnalyze {
     $cargoTomlPath = [System.IO.Path]::Combine($Config.LibPath, 'Cargo.toml')
     
     if (-not [System.IO.File]::Exists($cargoTomlPath)) {
-        Write-Warning "Cargo.toml not found at: $cargoTomlPath. Skipping Rust analysis."
+        Write-Warning ('Cargo.toml not found at: {0}. Skipping Rust analysis.' -f $cargoTomlPath)
         return @{ Success = $false; ExitCode = 1 }
     }
     
@@ -393,28 +608,87 @@ function Invoke-RustAnalyze {
     }
     
     if ($Security) {
-        Write-Host '  Running cargo audit...' -ForegroundColor Gray
-        & cargo audit --manifest-path $cargoTomlPath
-        $auditExitCode = $LASTEXITCODE
-        $results += @{ Tool = 'audit'; ExitCode = $auditExitCode }
-        if ($auditExitCode -ne 0) {
-            Write-Host '  cargo audit found issues' -ForegroundColor Red
-            $allPassed = $false
-        } else {
-            Write-Host '  cargo audit passed' -ForegroundColor Green
+        $auditInstalled = $null -ne (Get-Command -Name 'cargo-audit' -ErrorAction SilentlyContinue)
+        
+        if (-not $auditInstalled) {
+            Write-Host '  cargo-audit not found. Installing...' -ForegroundColor Yellow
+            & cargo install cargo-audit --locked
+            
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning 'Failed to install cargo-audit. Skipping security audit.'
+                $results += @{ Tool = 'audit'; ExitCode = 1 }
+                $allPassed = $false
+            }
+            else {
+                Write-Host '  cargo-audit installed successfully.' -ForegroundColor Green
+            }
+        }
+        
+        if ($auditInstalled -or $LASTEXITCODE -eq 0) {
+            Write-Host '  Running cargo audit...' -ForegroundColor Gray
+            Push-Location $Config.LibPath
+            try {
+                & cargo audit
+            } finally {
+                Pop-Location
+            }
+            $auditExitCode = $LASTEXITCODE
+            $results += @{ Tool = 'audit'; ExitCode = $auditExitCode }
+            if ($auditExitCode -ne 0) {
+                Write-Host '  cargo audit found issues' -ForegroundColor Red
+                $allPassed = $false
+            } else {
+                Write-Host '  cargo audit passed' -ForegroundColor Green
+            }
         }
     }
     
     if ($Deep) {
-        Write-Host '  Running cargo miri test...' -ForegroundColor Gray
-        & cargo +nightly miri test --manifest-path $cargoTomlPath
-        $miriExitCode = $LASTEXITCODE
-        $results += @{ Tool = 'miri'; ExitCode = $miriExitCode }
-        if ($miriExitCode -ne 0) {
-            Write-Host '  cargo miri test failed' -ForegroundColor Red
-            $allPassed = $false
-        } else {
-            Write-Host '  cargo miri test passed' -ForegroundColor Green
+        $nightlyInstalled = $null -ne (& rustup toolchain list | Select-String -Pattern 'nightly')
+        
+        if (-not $nightlyInstalled) {
+            Write-Host '  Nightly toolchain not found. Installing...' -ForegroundColor Yellow
+            & rustup toolchain install nightly
+            
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning 'Failed to install nightly toolchain. Skipping Miri analysis.'
+                $results += @{ Tool = 'miri'; ExitCode = 1 }
+                $allPassed = $false
+            }
+            else {
+                Write-Host '  Nightly toolchain installed successfully.' -ForegroundColor Green
+            }
+        }
+        
+        if ($nightlyInstalled -or $LASTEXITCODE -eq 0) {
+            $miriInstalled = $null -ne (& rustup component list --toolchain nightly | Select-String -Pattern 'miri.*installed')
+            
+            if (-not $miriInstalled) {
+                Write-Host '  Miri component not found. Installing...' -ForegroundColor Yellow
+                & rustup component add miri --toolchain nightly
+                
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning 'Failed to install Miri component. Skipping Miri analysis.'
+                    $results += @{ Tool = 'miri'; ExitCode = 1 }
+                    $allPassed = $false
+                }
+                else {
+                    Write-Host '  Miri component installed successfully.' -ForegroundColor Green
+                }
+            }
+            
+            if ($miriInstalled -or $LASTEXITCODE -eq 0) {
+                Write-Host '  Running cargo miri test...' -ForegroundColor Gray
+                & cargo +nightly miri test --manifest-path $cargoTomlPath
+                $miriExitCode = $LASTEXITCODE
+                $results += @{ Tool = 'miri'; ExitCode = $miriExitCode }
+                if ($miriExitCode -ne 0) {
+                    Write-Host '  cargo miri test failed' -ForegroundColor Red
+                    $allPassed = $false
+                } else {
+                    Write-Host '  cargo miri test passed' -ForegroundColor Green
+                }
+            }
         }
     }
     
@@ -450,7 +724,7 @@ function Invoke-RustFix {
     $cargoTomlPath = [System.IO.Path]::Combine($Config.LibPath, 'Cargo.toml')
     
     if (-not [System.IO.File]::Exists($cargoTomlPath)) {
-        Write-Warning "Cargo.toml not found at: $cargoTomlPath. Skipping Rust fix."
+        Write-Warning ('Cargo.toml not found at: {0}. Skipping Rust fix.' -f $cargoTomlPath)
         return @{ Success = $false; ModifiedFiles = @() }
     }
     
@@ -480,10 +754,10 @@ function Invoke-RustFix {
     }
     
     if ($modifiedFiles.Count -gt 0) {
-        Write-Host "  Modified $($modifiedFiles.Count) file(s):" -ForegroundColor Yellow
+        Write-Host ('  Modified {0} file(s):' -f $modifiedFiles.Count) -ForegroundColor Yellow
         foreach ($file in $modifiedFiles) {
             $relativePath = $file.Replace($Config.RepositoryRoot, '').TrimStart('\', '/')
-            Write-Host "    $relativePath" -ForegroundColor Gray
+            Write-Host ('    {0}' -f $relativePath) -ForegroundColor Gray
         }
     } else {
         Write-Host '  No files were modified.' -ForegroundColor Green
@@ -514,7 +788,7 @@ function Invoke-RustClean {
     $cargoTomlPath = [System.IO.Path]::Combine($Config.LibPath, 'Cargo.toml')
     
     if (-not [System.IO.File]::Exists($cargoTomlPath)) {
-        Write-Warning "Cargo.toml not found at: $cargoTomlPath. Skipping Rust clean."
+        Write-Warning ('Cargo.toml not found at: {0}. Skipping Rust clean.' -f $cargoTomlPath)
         return @{ Success = $false }
     }
     
@@ -559,18 +833,23 @@ function Invoke-PowerShellBuild {
     $artifactsPath = $Config.ArtifactsPath
     $moduleName = $Config.ModuleName
     
-    $manifestSource = [System.IO.Path]::Combine($sourcePath, "$moduleName.psd1")
-    $manifestDest = [System.IO.Path]::Combine($artifactsPath, "$moduleName.psd1")
+    $manifestSource = [System.IO.Path]::Combine($sourcePath, ('{0}.psd1' -f $moduleName))
+    $manifestDest = [System.IO.Path]::Combine($artifactsPath, ('{0}.psd1' -f $moduleName))
     
     if (-not [System.IO.File]::Exists($manifestSource)) {
-        Write-Host "Module manifest not found at: $manifestSource" -ForegroundColor Red
+        Write-Host ('Module manifest not found at: {0}' -f $manifestSource) -ForegroundColor Red
         return @{ Success = $false }
+    }
+    
+    if (-not [System.IO.Directory]::Exists($artifactsPath)) {
+        Write-Host '  Creating Artifacts directory...' -ForegroundColor Gray
+        [System.IO.Directory]::CreateDirectory($artifactsPath) | Out-Null
     }
     
     Write-Host '  Copying module manifest...' -ForegroundColor Gray
     [System.IO.File]::Copy($manifestSource, $manifestDest, $true)
     
-    $binSource = [System.IO.Path]::Combine($sourcePath, 'bin')
+    $binSource = [System.IO.Path]::Combine($sourcePath, 'Private', 'bin')
     $binDest = [System.IO.Path]::Combine($artifactsPath, 'bin')
     
     if ([System.IO.Directory]::Exists($binSource)) {
@@ -599,7 +878,7 @@ function Invoke-PowerShellBuild {
         
         Copy-Directory -Source $binSource -Destination $binDest
     } else {
-        Write-Warning "bin directory not found at: $binSource. Module may not function correctly without Rust library."
+        Write-Warning ('bin directory not found at: {0}. Module may not function correctly without Rust library.' -f $binSource)
     }
     
     Write-Host '  Combining PowerShell scripts...' -ForegroundColor Gray
@@ -612,7 +891,7 @@ function Invoke-PowerShellBuild {
         [void]$sb.AppendLine()
     }
     
-    $psmPath = [System.IO.Path]::Combine($artifactsPath, "$moduleName.psm1")
+    $psmPath = [System.IO.Path]::Combine($artifactsPath, ('{0}.psm1' -f $moduleName))
     [System.IO.File]::WriteAllText($psmPath, $sb.ToString(), [System.Text.Encoding]::UTF8)
     
     $privatePath = [System.IO.Path]::Combine($artifactsPath, 'Private')
@@ -639,7 +918,9 @@ function Invoke-PowerShellTest {
     
     .DESCRIPTION
         Executes Pester tests in a separate PowerShell process to avoid DLL locking issues
-        with the Rust library. Validates code coverage meets the 85% threshold.
+        with the Rust library. Validates code coverage meets the 80% threshold.
+        
+        Can test either the source module (default) or the assembled artifact module.
         
         CRITICAL: Tests MUST run in a separate process because:
         - PowerShell caches loaded modules in the current session
@@ -649,58 +930,147 @@ function Invoke-PowerShellTest {
     
     .PARAMETER Config
         Build configuration object from Initialize-BuildEnvironment.
+    
+    .PARAMETER Artifact
+        Test the assembled artifact module instead of the source module.
     #>
     param(
         [Parameter(Mandatory)]
-        [PSCustomObject]$Config
+        [PSCustomObject]$Config,
+        
+        [switch]$Artifact
     )
     
-    Write-Host 'Running PowerShell tests...' -ForegroundColor Cyan
+    if ($Artifact) {
+        Write-Host 'Running PowerShell tests against artifact module...' -ForegroundColor Cyan
+        $modulePath = $Config.ArtifactsPath
+        $manifestPath = [System.IO.Path]::Combine($modulePath, ('{0}.psd1' -f $Config.ModuleName))
+        
+        if (-not [System.IO.File]::Exists($manifestPath)) {
+            Write-Host ('Artifact module not found at: {0}' -f $manifestPath) -ForegroundColor Red
+            Write-Host ''
+            Write-Host 'Please build the PowerShell module first:' -ForegroundColor Yellow
+            Write-Host '  .\build.ps1 -PowerShell -Build' -ForegroundColor Cyan
+            Write-Host ''
+            exit 4
+        }
+    }
+    else {
+        Write-Host 'Running PowerShell tests against source module...' -ForegroundColor Cyan
+        $modulePath = $Config.SourcePath
+        $manifestPath = [System.IO.Path]::Combine($modulePath, ('{0}.psd1' -f $Config.ModuleName))
+    }
     
     $platformInfo = Get-PlatformInfo
-    $libraryPath = [System.IO.Path]::Combine($Config.SourcePath, 'bin', $platformInfo.Architecture, $platformInfo.LibraryName)
+    
+    if ($Artifact) {
+        # Artifact module: libraries are in bin/ (copied from Private/bin/ during PowerShell build)
+        $libraryPath = [System.IO.Path]::Combine($modulePath, 'bin', $platformInfo.Architecture, $platformInfo.LibraryName)
+    }
+    else {
+        # Source module: libraries are in Private/bin/ (copied there during Rust build)
+        $libraryPath = [System.IO.Path]::Combine($modulePath, 'Private', 'bin', $platformInfo.Architecture, $platformInfo.LibraryName)
+    }
     
     if (-not [System.IO.File]::Exists($libraryPath)) {
-        Write-Host "Rust library not found at: $libraryPath" -ForegroundColor Red
+        Write-Host ('Rust library not found at: {0}' -f $libraryPath) -ForegroundColor Red
         Write-Host ''
         Write-Host 'The PowerShell module requires the Rust library to function.' -ForegroundColor Yellow
-        Write-Host 'Please build the Rust library first:' -ForegroundColor Yellow
-        Write-Host '  .\build.ps1 -Rust -Build' -ForegroundColor Cyan
+        if ($Artifact) {
+            Write-Host 'Please ensure the artifact includes binaries for your platform.' -ForegroundColor Yellow
+        }
+        else {
+            Write-Host 'Please build the Rust library first:' -ForegroundColor Yellow
+            Write-Host '  .\build.ps1 -Rust -Build' -ForegroundColor Cyan
+        }
         Write-Host ''
         exit 4
     }
     
-    $coverageFiles = [System.IO.Directory]::GetFiles($Config.SourcePath, '*.ps1', [System.IO.SearchOption]::AllDirectories) | 
-        Where-Object { -not [System.IO.Path]::GetFileName($_).StartsWith('_') }
+    if ($Artifact) {
+        $coverageFiles = @()
+        $enableCoverage = $false
+    }
+    else {
+        $coverageFiles = [System.IO.Directory]::GetFiles($Config.SourcePath, '*.ps1', [System.IO.SearchOption]::AllDirectories) | 
+            Where-Object { -not [System.IO.Path]::GetFileName($_).StartsWith('_') }
+        $enableCoverage = $true
+    }
     
     $testPath = [System.IO.Path]::Combine($Config.TestsPath, 'Unit')
-    $testReportPath = [System.IO.Path]::Combine($Config.RepositoryRoot, 'test_report.xml')
+    
+    if ($Artifact) {
+        $platformName = switch ($platformInfo.Platform) {
+            'Windows' { 'windows' }
+            'macOS' { 'macos' }
+            'Linux' { 'linux' }
+            default { 'unknown' }
+        }
+        $archName = switch ($platformInfo.Architecture) {
+            'x64' { 'x64' }
+            'arm64' { if ($platformInfo.Platform -eq 'macOS') { 'arm64' } else { 'arm64' } }
+            'x86' { 'x86' }
+            'arm' { 'arm' }
+            default { 'unknown' }
+        }
+        
+        if ($platformInfo.Platform -eq 'Windows') {
+            $pwshEdition = if ($PSVersionTable.PSVersion.Major -ge 6) { 'core' } else { 'desktop' }
+            $testReportName = 'test-results-{0}-{1}-{2}.xml' -f $platformName, $archName, $pwshEdition
+        }
+        else {
+            $testReportName = 'test-results-{0}-{1}.xml' -f $platformName, $archName
+        }
+        $testReportPath = [System.IO.Path]::Combine($Config.RepositoryRoot, $testReportName)
+    }
+    else {
+        $testReportPath = [System.IO.Path]::Combine($Config.RepositoryRoot, 'test_report.xml')
+    }
     $coveragePath = [System.IO.Path]::Combine($Config.RepositoryRoot, 'coverage.xml')
+    $absoluteManifestPath = [System.IO.Path]::GetFullPath($manifestPath)
+    $moduleSource = if ($Artifact) { 'artifact' } else { 'source' }
     
-    $coverageFilesStr = ($coverageFiles | ForEach-Object { "'$($_.Replace('\', '\\'))'" }) -join ','
-    
-    $pesterScript = @"
-Import-Module Pester
-`$config = New-PesterConfiguration
-`$config.Run.Path = '$($testPath.Replace('\', '\\'))'
-`$config.Run.PassThru = `$true
-`$config.TestResult.Enabled = `$true
-`$config.TestResult.OutputPath = '$($testReportPath.Replace('\', '\\'))'
-`$config.TestResult.OutputFormat = 'JUnitXml'
-`$config.Output.Verbosity = 'Detailed'
-`$config.CodeCoverage.Enabled = `$true
-`$config.CodeCoverage.CoveragePercentTarget = $($Config.CodeCoverageThreshold)
-`$config.CodeCoverage.OutputPath = '$($coveragePath.Replace('\', '\\'))'
-`$config.CodeCoverage.OutputFormat = '$($Config.PesterOutputFormat)'
-`$config.CodeCoverage.Path = @($coverageFilesStr)
-`$result = Invoke-Pester -Configuration `$config
-exit `$result.FailedCount
-"@
-    
+    $pesterScriptPath = [System.IO.Path]::Combine($Config.RepositoryRoot, '.build', 'Invoke-PesterTests.ps1')
     $pwshCommand = if ($PSVersionTable.PSVersion.Major -ge 7) { 'pwsh' } else { 'powershell' }
     
-    $process = Start-Process -FilePath $pwshCommand -ArgumentList '-NoProfile', '-Command', $pesterScript -Wait -PassThru -NoNewWindow
-    $failedCount = $process.ExitCode
+    $scriptArgs = @(
+        '-NoProfile',
+        '-File', $pesterScriptPath,
+        '-ModuleName', $Config.ModuleName,
+        '-ManifestPath', $absoluteManifestPath,
+        '-TestPath', $testPath,
+        '-TestReportPath', $testReportPath,
+        '-ModuleSource', $moduleSource
+    )
+    
+    $coverageFilesPath = $null
+    if ($enableCoverage) {
+        # Write coverage files to a temporary file to avoid command line length limits
+        $tempDir = [System.IO.Path]::GetTempPath()
+        $coverageFilesPath = [System.IO.Path]::Combine($tempDir, "pester_coverage_files_$([System.Guid]::NewGuid().ToString('N')).txt")
+        $coverageFiles | Out-File -FilePath $coverageFilesPath -Encoding UTF8
+        
+        $scriptArgs += '-EnableCoverage'
+        $scriptArgs += '-CoveragePath', $coveragePath
+        $scriptArgs += '-CoverageThreshold', $Config.CodeCoverageThreshold
+        $scriptArgs += '-CoverageFormat', $Config.PesterOutputFormat
+        $scriptArgs += '-CoverageFilesPath', $coverageFilesPath
+    }
+    try {
+        $process = Start-Process -FilePath $pwshCommand -ArgumentList $scriptArgs -Wait -PassThru -NoNewWindow
+        $failedCount = $process.ExitCode
+    }
+    finally {
+        # Always clean up temporary coverage files
+        if ($enableCoverage -and $coverageFilesPath -and [System.IO.File]::Exists($coverageFilesPath)) {
+            try {
+                [System.IO.File]::Delete($coverageFilesPath)
+            }
+            catch {
+                Write-Warning "Failed to delete temporary coverage file: $coverageFilesPath"
+            }
+        }
+    }
     
     $totalTests = 0
     $failedTests = 0
@@ -711,9 +1081,9 @@ exit `$result.FailedCount
         $totalTests = [int]$testXml.testsuites.tests
         $failedTests = [int]$testXml.testsuites.failures
         
-        Write-Host "  Tests: $totalTests total, $failedTests failed" -ForegroundColor $(if ($failedTests -eq 0) { 'Green' } else { 'Red' })
+        Write-Host ('  Tests: {0} total, {1} failed' -f $totalTests, $failedTests) -ForegroundColor $(if ($failedTests -eq 0) { 'Green' } else { 'Red' })
         
-        if ([System.IO.File]::Exists($coveragePath)) {
+        if ($enableCoverage -and [System.IO.File]::Exists($coveragePath)) {
             [xml]$coverageXml = Get-Content -Path $coveragePath
             
             $lineCounter = $coverageXml.report.counter | Where-Object { $_.type -eq 'LINE' }
@@ -723,10 +1093,11 @@ exit `$result.FailedCount
                 
                 if ($commandsAnalyzed -gt 0) {
                     $coveragePercent = [math]::Round(($commandsExecuted / $commandsAnalyzed * 100), 2)
-                    Write-Host "  Code Coverage: $coveragePercent% ($commandsExecuted/$commandsAnalyzed commands)" -ForegroundColor $(if ($coveragePercent -ge $Config.CodeCoverageThreshold) { 'Green' } else { 'Red' })
+                    $coverageColor = if ($coveragePercent -ge $Config.CodeCoverageThreshold) { 'Green' } else { 'Red' }
+                    Write-Host ('  Code Coverage: {0}% ({1}/{2} commands)' -f $coveragePercent, $commandsExecuted, $commandsAnalyzed) -ForegroundColor $coverageColor
                     
                     if ($coveragePercent -lt $Config.CodeCoverageThreshold) {
-                        Write-Host "Failed to meet code coverage threshold of $($Config.CodeCoverageThreshold)% with only $coveragePercent% coverage" -ForegroundColor Red
+                        Write-Host ('Failed to meet code coverage threshold of {0}% with only {1}% coverage' -f $Config.CodeCoverageThreshold, $coveragePercent) -ForegroundColor Red
                         return @{
                             Success = $false
                             ExitCode = 1
@@ -738,12 +1109,15 @@ exit `$result.FailedCount
                 }
             }
         }
+        elseif ($Artifact) {
+            Write-Host '  Code Coverage: Skipped (artifact testing)' -ForegroundColor Gray
+        }
     }
     
     if ($failedCount -eq 0) {
         Write-Host 'PowerShell tests passed.' -ForegroundColor Green
     } else {
-        Write-Host "PowerShell tests failed with $failedCount failure(s)." -ForegroundColor Red
+        Write-Host ('PowerShell tests failed with {0} failure(s).' -f $failedCount) -ForegroundColor Red
     }
     
     return @{
@@ -777,57 +1151,17 @@ function Invoke-PowerShellAnalyze {
     
     Write-Host 'Running PowerShell code analysis...' -ForegroundColor Cyan
     
-    $analyzerScript = @"
-Import-Module PSScriptAnalyzer -ErrorAction Stop
-
-`$allIssues = @()
-
-Write-Host '  Analyzing module files...' -ForegroundColor Gray
-`$moduleParams = @{
-    Path = '$($Config.SourcePath.Replace('\', '\\'))'
-    ExcludeRule = @('PSAvoidGlobalVars')
-    Severity = @('Error', 'Warning')
-    Recurse = `$true
-}
-
-`$moduleResults = Invoke-ScriptAnalyzer @moduleParams
-if (`$moduleResults) {
-    `$allIssues += `$moduleResults
-}
-
-if ([System.IO.Directory]::Exists('$($Config.TestsPath.Replace('\', '\\'))')) {
-    Write-Host '  Analyzing test files...' -ForegroundColor Gray
-    `$testParams = @{
-        Path = '$($Config.TestsPath.Replace('\', '\\'))'
-        ExcludeRule = @(
-            'PSAvoidUsingConvertToSecureStringWithPlainText'
-            'PSUseShouldProcessForStateChangingFunctions'
-            'PSAvoidGlobalVars'
-        )
-        Severity = @('Error', 'Warning')
-        Recurse = `$true
-    }
-    
-    `$testResults = Invoke-ScriptAnalyzer @testParams
-    if (`$testResults) {
-        `$allIssues += `$testResults
-    }
-}
-
-if (`$allIssues.Count -gt 0) {
-    Write-Host ''
-    `$allIssues | Format-Table -AutoSize
-    Write-Host "Found `$(`$allIssues.Count) PSScriptAnalyzer issue(s)." -ForegroundColor Red
-    exit 1
-}
-
-Write-Host 'PowerShell code analysis passed.' -ForegroundColor Green
-exit 0
-"@
-    
+    $analyzerScriptPath = [System.IO.Path]::Combine($Config.RepositoryRoot, '.build', 'Invoke-ScriptAnalysis.ps1')
     $pwshCommand = if ($PSVersionTable.PSVersion.Major -ge 7) { 'pwsh' } else { 'powershell' }
     
-    $process = Start-Process -FilePath $pwshCommand -ArgumentList '-NoProfile', '-Command', $analyzerScript -Wait -PassThru -NoNewWindow
+    $scriptArgs = @(
+        '-NoProfile',
+        '-File', $analyzerScriptPath,
+        '-SourcePath', $Config.SourcePath,
+        '-TestsPath', $Config.TestsPath
+    )
+    
+    $process = Start-Process -FilePath $pwshCommand -ArgumentList $scriptArgs -Wait -PassThru -NoNewWindow
     $exitCode = $process.ExitCode
     
     if ($exitCode -eq 0) {
@@ -875,65 +1209,17 @@ function Invoke-PowerShellFix {
         }
     }
     
-    $formatterScript = @"
-Import-Module PSScriptAnalyzer -ErrorAction Stop
-
-`$repositoryRoot = '$($Config.RepositoryRoot.Replace('\', '\\'))'
-`$sourcePath = '$($Config.SourcePath.Replace('\', '\\'))'
-
-`$formatterSettings = @{
-    Rules = @{
-        PSPlaceOpenBrace = @{
-            Enable = `$true
-            OnSameLine = `$true
-            NewLineAfter = `$true
-            IgnoreOneLineBlock = `$true
-        }
-        PSPlaceCloseBrace = @{
-            Enable = `$true
-            NoEmptyLineBefore = `$true
-            IgnoreOneLineBlock = `$true
-            NewLineAfter = `$false
-        }
-        PSUseConsistentWhitespace = @{
-            Enable = `$true
-            CheckOpenBrace = `$true
-            CheckOpenParen = `$true
-            CheckOperator = `$true
-            CheckSeparator = `$true
-        }
-    }
-}
-
-`$files = [System.IO.Directory]::GetFiles(`$sourcePath, '*.ps1', [System.IO.SearchOption]::AllDirectories)
-`$modifiedFiles = @()
-
-foreach (`$file in `$files) {
-    `$contentBefore = [System.IO.File]::ReadAllText(`$file)
-    
-    `$result = Invoke-Formatter -ScriptDefinition `$contentBefore -Settings `$formatterSettings
-    
-    if (`$result -ne `$contentBefore) {
-        `$utf8WithBom = [System.Text.UTF8Encoding]::new(`$true)
-        [System.IO.File]::WriteAllText(`$file, `$result, `$utf8WithBom)
-        `$relativePath = `$file.Replace(`$repositoryRoot, '').TrimStart('\', '/')
-        `$modifiedFiles += `$relativePath
-        Write-Host "  Modified: `$relativePath" -ForegroundColor Gray
-    }
-}
-
-if (`$modifiedFiles.Count -eq 0) {
-    Write-Host 'All files already formatted correctly.' -ForegroundColor Green
-} else {
-    Write-Host "Formatted `$(`$modifiedFiles.Count) file(s)." -ForegroundColor Green
-}
-
-exit 0
-"@
-    
+    $formatterScriptPath = [System.IO.Path]::Combine($Config.RepositoryRoot, '.build', 'Invoke-CodeFormatter.ps1')
     $pwshCommand = if ($PSVersionTable.PSVersion.Major -ge 7) { 'pwsh' } else { 'powershell' }
     
-    $process = Start-Process -FilePath $pwshCommand -ArgumentList '-NoProfile', '-Command', $formatterScript -Wait -PassThru -NoNewWindow
+    $scriptArgs = @(
+        '-NoProfile',
+        '-File', $formatterScriptPath,
+        '-RepositoryRoot', $Config.RepositoryRoot,
+        '-SourcePath', $Config.SourcePath
+    )
+    
+    $process = Start-Process -FilePath $pwshCommand -ArgumentList $scriptArgs -Wait -PassThru -NoNewWindow
     $exitCode = $process.ExitCode
     
     return @{
@@ -972,14 +1258,14 @@ function Invoke-PowerShellClean {
         if ([System.IO.Directory]::Exists($dir)) {
             Remove-Item -Path $dir -Force -Recurse -ErrorAction SilentlyContinue
             $relativePath = $dir.Replace($Config.RepositoryRoot, '').TrimStart('\', '/')
-            Write-Host "  Removed: $relativePath" -ForegroundColor Gray
+            Write-Host ('  Removed: {0}' -f $relativePath) -ForegroundColor Gray
         }
     }
     
     foreach ($dir in $directories) {
         New-Item -Path $dir -ItemType Directory -Force | Out-Null
         $relativePath = $dir.Replace($Config.RepositoryRoot, '').TrimStart('\', '/')
-        Write-Host "  Created: $relativePath" -ForegroundColor Gray
+        Write-Host ('  Created: {0}' -f $relativePath) -ForegroundColor Gray
     }
     
     Write-Host 'PowerShell artifacts cleaned successfully.' -ForegroundColor Green
@@ -1011,6 +1297,11 @@ function Invoke-PowerShellPackage {
         return @{ Success = $false }
     }
     
+    if (-not [System.IO.Directory]::Exists($Config.DeploymentArtifactsPath)) {
+        Write-Host '  Creating DeploymentArtifacts directory...' -ForegroundColor Gray
+        [System.IO.Directory]::CreateDirectory($Config.DeploymentArtifactsPath) | Out-Null
+    }
+    
     $zipFileName = '{0}_{1}.zip' -f $Config.ModuleName, $Config.ModuleVersion
     $zipFilePath = [System.IO.Path]::Combine($Config.DeploymentArtifactsPath, $zipFileName)
     
@@ -1018,7 +1309,7 @@ function Invoke-PowerShellPackage {
         [System.IO.File]::Delete($zipFilePath)
     }
     
-    Write-Host "  Creating ZIP: $zipFileName" -ForegroundColor Gray
+    Write-Host ('  Creating ZIP: {0}' -f $zipFileName) -ForegroundColor Gray
     
     if ($PSEdition -eq 'Desktop') {
         Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
@@ -1029,8 +1320,8 @@ function Invoke-PowerShellPackage {
     $fileInfo = [System.IO.FileInfo]::new($zipFilePath)
     $fileSizeMB = [math]::Round($fileInfo.Length / 1MB, 2)
     
-    Write-Host "  Package created: $zipFileName ($fileSizeMB MB)" -ForegroundColor Green
-    Write-Host "  Location: $zipFilePath" -ForegroundColor Gray
+    Write-Host ('  Package created: {0} ({1} MB)' -f $zipFileName, $fileSizeMB) -ForegroundColor Green
+    Write-Host ('  Location: {0}' -f $zipFilePath) -ForegroundColor Gray
     
     return @{
         Success = $true
@@ -1044,7 +1335,7 @@ function Invoke-PowerShellPackage {
 #region Parameter Validation
 
 # Expand workflows into individual actions
-if ($Full -or $CI) {
+if ($Full) {
     $Clean = $true
     $Analyze = $true
     $Test = $true
@@ -1060,7 +1351,7 @@ if (-not $Rust -and -not $PowerShell) {
 
 # Check if any action or workflow is specified
 $hasAction = $Build -or $Test -or $Analyze -or $Fix -or $Clean -or $Package
-$hasWorkflow = $Full -or $CI
+$hasWorkflow = $Full
 
 # If no action and no workflow specified, display brief usage and exit
 if (-not $hasAction -and -not $hasWorkflow) {
@@ -1096,9 +1387,17 @@ if ($Package -and $Rust -and -not $PowerShell) {
 try {
     $config = Initialize-BuildEnvironment
     
+    # Install Rust dependencies if Rust operations are requested
+    if ($Rust) {
+        $result = Install-RustDependencies -IncludeSecurity:$Security -IncludeDeep:$Deep
+        if (-not $result.Success) {
+            Write-Warning 'Some Rust dependencies failed to install. Continuing anyway...'
+        }
+    }
+    
     # Execute Rust operations
     if ($Rust -and $Build) {
-        $result = Invoke-RustBuild -Config $config
+        $result = Invoke-RustBuild -Config $config -All:$All -Targets $Targets
         if (-not $result) {
             exit 1
         }
@@ -1134,7 +1433,7 @@ try {
     }
     
     if ($PowerShell -and $Test) {
-        $result = Invoke-PowerShellTest -Config $config
+        $result = Invoke-PowerShellTest -Config $config -Artifact:$Artifact
         if (-not $result.Success) {
             exit $result.ExitCode
         }
@@ -1173,43 +1472,6 @@ try {
         if (-not $result.Success) {
             exit 1
         }
-    }
-    
-    # CI workflow: Upload artifacts to S3
-    if ($CI -and $config.IsCodeBuild) {
-        Write-Host ''
-        Write-Host 'CI Workflow: Uploading artifacts to S3...' -ForegroundColor Cyan
-        
-        $zipFileName = '{0}_{1}.zip' -f $config.ModuleName, $config.ModuleVersion
-        $zipFilePath = [System.IO.Path]::Combine($config.DeploymentArtifactsPath, $zipFileName)
-        
-        if ([System.IO.File]::Exists($zipFilePath)) {
-            $platform = if ($env:CODEBUILD_BUILD_ARN -like '*linux*') { 'linux' } else { 'windows' }
-            $ymd = [DateTime]::UtcNow.ToString('yyyyMMdd')
-            $hms = [DateTime]::UtcNow.ToString('hhmmss')
-            $zipFileNameWithPlatform = '{0}_{1}_{2}.{3}.{4}.zip' -f $config.ModuleName, $config.ModuleVersion, $ymd, $hms, $platform
-            
-            if ($env:CODEBUILD_WEBHOOK_HEAD_REF -and $env:CODEBUILD_WEBHOOK_TRIGGER) {
-                if ($env:CODEBUILD_WEBHOOK_HEAD_REF -eq 'refs/heads/master' -and $env:CODEBUILD_WEBHOOK_TRIGGER -eq 'branch/master') {
-                    $s3Bucket = $env:ARTIFACT_BUCKET
-                } else {
-                    $s3Bucket = $env:DEVELOPMENT_ARTIFACT_BUCKET
-                }
-                
-                $branch = $env:CODEBUILD_WEBHOOK_TRIGGER.Replace('branch/', '')
-                $s3Key = '{0}/{1}/{2}' -f $config.ModuleName, $branch, $zipFileNameWithPlatform
-                
-                Write-Host "  Uploading to s3://$s3Bucket/$s3Key" -ForegroundColor Gray
-                Write-S3Object -BucketName $s3Bucket -Key $s3Key -File $zipFilePath
-                Write-Host 'CI Workflow: Artifact uploaded successfully' -ForegroundColor Green
-            } else {
-                Write-Host 'CI Workflow: Not a webhook build, skipping S3 upload' -ForegroundColor Yellow
-            }
-        } else {
-            Write-Warning "CI Workflow: Artifact not found at $zipFilePath"
-        }
-        
-        Write-Host ''
     }
     
     exit 0

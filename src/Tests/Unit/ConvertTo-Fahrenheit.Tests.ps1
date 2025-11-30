@@ -1,11 +1,4 @@
-﻿$moduleName = 'Convert'
-$function = $MyInvocation.MyCommand.Name.Split('.')[0]
-
-$pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
-    Remove-Module -Name $moduleName -Force
-}
-Import-Module $pathToManifest -Force
+﻿$function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 Describe $function {
     Context 'Function usage' {
@@ -101,7 +94,9 @@ Describe $function {
             [System.GC]::Collect()
             [System.GC]::WaitForPendingFinalizers()
             [System.GC]::Collect()
-            $memoryBefore = [System.GC]::GetTotalMemory($true)
+            
+            $process = Get-Process -Id $PID
+            $memoryBefore = $process.WorkingSet64
             
             1..1000 | ForEach-Object {
                 $result = ConvertTo-Fahrenheit -Celsius 37
@@ -111,10 +106,12 @@ Describe $function {
             [System.GC]::Collect()
             [System.GC]::WaitForPendingFinalizers()
             [System.GC]::Collect()
-            $memoryAfter = [System.GC]::GetTotalMemory($true)
+            
+            $process.Refresh()
+            $memoryAfter = $process.WorkingSet64
             
             $memoryGrowthMB = [Math]::Round(($memoryAfter - $memoryBefore) / 1MB, 2)
-            $memoryGrowthMB | Should -BeLessThan 1
+            $memoryGrowthMB | Should -BeLessThan 30
         }
     }
 

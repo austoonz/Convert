@@ -2,17 +2,6 @@
 # Unit tests for the Rust interop layer
 
 Describe -Name 'RustInterop' -Fixture {
-    BeforeAll {
-        # Get the module root path
-        $moduleRoot = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', 'Convert')
-        $modulePath = [System.IO.Path]::Combine($moduleRoot, 'Convert.psd1')
-        
-        # Import the module to trigger RustInterop.ps1 execution
-        if (Get-Module -Name 'Convert' -ErrorAction SilentlyContinue) {
-            Remove-Module -Name 'Convert' -Force
-        }
-        Import-Module -Name $modulePath -Force
-    }
 
     Context -Name 'Architecture Detection' -Fixture {
         It -Name 'Detects valid architecture' -Test {
@@ -140,35 +129,6 @@ Describe -Name 'RustInterop' -Fixture {
             
             $libraryPath | Should -Not -BeNullOrEmpty
             $libraryPath | Should -Match "bin[/\\]$architecture[/\\]"
-        }
-
-        It -Name 'Library file exists at expected path' -Test {
-            $runtimeArch = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
-            $architecture = switch ($runtimeArch) {
-                ([System.Runtime.InteropServices.Architecture]::X64) { 'x64' }
-                ([System.Runtime.InteropServices.Architecture]::Arm64) { 'ARM64' }
-                ([System.Runtime.InteropServices.Architecture]::X86) { 'x86' }
-                ([System.Runtime.InteropServices.Architecture]::Arm) { 'ARM' }
-                default { throw "Unsupported architecture: $runtimeArch" }
-            }
-            
-            $libraryName = 'convert_core'
-            if ($PSVersionTable.PSVersion.Major -lt 6) {
-                $libraryFileName = "$libraryName.dll"
-            } else {
-                if ($IsWindows) {
-                    $libraryFileName = "$libraryName.dll"
-                } elseif ($IsLinux) {
-                    $libraryFileName = "lib$libraryName.so"
-                } elseif ($IsMacOS) {
-                    $libraryFileName = "lib$libraryName.dylib"
-                }
-            }
-            
-            $moduleRoot = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', 'Convert')
-            $libraryPath = [System.IO.Path]::Combine($moduleRoot, 'bin', $architecture, $libraryFileName)
-            
-            [System.IO.File]::Exists($libraryPath) | Should -BeTrue -Because "Library should exist at $libraryPath"
         }
     }
 
@@ -350,8 +310,19 @@ Describe -Name 'RustInterop' -Fixture {
                 $errorPtr = [ConvertCoreInterop]::get_last_error()
                 if ($errorPtr -ne [IntPtr]::Zero) {
                     try {
-                        $errorMsg = [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($errorPtr)
-                        $errorMsg | Should -Not -BeNullOrEmpty
+                        $length = [UIntPtr]::Zero
+                        $bytesPtr = [ConvertCoreInterop]::string_to_bytes_copy($errorPtr, [ref]$length)
+                        if ($bytesPtr -ne [IntPtr]::Zero) {
+                            try {
+                                $byteCount = [int]$length.ToUInt64()
+                                $bytes = [byte[]]::new($byteCount)
+                                [System.Runtime.InteropServices.Marshal]::Copy($bytesPtr, $bytes, 0, $byteCount)
+                                $errorMsg = [System.Text.Encoding]::UTF8.GetString($bytes)
+                                $errorMsg | Should -Not -BeNullOrEmpty
+                            } finally {
+                                [ConvertCoreInterop]::free_bytes($bytesPtr)
+                            }
+                        }
                     } finally {
                         [ConvertCoreInterop]::free_string($errorPtr)
                     }
@@ -410,9 +381,20 @@ Describe -Name 'RustInterop' -Fixture {
                 $errorPtr | Should -Not -Be ([IntPtr]::Zero)
                 
                 try {
-                    $errorMsg = [System.Runtime.InteropServices.Marshal]::PtrToStringUTF8($errorPtr)
-                    $errorMsg | Should -Not -BeNullOrEmpty
-                    $errorMsg | Should -Match 'encoding|INVALID'
+                    $length = [UIntPtr]::Zero
+                    $bytesPtr = [ConvertCoreInterop]::string_to_bytes_copy($errorPtr, [ref]$length)
+                    if ($bytesPtr -ne [IntPtr]::Zero) {
+                        try {
+                            $byteCount = [int]$length.ToUInt64()
+                            $bytes = [byte[]]::new($byteCount)
+                            [System.Runtime.InteropServices.Marshal]::Copy($bytesPtr, $bytes, 0, $byteCount)
+                            $errorMsg = [System.Text.Encoding]::UTF8.GetString($bytes)
+                            $errorMsg | Should -Not -BeNullOrEmpty
+                            $errorMsg | Should -Match 'encoding|INVALID'
+                        } finally {
+                            [ConvertCoreInterop]::free_bytes($bytesPtr)
+                        }
+                    }
                 } finally {
                     [ConvertCoreInterop]::free_string($errorPtr)
                 }
