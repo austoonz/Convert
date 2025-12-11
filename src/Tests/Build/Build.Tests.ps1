@@ -8,7 +8,7 @@ Describe -Name 'Module Manifest' -Fixture {
     Context -Name 'Exported Functions' -Fixture {
         It -Name 'Exports the correct number of functions' -Test {
             $assertion = Get-Command -Module $script:ModuleName -CommandType Function
-            $assertion | Should -HaveCount 31
+            $assertion | Should -HaveCount 32
         }
 
         It -Name '<_>' -TestCases @(

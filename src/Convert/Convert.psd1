@@ -118,7 +118,7 @@
         'ConvertFrom-Base64StringToByteArray'
         'ConvertFrom-ByteArrayToBase64String'
         'ConvertFrom-StreamToString'
-        'Get-Hash'
+        #'Get-Hash' Get-Hash is a common cmdlet name collision so it has been removed from the alias exports
     )
 
     # DSC resources to export from this module

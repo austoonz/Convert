@@ -23,7 +23,7 @@
 #>
 function ConvertTo-Hash {
     [CmdletBinding()]
-    [Alias('Get-Hash')]
+    #[Alias('Get-Hash')]
     param (
         [Parameter(ParameterSetName='String', ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [string[]]$String,

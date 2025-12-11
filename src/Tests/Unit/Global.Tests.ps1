@@ -104,7 +104,7 @@ Describe -Name 'Module Manifest' -Fixture {
                 ResolvedCommand = 'ConvertFrom-MemoryStreamToString'
             }
             @{
-                Alias           = 'Get-Hash'
+                #Alias           = 'Get-Hash'
                 ResolvedCommand = 'ConvertTo-Hash'
             }
         ) -Test {
