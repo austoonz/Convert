@@ -25,10 +25,10 @@
         QSBzdHJpbmc=
 
     .EXAMPLE
-        (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64).Length
+        (Get-Module -Name PowerShellGet | ConvertTo-Clixml2 | ConvertTo-Base64).Length
         1057480
 
-        (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64 -Compress).Length
+        (Get-Module -Name PowerShellGet | ConvertTo-Clixml2 | ConvertTo-Base64 -Compress).Length
         110876
 
     .EXAMPLE

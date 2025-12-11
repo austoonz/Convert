@@ -38,7 +38,7 @@ Converts a byte array to a base64 encoded string.
 
 Converts a Byte Array to a MemoryStream
 
-### [ConvertFrom-Clixml](ConvertFrom-Clixml.md)
+### [ConvertFrom-Clixml2](ConvertFrom-Clixml2.md)
 
 Converts Clixml to an object.
 
@@ -101,7 +101,7 @@ Converts a string to a base64 encoded string.
 ### [ConvertTo-Celsius](ConvertTo-Celsius.md)
 Converts a temperature from Fahrenheit to Celsius.
 
-### [ConvertTo-Clixml](ConvertTo-Clixml.md)
+### [ConvertTo-Clixml2](ConvertTo-Clixml2.md)
 
 Converts an object to Clixml.
 

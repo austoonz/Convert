@@ -1,11 +1,11 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml2/
 schema: 2.0.0
 ---
 
-# ConvertTo-Clixml
+# ConvertTo-Clixml2
 
 ## SYNOPSIS
 
@@ -14,7 +14,7 @@ Converts an object to Clixml.
 ## SYNTAX
 
 ```powershell
-ConvertTo-Clixml [-InputObject] <PSObject> [[-Depth] <Int32>] [<CommonParameters>]
+ConvertTo-Clixm2 [-InputObject] <PSObject> [[-Depth] <Int32>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -27,7 +27,7 @@ Converts an object to Clixml.
 
 ```powershell
 $string = 'A string'
-ConvertTo-Clixml -InputObject $string
+ConvertTo-Clixml2 -InputObject $string
 
 \<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
 \<S\>A string\</S\>
@@ -38,7 +38,7 @@ ConvertTo-Clixml -InputObject $string
 
 ```powershell
 $string = 'A string'
-$string | ConvertTo-Clixml
+$string | ConvertTo-Clixml2
 
 \<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
 \<S\>A string\</S\>
@@ -50,7 +50,7 @@ $string | ConvertTo-Clixml
 ```powershell
 $string1 = 'A string'
 $string2 = 'Another string'
-ConvertTo-Clixml -InputObject $string1,$string2
+ConvertTo-Clixml2 -InputObject $string1,$string2
 
 \<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
 \<S\>A string\</S\>
@@ -65,7 +65,7 @@ ConvertTo-Clixml -InputObject $string1,$string2
 ```powershell
 $string1 = 'A string'
 $string2 = 'Another string'
-$string1,$string2 | ConvertTo-Clixml
+$string1,$string2 | ConvertTo-Clixml2
 
 \<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"\>
 \<S\>A string\</S\>
@@ -123,4 +123,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/)
+[http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml2/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml2/)

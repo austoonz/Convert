@@ -14,7 +14,7 @@
 <S>ThisIsMyString</S>
 </Objs>
 "@
-        ConvertFrom-Clixml -String $xml
+        ConvertFrom-Clixml2 -String $xml
 
         ThisIsMyString
 
@@ -24,7 +24,7 @@
 <S>ThisIsMyString</S>
 </Objs>
 "@
-        $xml | ConvertFrom-Clixml
+        $xml | ConvertFrom-Clixml2
 
         ThisIsMyString
 
@@ -39,7 +39,7 @@
 <S>This is another string</S>
 </Objs>
 "@
-        ConvertFrom-Clixml -String $xml,$xml2
+        ConvertFrom-Clixml2 -String $xml,$xml2
 
         ThisIsMyString
         This is another string
@@ -55,7 +55,7 @@
 <S>This is another string</S>
 </Objs>
 "@
-        $xml,$xml2 | ConvertFrom-Clixml
+        $xml,$xml2 | ConvertFrom-Clixml2
 
         ThisIsMyString
         This is another string
@@ -64,10 +64,10 @@
         [Object[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/
+        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml2/
 #>
-function ConvertFrom-Clixml {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/')]
+function ConvertFrom-Clixml2 {
+    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml2/')]
     param
     (
         [Parameter(

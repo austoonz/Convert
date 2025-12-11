@@ -15,7 +15,7 @@ nav:
     - ConvertFrom-Base64ToString: functions/ConvertFrom-Base64ToString.md
     - ConvertFrom-ByteArrayToBase64: functions/ConvertFrom-ByteArrayToBase64.md
     - ConvertFrom-ByteArrayToMemoryStream: functions/ConvertFrom-ByteArrayToMemoryStream.md
-    - ConvertFrom-Clixml: functions/ConvertFrom-Clixml.md
+    - ConvertFrom-Clixml2: functions/ConvertFrom-Clixml2.md
     - ConvertFrom-CompressedByteArrayToString: functions/ConvertFrom-CompressedByteArrayToString.md
     - ConvertFrom-EscapedUrl: functions/ConvertFrom-EscapedUrl.md
     - ConvertFrom-MemoryStream: functions/ConvertFrom-MemoryStream.md
@@ -29,7 +29,7 @@ nav:
     - ConvertFrom-StringToMemoryStream: functions/ConvertFrom-StringToMemoryStream.md
     - ConvertFrom-UnixTime: functions/ConvertFrom-UnixTime.md
     - ConvertTo-Base64: functions/ConvertTo-Base64.md
-    - ConvertTo-Clixml: functions/ConvertTo-Clixml.md
+    - ConvertTo-Clixml2: functions/ConvertTo-Clixml2.md
     - ConvertTo-EscapedUrl: functions/ConvertTo-EscapedUrl.md
     - ConvertTo-MemoryStream: functions/ConvertTo-MemoryStream.md
     - ConvertTo-String: functions/ConvertTo-String.md

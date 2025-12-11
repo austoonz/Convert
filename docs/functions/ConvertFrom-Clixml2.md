@@ -5,7 +5,7 @@ online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Cl
 schema: 2.0.0
 ---
 
-# ConvertFrom-Clixml
+# ConvertFrom-Clixml2
 
 ## SYNOPSIS
 
@@ -14,7 +14,7 @@ Converts Clixml to an object.
 ## SYNTAX
 
 ```powershell
-ConvertFrom-Clixml [-String] <String[]> [<CommonParameters>]
+ConvertFrom-Clixml2 [-String] <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,7 +31,7 @@ $xml = @"
 <S>ThisIsMyString</S>
 </Objs>
 "@
-ConvertFrom-Clixml -String $xml
+ConvertFrom-Clixml2 -String $xml
 
 ThisIsMyString
 ```
@@ -44,7 +44,7 @@ $xml = @"
 <S>ThisIsMyString</S>
 </Objs>
 "@
-$xml | ConvertFrom-Clixml
+$xml | ConvertFrom-Clixml2
 
 ThisIsMyString
 ```
@@ -62,7 +62,7 @@ $xml2 = @"
 <S>This is another string</S>
 </Objs>
 "@
-ConvertFrom-Clixml -String $xml,$xml2
+ConvertFrom-Clixml2 -String $xml,$xml2
 
 ThisIsMyString
 This is another string
@@ -119,4 +119,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/)
+[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml2/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml2/)

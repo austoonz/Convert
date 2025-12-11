@@ -77,7 +77,7 @@
 
 ## Version v0.4.1 (2020-04-01)
 
-* `ConvertTo-CliXml`
+* `ConvertTo-CliXml2`
   * Fixed support for a single string that contains multiple Clixml records.
 
 ## Version v0.4.0 (2019-04-27)
@@ -88,8 +88,8 @@
 
 ## Version v0.3.5 (2019-03-07)
 
-* `ConvertTo-CliXml`:
-  * Added Depth parameter to "ConvertTo-CliXml"
+* `ConvertTo-CliXml2`:
+  * Added Depth parameter to "ConvertTo-CliXml2"
 
 ## Version v0.2.1.x (2018-08-30)
 

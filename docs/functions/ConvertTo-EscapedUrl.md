@@ -1,7 +1,7 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml/
+online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-Clixml2/
 schema: 2.0.0
 ---
 

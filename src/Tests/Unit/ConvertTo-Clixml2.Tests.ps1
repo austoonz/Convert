@@ -33,7 +33,7 @@ Describe -Name $function -Fixture {
 
     Context -Name 'Input/Output' -Fixture {
         It -Name "Converts to Clixml correctly" -Test {
-            $assertion = ConvertTo-Clixml -InputObject $String
+            $assertion = ConvertTo-Clixml2 -InputObject $String
             $assertion | Should -BeExactly (GetExpected -String $String)
         }
     }
@@ -58,36 +58,36 @@ Describe -Name $function -Fixture {
         }
 
         It -Name "Supports depth 1 by default" -Test {
-            $assertionDepth1Default = ConvertTo-Clixml -InputObject $TestObject
+            $assertionDepth1Default = ConvertTo-Clixml2 -InputObject $TestObject
             $assertionDepth1Default | Should -BeExactly $ExpectedDepth1
         }
 
         It -Name "Supports depth 1 when specified" -Test {
-            $assertionDepth1 = ConvertTo-Clixml -InputObject $TestObject -Depth 1
+            $assertionDepth1 = ConvertTo-Clixml2 -InputObject $TestObject -Depth 1
             $assertionDepth1 | Should -BeExactly $ExpectedDepth1
         }
 
         It -Name "Supports depth 2 when specified" -Test {
-            $assertionDepth2 = ConvertTo-Clixml -InputObject $TestObject -Depth 2
+            $assertionDepth2 = ConvertTo-Clixml2 -InputObject $TestObject -Depth 2
             $assertionDepth2 | Should -BeExactly $ExpectedDepth2
         }
     }
 
     Context -Name 'Pipeline' -Fixture {
         It -Name 'Supports the Pipeline' -Test {
-            $assertion = $String | ConvertTo-Clixml
+            $assertion = $String | ConvertTo-Clixml2
             $assertion | Should -BeExactly (GetExpected -String $String)
         }
 
         It -Name 'Supports the Pipeline with array input' -Test {
-            $assertion = $String, $String | ConvertTo-Clixml
+            $assertion = $String, $String | ConvertTo-Clixml2
             $assertion | Should -HaveCount 2
         }
     }
 
     Context -Name 'Input/Output' -Fixture {
         It -Name "Converts to Clixml correctly" -Test {
-            $assertion = ConvertTo-Clixml -InputObject $String
+            $assertion = ConvertTo-Clixml2 -InputObject $String
             $assertion | Should -BeExactly (GetExpected -String $String)
         }
     }

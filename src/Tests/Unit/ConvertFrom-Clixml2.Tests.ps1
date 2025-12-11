@@ -37,12 +37,12 @@ Describe -Name $function -Fixture {
 
     Context -Name 'Input/Output' -Fixture {
         It -Name "Converts from Clixml correctly" -Test {
-            $assertion = ConvertFrom-Clixml -String $Xml
+            $assertion = 2 -String $Xml
             $assertion | Should -BeExactly $Expected
         }
 
         It -Name "Converts s tingle string with multiple Clixml records correctly" -Test {
-            $assertion = ConvertFrom-Clixml -String $MultipleXmlRecords
+            $assertion = ConvertFrom-Clixml2 -String $MultipleXmlRecords
             $assertion | Should -HaveCount 3
             $assertion[0] | Should -BeExactly $ExpectedFirstString
             $assertion[1] | Should -BeExactly $ExpectedSecondString
@@ -52,17 +52,17 @@ Describe -Name $function -Fixture {
 
     Context -Name 'Pipeline' -Fixture {
         It -Name 'Supports the Pipeline' -Test {
-            $assertion = $Xml | ConvertFrom-Clixml
+            $assertion = $Xml | ConvertFrom-Clixml2
             $assertion | Should -BeExactly $Expected
         }
 
         It -Name 'Supports the Pipeline with array input' -Test {
-            $assertion = $Xml, $Xml | ConvertFrom-Clixml
+            $assertion = $Xml, $Xml | ConvertFrom-Clixml2
             $assertion | Should -HaveCount 2
         }
 
         It -Name 'Supports a string with multiple Clixml records' -Test {
-            $assertion = $MultipleXmlRecords | ConvertFrom-Clixml
+            $assertion = $MultipleXmlRecords | ConvertFrom-Clixml2
             $assertion | Should -HaveCount 3
             $assertion[0] | Should -BeExactly $ExpectedFirstString
             $assertion[1] | Should -BeExactly $ExpectedSecondString

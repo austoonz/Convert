@@ -47,7 +47,7 @@ Describe -Name 'Module Manifest' -Fixture {
             'ConvertFrom-Base64ToString'
             'ConvertFrom-ByteArrayToBase64'
             'ConvertFrom-ByteArrayToMemoryStream'
-            'ConvertFrom-Clixml'
+            'ConvertFrom-Clixml2'
             'ConvertFrom-CompressedByteArrayToString'
             'ConvertFrom-EscapedUrl'
             'ConvertFrom-HashTable'
@@ -63,7 +63,7 @@ Describe -Name 'Module Manifest' -Fixture {
             'ConvertFrom-UnixTime'
             'ConvertTo-Base64'
             'ConvertTo-Celsius'
-            'ConvertTo-Clixml'
+            'ConvertTo-Clixml2'
             'ConvertTo-EscapedUrl'
             'ConvertTo-Fahrenheit'
             'ConvertTo-Hash'
@@ -86,8 +86,8 @@ Describe -Name 'Module Manifest' -Fixture {
     }
 
     Context -Name 'Exported Aliases' -Fixture {
-        It -Name 'Exports four aliases' -Test {
-            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 4
+        It -Name 'Exports three aliases' -Test {
+            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 3
         }
 
         It -Name '<Alias>' -TestCases @(
