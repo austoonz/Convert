@@ -90,8 +90,6 @@ Get-Command -Module Convert
 - `ConvertTo-Fahrenheit` - Converts a temperature from Celsius to Fahrenheit
 
 ### Other Utilities
-- `ConvertFrom-Clixml` - Converts a CliXml string to an object
-- `ConvertTo-Clixml` - Converts an object to a CliXml string
 - `ConvertFrom-HashTable` - Converts a hashtable to a custom object
 
 ## Requirements
