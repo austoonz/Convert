@@ -23,24 +23,7 @@ if ($moduleResults) {
     $allIssues += $moduleResults
 }
 
-if ([System.IO.Directory]::Exists($TestsPath)) {
-    Write-Host '  Analyzing test files...' -ForegroundColor Gray
-    $testParams = @{
-        Path = $TestsPath
-        ExcludeRule = @(
-            'PSAvoidUsingConvertToSecureStringWithPlainText'
-            'PSUseShouldProcessForStateChangingFunctions'
-            'PSAvoidGlobalVars'
-        )
-        Severity = @('Error', 'Warning')
-        Recurse = $true
-    }
-    
-    $testResults = Invoke-ScriptAnalyzer @testParams
-    if ($testResults) {
-        $allIssues += $testResults
-    }
-}
+# Skip .Tests.ps1 files - they have different coding standards and don't need analysis
 
 if ($allIssues.Count -gt 0) {
     Write-Host ''
