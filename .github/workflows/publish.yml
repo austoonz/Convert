@@ -27,13 +27,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           sparse-checkout: .build/Invoke-PublishModule.ps1
           sparse-checkout-cone-mode: false
 
       - name: Download module artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
         with:
           name: ${{ env.MODULE_NAME }}-Module-Universal
           path: Artifacts/
