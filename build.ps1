@@ -147,7 +147,9 @@ param(
     [switch]$Deep,
     
     # Workflows
-    [switch]$Full
+    [switch]$Full,
+    [switch]$CI,
+    [string]$HashFile
 )
 
 #region Helper Functions
@@ -192,6 +194,110 @@ function Initialize-BuildEnvironment {
     }
     
     return $config
+}
+
+function Get-BuildContentHash {
+    <#
+    .SYNOPSIS
+        Calculates a SHA256 hash of all build-relevant files.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepositoryRoot
+    )
+    
+    $searchLocations = @(
+        @{ Path = @('src', 'Convert'); Pattern = '*.ps1' },
+        @{ Path = @('src', 'Convert'); Pattern = '*.psd1' },
+        @{ Path = @('src', 'Convert'); Pattern = '*.psm1' },
+        @{ Path = @('src', 'Convert', 'Public'); Pattern = '*.ps1' },
+        @{ Path = @('src', 'Convert', 'Private'); Pattern = '*.ps1' },
+        @{ Path = @('src', 'Tests', 'Unit'); Pattern = '*.ps1' },
+        @{ Path = @('.build'); Pattern = '*.ps1' },
+        @{ Path = @('lib', 'src'); Pattern = '*.rs' },
+        @{ Path = @('lib'); Pattern = 'Cargo.toml' },
+        @{ Path = @('lib'); Pattern = 'Cargo.lock' }
+    )
+    
+    $rootFiles = @(
+        'build.ps1',
+        'install_modules.ps1',
+        'install_nuget.ps1'
+    )
+    
+    $allContent = [System.Text.StringBuilder]::new()
+    
+    foreach ($file in $rootFiles) {
+        $filePath = [System.IO.Path]::Combine($RepositoryRoot, $file)
+        if ([System.IO.File]::Exists($filePath)) {
+            $content = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+            [void]$allContent.AppendLine("### $file ###")
+            [void]$allContent.AppendLine($content)
+        }
+    }
+    
+    foreach ($location in $searchLocations) {
+        $pathSegments = @($RepositoryRoot) + $location.Path
+        $searchPath = [System.IO.Path]::Combine($pathSegments)
+        $searchPattern = $location.Pattern
+        
+        if ([System.IO.Directory]::Exists($searchPath)) {
+            $files = [System.IO.Directory]::GetFiles($searchPath, $searchPattern) | Sort-Object
+            foreach ($file in $files) {
+                $relativePath = $file.Substring($RepositoryRoot.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+                $normalizedPath = $relativePath -replace '\\', '/'
+                $content = [System.IO.File]::ReadAllText($file, [System.Text.Encoding]::UTF8)
+                [void]$allContent.AppendLine("### $normalizedPath ###")
+                [void]$allContent.AppendLine($content)
+            }
+        }
+    }
+    
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($allContent.ToString())
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    $hashBytes = $sha256.ComputeHash($bytes)
+    $hash = [System.BitConverter]::ToString($hashBytes) -replace '-', ''
+    
+    return $hash.ToLower()
+}
+
+function Get-PreviousBuildHash {
+    <#
+    .SYNOPSIS
+        Reads the previous build hash from the hash file.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string]$HashFilePath
+    )
+    
+    if ([System.IO.File]::Exists($HashFilePath)) {
+        $content = [System.IO.File]::ReadAllText($HashFilePath, [System.Text.Encoding]::UTF8).Trim()
+        return $content
+    }
+    
+    return $null
+}
+
+function Save-BuildHash {
+    <#
+    .SYNOPSIS
+        Saves the current build hash to the hash file.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [string]$HashFilePath,
+        
+        [Parameter(Mandatory)]
+        [string]$Hash
+    )
+    
+    $directory = [System.IO.Path]::GetDirectoryName($HashFilePath)
+    if (-not [System.IO.Directory]::Exists($directory)) {
+        [System.IO.Directory]::CreateDirectory($directory) | Out-Null
+    }
+    
+    [System.IO.File]::WriteAllText($HashFilePath, $Hash, [System.Text.Encoding]::UTF8)
 }
 
 function Get-PlatformInfo {
@@ -1442,6 +1548,57 @@ if ($Package -and $Rust -and -not $PowerShell) {
 try {
     $config = Initialize-BuildEnvironment
     
+    if ([string]::IsNullOrEmpty($HashFile)) {
+        $HashFile = [System.IO.Path]::Combine('.build', 'content-hash.txt')
+    }
+    
+    $hashFilePath = if ([System.IO.Path]::IsPathRooted($HashFile)) {
+        $HashFile
+    }
+    else {
+        [System.IO.Path]::Combine($config.RepositoryRoot, $HashFile)
+    }
+    
+    $skipBuild = $false
+    $currentHash = $null
+    
+    if ($CI) {
+        Write-Host ''
+        Write-Host 'CI Mode: Calculating content hash...' -ForegroundColor Cyan
+        
+        $currentHash = Get-BuildContentHash -RepositoryRoot $config.RepositoryRoot
+        Write-Host ('  Current hash: {0}' -f $currentHash.Substring(0, 16)) -ForegroundColor Gray
+        
+        $previousHash = Get-PreviousBuildHash -HashFilePath $hashFilePath
+        
+        if ($previousHash) {
+            Write-Host ('  Previous hash: {0}' -f $previousHash.Substring(0, 16)) -ForegroundColor Gray
+            
+            if ($currentHash -eq $previousHash) {
+                Write-Host ''
+                Write-Host 'CI Mode: Content hash unchanged - skipping build' -ForegroundColor Green
+                Write-Host ('  Hash file: {0}' -f $hashFilePath) -ForegroundColor Gray
+                $skipBuild = $true
+            }
+            else {
+                Write-Host ''
+                Write-Host 'CI Mode: Content hash changed - running build' -ForegroundColor Yellow
+            }
+        }
+        else {
+            Write-Host '  Previous hash: (none found)' -ForegroundColor Gray
+            Write-Host ''
+            Write-Host 'CI Mode: No previous hash - running full build' -ForegroundColor Yellow
+        }
+        
+        Write-Host ''
+    }
+    
+    if ($skipBuild) {
+        Write-Host 'Skipping build - no changes detected' -ForegroundColor Green
+        exit 0
+    }
+    
     # Install Rust dependencies if Rust operations are requested
     if ($Rust) {
         $result = Install-RustDependencies -IncludeSecurity:$Security -IncludeDeep:$Deep
@@ -1541,6 +1698,13 @@ try {
         if (-not $result.Success) {
             exit 1
         }
+    }
+    
+    if ($CI -and $currentHash) {
+        Write-Host ''
+        Write-Host 'CI Mode: Saving content hash...' -ForegroundColor Cyan
+        Save-BuildHash -HashFilePath $hashFilePath -Hash $currentHash
+        Write-Host ('  Hash saved to: {0}' -f $hashFilePath) -ForegroundColor Gray
     }
     
     exit 0

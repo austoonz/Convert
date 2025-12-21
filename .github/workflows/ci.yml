@@ -7,6 +7,12 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force full build (ignore hash)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -28,6 +34,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
       
+      - name: Download previous content hash
+        uses: dawidd6/action-download-artifact@20319c5641d495c8a52e688b7dc5fada6c3a9fbc
+        continue-on-error: true
+        with:
+          name: content-hash
+          path: .build/
+          workflow: ci.yml
+          branch: ${{ github.event_name == 'pull_request_target' && github.base_ref || github.ref_name }}
+          if_no_artifact_found: ignore
+      
+      - name: Clear hash if force build requested
+        if: github.event.inputs.force == 'true'
+        shell: pwsh
+        run: |
+          $hashFile = '.build/content-hash.txt'
+          if (Test-Path $hashFile) {
+            Remove-Item $hashFile -Force
+            Write-Host 'Force build requested - cleared previous hash'
+          }
+      
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@1780873c7b576612439a134613cc4cc74ce5538c
         with:
@@ -48,7 +74,16 @@ jobs:
       
       - name: Run Rust analysis
         shell: pwsh
-        run: ./build.ps1 -Rust -Analyze -Security
+        run: ./build.ps1 -Rust -Analyze -Security -CI
+      
+      - name: Upload content hash
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: content-hash
+          path: .build/content-hash.txt
+          retention-days: 90
+          overwrite: true
   
   build-windows:
     name: Build Windows targets (MSVC)
