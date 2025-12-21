@@ -49,10 +49,10 @@
         [System.Collections.Generic.List[Byte[]]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-StringToByteArray/
 #>
 function ConvertFrom-StringToByteArray {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-StringToByteArray/')]
     param
     (
         [Parameter(

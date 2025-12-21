@@ -56,10 +56,10 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-StringToBase64/
 #>
 function ConvertFrom-StringToBase64 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-StringToBase64/')]
     param
     (
         [Parameter(

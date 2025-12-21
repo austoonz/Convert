@@ -31,10 +31,10 @@
         [String]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-CompressedByteArrayToString/
 #>
 function ConvertFrom-CompressedByteArrayToString {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-CompressedByteArrayToString/')]
     param
     (
         [Parameter(

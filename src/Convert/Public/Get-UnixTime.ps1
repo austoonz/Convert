@@ -12,7 +12,7 @@
     [long]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/Get-UnixTime/
+    https://austoonz.github.io/Convert/functions/Get-UnixTime/
 
     .EXAMPLE
     Get-UnixTime

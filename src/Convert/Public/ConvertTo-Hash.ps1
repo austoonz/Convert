@@ -19,7 +19,7 @@
     [String[]]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertTo-Hash/
+    https://austoonz.github.io/Convert/functions/ConvertTo-Hash/
 #>
 function ConvertTo-Hash {
     [CmdletBinding()]

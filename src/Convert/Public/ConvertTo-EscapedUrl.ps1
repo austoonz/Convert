@@ -17,7 +17,7 @@
     [string]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertTo-EscapedUrl/
+    https://austoonz.github.io/Convert/functions/ConvertTo-EscapedUrl/
 #>
 function ConvertTo-EscapedUrl {
     [CmdletBinding()]

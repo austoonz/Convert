@@ -63,10 +63,10 @@
         [Byte[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToByteArray/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToByteArray/
 #>
 function ConvertFrom-MemoryStreamToByteArray {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToByteArray/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToByteArray/')]
     param
     (
         [Parameter(

@@ -72,12 +72,12 @@
         [System.IO.MemoryStream[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/
+        https://austoonz.github.io/Convert/functions/ConvertTo-MemoryStream/
 #>
 function ConvertTo-MemoryStream {
     [CmdletBinding(
         DefaultParameterSetName = 'String',
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/')]
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertTo-MemoryStream/')]
     param
     (
         [Parameter(

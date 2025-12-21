@@ -31,10 +31,10 @@
         [System.Collections.Generic.List[Byte[]]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-StringToCompressedByteArray/
 #>
 function ConvertFrom-StringToCompressedByteArray {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-StringToCompressedByteArray/')]
     param
     (
         [Parameter(

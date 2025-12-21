@@ -1,72 +1,68 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/
+online version: https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStream/
 schema: 2.0.0
 ---
 
 # ConvertFrom-MemoryStream
 
 ## SYNOPSIS
-
 Converts MemoryStream to a base64 encoded string.
 
 ## SYNTAX
 
 ### ToString (Default)
-
-```powershell
-ConvertFrom-MemoryStream -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ToString] [<CommonParameters>]
+```
+ConvertFrom-MemoryStream -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ToString]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### ToBase64
-
-```powershell
-ConvertFrom-MemoryStream -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ToBase64] [<CommonParameters>]
+```
+ConvertFrom-MemoryStream -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ToBase64]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 Converts MemoryStream to a base64 encoded string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-
-```powershell
+```
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 ConvertFrom-MemoryStream -MemoryStream $stream -ToBase64
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 2
-
-```powershell
+```
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 $stream | ConvertFrom-MemoryStream -ToBase64
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 3
-
-```powershell
+```
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -78,16 +74,15 @@ ConvertFrom-MemoryStream -MemoryStream $stream1,$stream2 -ToBase64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 4
-
-```powershell
+```
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -99,44 +94,41 @@ $stream1,$stream2 | ConvertFrom-MemoryStream -ToBase64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 5
-
-```powershell
+```
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 ConvertFrom-MemoryStream -MemoryStream $stream -ToString
 
 A string
-```
 
 ### EXAMPLE 6
-
-```powershell
+```
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 $stream | ConvertFrom-MemoryStream -ToString
 
 A string
-```
 
 ### EXAMPLE 7
-
-```powershell
+```
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -148,16 +140,15 @@ ConvertFrom-MemoryStream -MemoryStream $stream1,$stream2 -ToString
 
 A string
 Another string
-```
 
 ### EXAMPLE 8
-
-```powershell
+```
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -169,12 +160,10 @@ $stream1,$stream2 | ConvertFrom-MemoryStream -ToString
 
 A string
 Another string
-```
 
 ## PARAMETERS
 
 ### -MemoryStream
-
 A MemoryStream object for conversion.
 
 ```yaml
@@ -190,10 +179,9 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-
 The encoding to use for conversion.
 Defaults to UTF8.
-Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
 ```yaml
 Type: String
@@ -208,7 +196,6 @@ Accept wildcard characters: False
 ```
 
 ### -ToString
-
 (Deprecated) Switch parameter to specify a conversion to a string object.
 This switch will be removed from future revisions to simplify cmdlet parameters.
 
@@ -225,7 +212,6 @@ Accept wildcard characters: False
 ```
 
 ### -ToBase64
-
 Switch parameter to specify a conversion to a Base64 encoded string object.
 
 ```yaml
@@ -240,8 +226,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### CommonParameters
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -249,9 +249,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/)
+[https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStream/](https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStream/)
+

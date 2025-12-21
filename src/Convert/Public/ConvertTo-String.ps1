@@ -84,12 +84,12 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertTo-String/
+        https://austoonz.github.io/Convert/functions/ConvertTo-String/
 #>
 function ConvertTo-String {
     [CmdletBinding(
         DefaultParameterSetName = 'Base64String',
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/')]
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertTo-String/')]
     param
     (
         [Parameter(

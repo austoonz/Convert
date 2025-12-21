@@ -75,10 +75,10 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToBase64/
 #>
 function ConvertFrom-MemoryStreamToBase64 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToBase64/')]
     param
     (
         [Parameter(

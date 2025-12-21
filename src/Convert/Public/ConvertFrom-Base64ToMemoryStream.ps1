@@ -24,10 +24,10 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToMemoryStream/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToMemoryStream/
 #>
 function ConvertFrom-Base64ToMemoryStream {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToMemoryStream/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToMemoryStream/')]
     [OutputType('System.IO.MemoryStream')]
     param
     (

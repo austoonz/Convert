@@ -15,7 +15,7 @@
     Automatically installs required Rust tools (cargo-nextest, cargo-audit, miri) if not present.
 
 .PARAMETER PowerShell
-    Target PowerShell operations. Enables: Build, Test, Analyze, Fix, Clean, Package.
+    Target PowerShell operations. Enables: Build, Test, Analyze, Fix, Clean, Package, Docs.
 
 .PARAMETER Build
     Compile Rust library (cargo build --release) or assemble PowerShell module.
@@ -34,6 +34,9 @@
 
 .PARAMETER Package
     Create distribution ZIP from assembled PowerShell module. Requires -PowerShell.
+
+.PARAMETER Docs
+    Generate PowerShell function documentation using PlatyPS. Requires -PowerShell.
 
 .PARAMETER Security
     Run Rust security audit (cargo audit). Requires -Rust.
@@ -72,6 +75,11 @@
     
     Run Rust code analysis including security audit with cargo audit.
 
+.EXAMPLE
+    .\build.ps1 -PowerShell -Docs
+    
+    Generate PowerShell function documentation from comment-based help.
+
 .NOTES
     Action Availability by Language:
     
@@ -83,6 +91,7 @@
     Fix         | Yes  | Yes
     Clean       | Yes  | Yes
     Package     | No   | Yes
+    Docs        | No   | Yes
     Security    | Yes  | No
     Deep        | Yes  | No
     
@@ -114,6 +123,7 @@ param(
     [switch]$Fix,
     [switch]$Clean,
     [switch]$Package,
+    [switch]$Docs,
     
     # Build modifiers (Rust only)
     [switch]$All,
@@ -1330,6 +1340,51 @@ function Invoke-PowerShellPackage {
     }
 }
 
+function Invoke-PowerShellDocs {
+    <#
+    .SYNOPSIS
+        Generates PowerShell function documentation using PlatyPS.
+    
+    .DESCRIPTION
+        Generates markdown documentation for all exported functions in the module
+        using PlatyPS. Documentation is generated from comment-based help in the
+        PowerShell functions.
+    
+    .PARAMETER Config
+        Build configuration object from Initialize-BuildEnvironment.
+    #>
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Config
+    )
+    
+    Write-Host 'Generating PowerShell documentation...' -ForegroundColor Cyan
+    
+    if (-not [System.IO.Directory]::Exists($Config.ArtifactsPath)) {
+        Write-Host 'Artifacts directory not found. Run -Build first.' -ForegroundColor Red
+        return @{ Success = $false }
+    }
+    
+    $docsGeneratorPath = [System.IO.Path]::Combine($Config.RepositoryRoot, '.build', 'Invoke-DocumentationGeneration.ps1')
+    
+    if (-not [System.IO.File]::Exists($docsGeneratorPath)) {
+        Write-Host 'Documentation generator script not found.' -ForegroundColor Red
+        return @{ Success = $false }
+    }
+    
+    try {
+        & $docsGeneratorPath -ModulePath $Config.ArtifactsPath -Force
+        
+        Write-Host 'Documentation generation complete!' -ForegroundColor Green
+        
+        return @{ Success = $true }
+    }
+    catch {
+        Write-Host ('Documentation generation failed: {0}' -f $_.Exception.Message) -ForegroundColor Red
+        return @{ Success = $false }
+    }
+}
+
 #endregion
 
 #region Parameter Validation
@@ -1350,7 +1405,7 @@ if (-not $Rust -and -not $PowerShell) {
 }
 
 # Check if any action or workflow is specified
-$hasAction = $Build -or $Test -or $Analyze -or $Fix -or $Clean -or $Package
+$hasAction = $Build -or $Test -or $Analyze -or $Fix -or $Clean -or $Package -or $Docs
 $hasWorkflow = $Full
 
 # If no action and no workflow specified, display brief usage and exit
@@ -1455,6 +1510,13 @@ try {
     
     if ($PowerShell -and $Package) {
         $result = Invoke-PowerShellPackage -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    if ($PowerShell -and $Docs) {
+        $result = Invoke-PowerShellDocs -Config $config
         if (-not $result.Success) {
             exit 1
         }

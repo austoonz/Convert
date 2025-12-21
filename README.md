@@ -1,16 +1,14 @@
 ﻿# Convert
 
 [![CI](https://github.com/austoonz/Convert/actions/workflows/ci.yml/badge.svg)](https://github.com/austoonz/Convert/actions/workflows/ci.yml)
+[![Documentation](https://github.com/austoonz/Convert/actions/workflows/docs.yml/badge.svg)](https://github.com/austoonz/Convert/actions/workflows/docs.yml)
 [![Minimum Supported PowerShell Version][powershell-minimum]][powershell-github]
 [![PowerShell Gallery][psgallery-img]][psgallery-site]
-[![Read the Docs][rtd-image]][rtd-site]
 
 [powershell-minimum]: https://img.shields.io/badge/PowerShell-5.1+-blue.svg
 [powershell-github]:  https://github.com/PowerShell/PowerShell
 [psgallery-img]:      https://img.shields.io/powershellgallery/dt/Convert.svg
 [psgallery-site]:     https://www.powershellgallery.com/packages/Convert
-[rtd-image]:          https://readthedocs.org/projects/convert/badge/?version=latest
-[rtd-site]:           https://readthedocs.org/projects/convert/
 
 ## Overview
 
@@ -105,8 +103,8 @@ Get-Command -Module Convert
 ## Documentation
 
 ### Online Documentation
-- [Convert Module Documentation](https://convert.readthedocs.io/)
-- [Function Reference](https://convert.readthedocs.io/en/latest/functions/Convert/)
+- **[Convert Module Documentation](https://austoonz.github.io/Convert/)** - Complete documentation hosted on GitHub Pages
+- **[Function Reference](https://austoonz.github.io/Convert/functions/Convert/)** - Detailed function documentation
 
 ### Local Help
 ```powershell
@@ -115,6 +113,15 @@ Get-Help Convert
 
 # View help for a specific function
 Get-Help ConvertTo-Base64 -Full
+```
+
+### Building Documentation Locally
+```powershell
+# Generate function documentation
+.\build.ps1 -PowerShell -Build -Docs
+
+# Preview documentation site
+python -m mkdocs serve
 ```
 
 ## Contributing

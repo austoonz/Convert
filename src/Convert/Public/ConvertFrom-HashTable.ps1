@@ -22,7 +22,7 @@
     [PSCustomObject[]]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertFrom-HashTable/
+    https://austoonz.github.io/Convert/functions/ConvertFrom-HashTable/
 #>
 function ConvertFrom-HashTable {
     [CmdletBinding()]

@@ -11,7 +11,7 @@
     [datetime]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertFrom-UnixTime/
+    https://austoonz.github.io/Convert/functions/ConvertFrom-UnixTime/
 
     .EXAMPLE
     ConvertFrom-UnixTime -UnixTime 1674712047

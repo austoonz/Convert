@@ -8,17 +8,15 @@ schema: 2.0.0
 # ConvertTo-Fahrenheit
 
 ## SYNOPSIS
-
 Converts a temperature from Celsius to Fahrenheit.
 
 ## SYNTAX
 
-```powershell
-ConvertTo-Fahrenheit [-Celsius] <Double> [<CommonParameters>]
+```
+ConvertTo-Fahrenheit [-Celsius] <Double> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 The ConvertTo-Fahrenheit function converts a temperature value from Celsius to Fahrenheit.
 It accepts input via parameter or pipeline, validates that the temperature is not below absolute zero
 (-273.15°C), and returns the result rounded to two decimal places.
@@ -26,8 +24,7 @@ It accepts input via parameter or pipeline, validates that the temperature is no
 ## EXAMPLES
 
 ### EXAMPLE 1
-
-```powershell
+```
 ConvertTo-Fahrenheit -Celsius 0
 32
 ```
@@ -35,8 +32,7 @@ ConvertTo-Fahrenheit -Celsius 0
 Converts 0°C to Fahrenheit (32°F).
 
 ### EXAMPLE 2
-
-```powershell
+```
 ConvertTo-Fahrenheit -Celsius 37
 98.6
 ```
@@ -44,8 +40,7 @@ ConvertTo-Fahrenheit -Celsius 37
 Converts body temperature (37°C) to Fahrenheit (98.6°F).
 
 ### EXAMPLE 3
-
-```powershell
+```
 100 | ConvertTo-Fahrenheit
 212
 ```
@@ -53,8 +48,7 @@ Converts body temperature (37°C) to Fahrenheit (98.6°F).
 Demonstrates pipeline input, converting 100°C to Fahrenheit (212°F).
 
 ### EXAMPLE 4
-
-```powershell
+```
 ConvertTo-Fahrenheit -Celsius -40
 -40
 ```
@@ -80,27 +74,42 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### CommonParameters
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ### System.Double
-
 ### You can pipe a double value representing the temperature in Celsius to this function.
-
 ## OUTPUTS
 
 ### System.Double
-
 ### Returns the temperature in Fahrenheit as a double value, rounded to two decimal places.
-
 ## NOTES
+Author: Your Name
+Version: 1.0
+Date: Current Date
 
 The formula used is: °F = (°C × 9/5) + 32
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertTo-Celsius/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-Celsius/)
+[ConvertTo-Celsius]()
+
 [https://en.wikipedia.org/wiki/Fahrenheit](https://en.wikipedia.org/wiki/Fahrenheit)
+

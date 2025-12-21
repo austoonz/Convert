@@ -1,41 +1,38 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/
+online version: https://austoonz.github.io/Convert/functions/ConvertFrom-ByteArrayToBase64/
 schema: 2.0.0
 ---
 
 # ConvertFrom-ByteArrayToBase64
 
 ## SYNOPSIS
-
 Converts a byte array to a base64 encoded string.
 
 ## SYNTAX
 
-```powershell
-ConvertFrom-ByteArrayToBase64 [-ByteArray] <Byte[]> [-Compress] [<CommonParameters>]
+```
+ConvertFrom-ByteArrayToBase64 [-ByteArray] <Byte[]> [-Compress] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 Converts a byte array to a base64 encoded string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-
-```powershell
+```
 $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
 ConvertFrom-ByteArrayToBase64 -ByteArray $bytes
+```
 
 H4sIAAAAAAAAC3NUKC4pysxLBwCMN9RgCAAAAA==
-```
 
 ## PARAMETERS
 
 ### -ByteArray
-
 A byte array object for conversion.
 
 ```yaml
@@ -51,7 +48,6 @@ Accept wildcard characters: False
 ```
 
 ### -Compress
-
 If supplied, the output will be compressed using Gzip.
 
 ```yaml
@@ -66,8 +62,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### CommonParameters
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -75,9 +85,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-ByteArrayToBase64/)
+[https://austoonz.github.io/Convert/functions/ConvertFrom-ByteArrayToBase64/](https://austoonz.github.io/Convert/functions/ConvertFrom-ByteArrayToBase64/)
+

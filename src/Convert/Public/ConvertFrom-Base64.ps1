@@ -45,12 +45,12 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-Base64/
 #>
 function ConvertFrom-Base64 {
     [CmdletBinding(
         DefaultParameterSetName = 'Default',
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/')]
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-Base64/')]
     [OutputType('String')]
     param
     (

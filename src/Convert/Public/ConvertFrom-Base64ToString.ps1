@@ -42,10 +42,10 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToString/
 #>
 function ConvertFrom-Base64ToString {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToString/')]
     [OutputType('String')]
     [Alias('ConvertFrom-Base64StringToString')]
     param

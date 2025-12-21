@@ -75,10 +75,10 @@
         [System.IO.MemoryStream[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-StringToMemoryStream/
 #>
 function ConvertFrom-StringToMemoryStream {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-StringToMemoryStream/')]
     param
     (
         [Parameter(

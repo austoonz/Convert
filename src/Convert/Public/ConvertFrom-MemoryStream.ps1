@@ -139,11 +139,11 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStream/
 #>
 function ConvertFrom-MemoryStream {
     [CmdletBinding(
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/',
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStream/',
         DefaultParameterSetName = 'ToString'
     )]
     param
