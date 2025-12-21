@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts MemoryStream to a base64 encoded string.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER ToString
         (Deprecated) Switch parameter to specify a conversion to a string object. This switch will be removed from future revisions to simplify cmdlet parameters.
@@ -139,11 +139,11 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStream/
 #>
 function ConvertFrom-MemoryStream {
     [CmdletBinding(
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStream/',
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStream/',
         DefaultParameterSetName = 'ToString'
     )]
     param
@@ -156,7 +156,7 @@ function ConvertFrom-MemoryStream {
         [System.IO.MemoryStream[]]
         $MemoryStream,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 

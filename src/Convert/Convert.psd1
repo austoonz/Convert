@@ -12,7 +12,7 @@
     RootModule           = 'Convert.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.6.1'
+    ModuleVersion        = '2.0.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @(
@@ -79,7 +79,6 @@
         'ConvertFrom-Base64ToString'
         'ConvertFrom-ByteArrayToBase64'
         'ConvertFrom-ByteArrayToMemoryStream'
-        'ConvertFrom-Clixml'
         'ConvertFrom-CompressedByteArrayToString'
         'ConvertFrom-EscapedUrl'
         'ConvertFrom-HashTable'
@@ -95,7 +94,6 @@
         'ConvertFrom-UnixTime'
         'ConvertTo-Base64'
         'ConvertTo-Celsius'
-        'ConvertTo-Clixml'
         'ConvertTo-EscapedUrl'
         'ConvertTo-Fahrenheit'
         'ConvertTo-Hash'
@@ -138,7 +136,6 @@
             # Tags applied to this module. These help with module discovery in online galleries.
             Tags         = @(
                 'Base64',
-                'Clixml',
                 'Conversion',
                 'Convert',
                 'Linux',
@@ -164,7 +161,7 @@
             ReleaseNotes = 'https://github.com/austoonz/Convert/blob/master/CHANGELOG.md'
 
             # Prerelease string of this module
-            # Prerelease = ''
+            Prerelease = 'alpha'
 
             # Flag to indicate whether the module requires explicit user acceptance for install/update
             # RequireLicenseAcceptance = $false

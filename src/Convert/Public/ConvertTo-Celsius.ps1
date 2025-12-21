@@ -55,7 +55,7 @@
 function ConvertTo-Celsius {
     [CmdletBinding()]
     [OutputType([double])]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns','')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -67,7 +67,7 @@ function ConvertTo-Celsius {
 
     process {
         try {
-            $celsius = ($Fahrenheit - 32) * 5 / 9
+            $celsius = [ConvertCoreInterop]::fahrenheit_to_celsius($Fahrenheit)
             return [Math]::Round($celsius, 2)
         } catch {
             $PSCmdlet.ThrowTerminatingError(

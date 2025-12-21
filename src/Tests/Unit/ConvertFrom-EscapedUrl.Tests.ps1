@@ -1,11 +1,4 @@
-$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
-
-$pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
-    Remove-Module -Name $moduleName -Force
-}
-Import-Module $pathToManifest -Force
 
 Describe $function {
     It 'Converts an escaped URL to a URL' {
@@ -32,5 +25,24 @@ Describe $function {
 
         $assertion = $Url | ConvertFrom-EscapedUrl
         $assertion | Should -BeExactly $expected
+    }
+
+    Context 'Error Handling' {
+        It 'Handles invalid URL-encoded string' {
+            $result = ConvertFrom-EscapedUrl -Url '%ZZ' -ErrorAction SilentlyContinue
+            $result | Should -BeNullOrEmpty
+        }
+
+        It 'Respects ErrorAction Continue' {
+            $ErrorActionPreference = 'Continue'
+            $result = ConvertFrom-EscapedUrl -Url '%GG%HH' -ErrorAction SilentlyContinue
+            $result | Should -BeNullOrEmpty
+        }
+
+        It 'Provides error message for malformed input' {
+            $ErrorActionPreference = 'Continue'
+            ConvertFrom-EscapedUrl -Url '%' -ErrorAction SilentlyContinue -ErrorVariable err
+            $err | Should -Not -BeNullOrEmpty
+        }
     }
 }

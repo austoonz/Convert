@@ -1,0 +1,538 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+
+env:
+  MODULE_NAME: Convert
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust-analyze:
+    name: Rust code analysis
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@1780873c7b576612439a134613cc4cc74ce5538c
+        with:
+          toolchain: stable
+          cache: true
+          components: clippy, rustfmt
+      
+      - name: Update Rust toolchain
+        run: rustup update stable
+      
+      - name: Cache cargo binaries
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-bins-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-bins-
+      
+      - name: Run Rust analysis
+        shell: pwsh
+        run: ./build.ps1 -Rust -Analyze -Security
+  
+  build-windows:
+    name: Build Windows targets (MSVC)
+    runs-on: windows-latest
+    needs: rust-analyze
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@1780873c7b576612439a134613cc4cc74ce5538c
+        with:
+          toolchain: stable
+          cache: true
+          target: |
+            x86_64-pc-windows-msvc
+            aarch64-pc-windows-msvc
+      
+      - name: Update Rust toolchain
+        run: rustup update stable
+      
+      - name: Cache cargo binaries
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-bins-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-bins-
+      
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+      
+      - name: Run Rust tests
+        shell: pwsh
+        run: ./build.ps1 -Rust -Test
+      
+      - name: Build Windows targets
+        shell: pwsh
+        run: ./build.ps1 -Rust -Build -Targets @('x86_64-pc-windows-msvc', 'aarch64-pc-windows-msvc')
+      
+      - name: Upload Windows binaries
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: rust-libs-windows
+          path: |
+            lib/target/x86_64-pc-windows-msvc/release/convert_core.dll
+            lib/target/aarch64-pc-windows-msvc/release/convert_core.dll
+          retention-days: 1
+  
+  build-linux:
+    name: Build Linux targets
+    runs-on: ubuntu-latest
+    needs: rust-analyze
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@1780873c7b576612439a134613cc4cc74ce5538c
+        with:
+          toolchain: stable
+          cache: true
+          target: |
+            x86_64-unknown-linux-gnu
+            aarch64-unknown-linux-gnu
+            armv7-unknown-linux-gnueabihf
+      
+      - name: Update Rust toolchain
+        run: rustup update stable
+      
+      - name: Cache cargo binaries
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-bins-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-bins-
+      
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+      
+      - name: Run Rust tests
+        shell: pwsh
+        run: ./build.ps1 -Rust -Test
+      
+      - name: Install cross-compilation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            gcc-arm-linux-gnueabihf \
+            libc6-dev-arm64-cross \
+            libc6-dev-armhf-cross
+      
+      - name: Configure cross-compilation linkers
+        run: |
+          echo "CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "CC_armv7_unknown_linux_gnueabihf=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
+          echo "CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
+      
+      - name: Build Linux targets
+        shell: pwsh
+        run: |
+          ./build.ps1 -Rust -Build -Targets @(
+            'x86_64-unknown-linux-gnu',
+            'aarch64-unknown-linux-gnu',
+            'armv7-unknown-linux-gnueabihf'
+          )
+      
+      - name: Upload Linux binaries
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: rust-libs-linux
+          path: |
+            lib/target/x86_64-unknown-linux-gnu/release/libconvert_core.so
+            lib/target/aarch64-unknown-linux-gnu/release/libconvert_core.so
+            lib/target/armv7-unknown-linux-gnueabihf/release/libconvert_core.so
+          retention-days: 1
+  
+  build-macos:
+    name: Build macOS targets
+    runs-on: macos-latest
+    needs: rust-analyze
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@1780873c7b576612439a134613cc4cc74ce5538c
+        with:
+          toolchain: stable
+          cache: true
+          target: |
+            x86_64-apple-darwin
+            aarch64-apple-darwin
+      
+      - name: Update Rust toolchain
+        run: rustup update stable
+      
+      - name: Cache cargo binaries
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-bins-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-bins-
+      
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+      
+      - name: Run Rust tests
+        shell: pwsh
+        run: ./build.ps1 -Rust -Test
+      
+      - name: Build macOS targets
+        shell: pwsh
+        run: ./build.ps1 -Rust -Build -Targets @('x86_64-apple-darwin','aarch64-apple-darwin')
+      
+      - name: Upload macOS binaries
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: rust-libs-macos
+          path: |
+            lib/target/x86_64-apple-darwin/release/libconvert_core.dylib
+            lib/target/aarch64-apple-darwin/release/libconvert_core.dylib
+          retention-days: 1
+  
+  assemble-artifact:
+    name: Assemble universal module artifact
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-linux, build-macos]
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Download Windows binaries
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: rust-libs-windows
+          path: lib/target/
+      
+      - name: Download Linux binaries
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: rust-libs-linux
+          path: lib/target/
+      
+      - name: Download macOS binaries
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: rust-libs-macos
+          path: lib/target/
+      
+      - name: Copy binaries to module structure
+        run: |
+          mkdir -p src/Convert/Private/bin/{x64,arm64,arm}
+          cp lib/target/x86_64-pc-windows-msvc/release/convert_core.dll src/Convert/Private/bin/x64/
+          cp lib/target/aarch64-pc-windows-msvc/release/convert_core.dll src/Convert/Private/bin/arm64/
+          cp lib/target/x86_64-unknown-linux-gnu/release/libconvert_core.so src/Convert/Private/bin/x64/
+          cp lib/target/aarch64-unknown-linux-gnu/release/libconvert_core.so src/Convert/Private/bin/arm64/
+          cp lib/target/armv7-unknown-linux-gnueabihf/release/libconvert_core.so src/Convert/Private/bin/arm/
+          cp lib/target/x86_64-apple-darwin/release/libconvert_core.dylib src/Convert/Private/bin/x64/
+          cp lib/target/aarch64-apple-darwin/release/libconvert_core.dylib src/Convert/Private/bin/arm64/
+      
+      - name: Verify src/Convert/Private/bin before build
+        run: |
+          echo "=== src/Convert/Private/bin Structure ==="
+          find src/Convert/Private/bin -type f -exec ls -lh {} \; 2>/dev/null || echo "No bin directory found"
+      
+      - name: Build PowerShell module
+        shell: pwsh
+        run: ./build.ps1 -PowerShell -Build
+      
+      - name: Verify artifact structure
+        run: |
+          echo "=== Artifact Structure ==="
+          find Artifacts -type f
+          echo ""
+          echo "=== Binary Sizes ==="
+          find Artifacts/bin -type f -exec ls -lh {} \;
+      
+      - name: Upload universal module artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Convert-Module-Universal
+          path: Artifacts/
+          retention-days: 7
+  
+  test-windows-x64:
+    name: Test on Windows x64
+    runs-on: windows-latest
+    needs: assemble-artifact
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Download universal artifact
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: Convert-Module-Universal
+          path: Artifacts/
+      
+      - name: Verify artifact structure
+        shell: pwsh
+        run: |
+          Write-Host "=== Module Files ===" -ForegroundColor Cyan
+          Get-ChildItem -Path Artifacts/ -Recurse -File -ErrorAction SilentlyContinue | Select-Object -Property FullName | Sort-Object -Property FullName
+      
+      - name: Cache PowerShell modules
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: |
+            ~/Documents/PowerShell/Modules
+            ~/Documents/WindowsPowerShell/Modules
+          key: ${{ runner.os }}-psmodules-${{ hashFiles('install_modules.ps1') }}
+      
+      - name: Install NuGet provider
+        shell: pwsh
+        run: ./install_nuget.ps1
+      
+      - name: Install PowerShell modules
+        shell: pwsh
+        run: ./install_modules.ps1
+      
+      - name: Run tests on Windows PowerShell 5.1
+        shell: powershell
+        run: ./build.ps1 -PowerShell -Test -Artifact
+      
+      - name: Run tests on PowerShell Core
+        shell: pwsh
+        run: ./build.ps1 -PowerShell -Test -Artifact
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: test-results-windows-x64
+          path: test-results-windows-x64-*.xml
+          retention-days: 90
+          if-no-files-found: warn
+  
+  test-linux-x64:
+    name: Test on Linux x64
+    runs-on: ubuntu-latest
+    needs: assemble-artifact
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Download universal artifact
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: Convert-Module-Universal
+          path: Artifacts/
+      
+      - name: Verify artifact structure
+        shell: pwsh
+        run: |
+          Write-Host "=== Module Files ===" -ForegroundColor Cyan
+          Get-ChildItem -Path Artifacts/ -Recurse -File -ErrorAction SilentlyContinue | Select-Object -Property FullName | Sort-Object -Property FullName
+      
+      - name: Cache PowerShell modules
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: ~/.local/share/powershell/Modules
+          key: ${{ runner.os }}-psmodules-${{ hashFiles('install_modules.ps1') }}
+      
+      - name: Install PowerShell modules
+        shell: pwsh
+        run: ./install_modules.ps1
+      
+      - name: Run tests
+        shell: pwsh
+        run: ./build.ps1 -PowerShell -Test -Artifact
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: test-results-linux-x64
+          path: test-results-linux-x64.xml
+          retention-days: 90
+          if-no-files-found: warn
+  
+  test-macos-x64:
+    name: Test on macOS x64 (Intel)
+    runs-on: macos-15-intel
+    needs: assemble-artifact
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Download universal artifact
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: Convert-Module-Universal
+          path: Artifacts/
+      
+      - name: Cache PowerShell modules
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: ~/.local/share/powershell/Modules
+          key: ${{ runner.os }}-psmodules-${{ hashFiles('install_modules.ps1') }}
+      
+      - name: Install PowerShell modules
+        shell: pwsh
+        run: ./install_modules.ps1
+      
+      - name: Run tests
+        shell: pwsh
+        run: ./build.ps1 -PowerShell -Test -Artifact
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: test-results-macos-x64
+          path: test-results-macos-x64.xml
+          retention-days: 90
+          if-no-files-found: warn
+  
+  test-macos-arm64:
+    name: Test on macOS Apple Silicon
+    runs-on: macos-latest
+    needs: assemble-artifact
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request_target'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Download universal artifact
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: Convert-Module-Universal
+          path: Artifacts/
+      
+      - name: Cache PowerShell modules
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: ~/.local/share/powershell/Modules
+          key: ${{ runner.os }}-psmodules-${{ hashFiles('install_modules.ps1') }}
+      
+      - name: Install PowerShell modules
+        shell: pwsh
+        run: ./install_modules.ps1
+      
+      - name: Run tests
+        shell: pwsh
+        run: ./build.ps1 -PowerShell -Test -Artifact
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: test-results-macos-arm64
+          path: test-results-macos-arm64.xml
+          retention-days: 90
+          if-no-files-found: warn
+  
+  publish-results:
+    name: Publish test results
+    runs-on: ubuntu-latest
+    needs: [test-windows-x64, test-linux-x64, test-macos-x64, test-macos-arm64]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Download all test results
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          pattern: test-results-*
+          path: test-results/
+      
+      - name: Publish test results
+        uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226
+        if: always()
+        with:
+          name: Test Results (All Platforms)
+          path: test-results/**/*.xml
+          reporter: java-junit
+      
+      - name: Summary
+        run: |
+          echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Tests completed on all platforms:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Windows x64 (PowerShell 5.1 + Core)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Linux x64" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ macOS x64 (Intel)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ macOS arm64 (Apple Silicon)" >> $GITHUB_STEP_SUMMARY
+  
+  create-release-package:
+    name: Create release package
+    runs-on: ubuntu-latest
+    needs: [test-windows-x64, test-linux-x64, test-macos-x64, test-macos-arm64]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      
+      - name: Download universal artifact
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+        with:
+          name: Convert-Module-Universal
+          path: Artifacts/
+      
+      - name: Get module version
+        id: version
+        shell: pwsh
+        run: |
+          $manifest = Import-PowerShellDataFile -Path Artifacts/Convert.psd1
+          $version = $manifest.ModuleVersion
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "Module version: $version"
+      
+      - name: Create ZIP package
+        run: |
+          cd Artifacts
+          zip -r ../Convert-${{ steps.version.outputs.version }}-Universal.zip .
+          cd ..
+      
+      - name: Upload release package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Convert-Release-Package
+          path: Convert-${{ steps.version.outputs.version }}-Universal.zip
+          retention-days: 90
+      

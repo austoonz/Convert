@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts MemoryStream to a string.
 
@@ -73,10 +73,10 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToString/
 #>
 function ConvertFrom-MemoryStreamToString {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToString/')]
     [Alias('ConvertFrom-StreamToString')]
     param
     (

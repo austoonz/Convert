@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts a string to a compressed byte array object.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .EXAMPLE
         $bytes = ConvertFrom-StringToCompressedByteArray -String 'A string'
@@ -31,10 +31,10 @@
         [System.Collections.Generic.List[Byte[]]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-StringToCompressedByteArray/
 #>
 function ConvertFrom-StringToCompressedByteArray {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToCompressedByteArray/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-StringToCompressedByteArray/')]
     param
     (
         [Parameter(
@@ -45,38 +45,42 @@ function ConvertFrom-StringToCompressedByteArray {
         [String[]]
         $String,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8'
     )
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         foreach ($s in $String) {
-            # Creating a generic list to ensure an array of string being handed in
-            # outputs an array of Byte arrays, rather than a single array with both
-            # Byte arrays merged.
             $byteArrayObject = [System.Collections.Generic.List[Byte[]]]::new()
             try {
-                $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
-
-                [System.IO.MemoryStream] $output = [System.IO.MemoryStream]::new()
-                $gzipStream = [System.IO.Compression.GzipStream]::new($output, ([IO.Compression.CompressionMode]::Compress))
-                $gzipStream.Write( $byteArray, 0, $byteArray.Length )
-                $gzipStream.Close()
-                $output.Close()
-
-                $null = $byteArrayObject.Add($output.ToArray())
-                $byteArrayObject
+                $ptr = $nullPtr
+                try {
+                    $length = [UIntPtr]::Zero
+                    $ptr = [ConvertCoreInterop]::compress_string($s, $Encoding, [ref]$length)
+                    
+                    if ($ptr -eq $nullPtr) {
+                        $errorMsg = GetRustError -DefaultMessage "Compression failed for encoding '$Encoding'"
+                        throw $errorMsg
+                    }
+                    
+                    $bytes = New-Object byte[] $length.ToUInt64()
+                    [System.Runtime.InteropServices.Marshal]::Copy($ptr, $bytes, 0, $bytes.Length)
+                    
+                    $null = $byteArrayObject.Add($bytes)
+                    $byteArrayObject
+                } finally {
+                    if ($ptr -ne $nullPtr) {
+                        [ConvertCoreInterop]::free_bytes($ptr)
+                    }
+                }
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
-            } finally {
-                if ($byteArray) {$byteArray.Clear()}
-                if ($gzipStream) {$gzipStream.Dispose()}
-                if ($output) {$output.Dispose()}
             }
         }
     }

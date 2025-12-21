@@ -1,11 +1,4 @@
-$moduleName = 'Convert'
 $function = $MyInvocation.MyCommand.Name.Split('.')[0]
-
-$pathToManifest = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', $moduleName, "$moduleName.psd1")
-if (Get-Module -Name $moduleName -ErrorAction 'SilentlyContinue') {
-    Remove-Module -Name $moduleName -Force
-}
-Import-Module $pathToManifest -Force
 
 Describe -Name $function -Fixture {
     BeforeEach {
@@ -47,9 +40,6 @@ Describe -Name $function -Fixture {
         }
         @{
             Encoding = 'UTF32'
-        }
-        @{
-            Encoding = 'UTF7'
         }
         @{
             Encoding = 'UTF8'
@@ -120,10 +110,6 @@ Describe -Name $function -Fixture {
             Base64   = 'VAAAAGgAAABpAAAAcwAAAEkAAABzAAAATQAAAHkAAABTAAAAdAAAAHIAAABpAAAAbgAAAGcAAAA='
         }
         @{
-            Encoding = 'UTF7'
-            Base64   = 'VGhpc0lzTXlTdHJpbmc='
-        }
-        @{
             Encoding = 'UTF8'
             Base64   = 'VGhpc0lzTXlTdHJpbmc='
         }
@@ -176,6 +162,30 @@ Describe -Name $function -Fixture {
             )
 
             $assertion.Exception.InnerException.Message | Should -BeIn $ExpectedList
+        }
+    }
+
+    Context 'Decompression Support' {
+        It 'Decompresses compressed Base64 string' {
+            $original = 'ThisIsMyString'
+            $compressed = ConvertFrom-StringToBase64 -String $original -Encoding UTF8 -Compress
+            $result = ConvertFrom-Base64 -Base64 $compressed -ToString -Decompress -Encoding UTF8
+            
+            $result | Should -BeExactly $original
+        }
+
+        It 'Handles large compressed data' {
+            $original = 'A' * 10000
+            $compressed = ConvertFrom-StringToBase64 -String $original -Encoding UTF8 -Compress
+            $result = ConvertFrom-Base64 -Base64 $compressed -ToString -Decompress -Encoding UTF8
+            
+            $result | Should -BeExactly $original
+        }
+
+        It 'Respects ErrorAction for decompression errors' {
+            $invalidCompressed = 'SGVsbG8='
+            $result = ConvertFrom-Base64 -Base64 $invalidCompressed -ToString -Decompress -Encoding UTF8 -ErrorAction SilentlyContinue
+            $result | Should -BeNullOrEmpty
         }
     }
 }

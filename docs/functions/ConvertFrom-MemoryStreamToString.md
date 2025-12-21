@@ -1,72 +1,67 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/
+online version: https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToString/
 schema: 2.0.0
 ---
 
 # ConvertFrom-MemoryStreamToString
 
 ## SYNOPSIS
-
 Converts MemoryStream to a string.
 
 ## SYNTAX
 
 ### MemoryStream
-
-```powershell
-ConvertFrom-MemoryStreamToString -MemoryStream <MemoryStream[]> [<CommonParameters>]
+```
+ConvertFrom-MemoryStreamToString -MemoryStream <MemoryStream[]> [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ### Stream
-
-```powershell
-ConvertFrom-MemoryStreamToString -Stream <Stream[]> [<CommonParameters>]
+```
+ConvertFrom-MemoryStreamToString -Stream <Stream[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 Converts MemoryStream to a string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-
-```powershell
+```
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 ConvertFrom-MemoryStreamToString -MemoryStream $stream
 
 A string
-```
 
 ### EXAMPLE 2
-
-```powershell
+```
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 $stream | ConvertFrom-MemoryStreamToString
 
 A string
-```
 
 ### EXAMPLE 3
-
-```powershell
+```
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -78,16 +73,15 @@ ConvertFrom-MemoryStreamToString -MemoryStream $stream1,$stream2
 
 A string
 Another string
-```
 
 ### EXAMPLE 4
-
-```powershell
+```
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -99,12 +93,10 @@ $stream1,$stream2 | ConvertFrom-MemoryStreamToString
 
 A string
 Another string
-```
 
 ## PARAMETERS
 
 ### -MemoryStream
-
 A System.IO.MemoryStream object for conversion.
 
 ```yaml
@@ -120,7 +112,6 @@ Accept wildcard characters: False
 ```
 
 ### -Stream
-
 A System.IO.Stream object for conversion.
 
 ```yaml
@@ -135,8 +126,22 @@ Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### CommonParameters
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -144,9 +149,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToString/)
+[https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToString/](https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToString/)
+

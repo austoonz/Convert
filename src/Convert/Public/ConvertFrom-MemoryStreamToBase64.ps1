@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts MemoryStream to a base64 encoded string.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .EXAMPLE
         $string = 'A string'
@@ -75,10 +75,10 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToBase64/
 #>
 function ConvertFrom-MemoryStreamToBase64 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-MemoryStreamToBase64/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-MemoryStreamToBase64/')]
     param
     (
         [Parameter(

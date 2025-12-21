@@ -4,5 +4,12 @@ DeploymentArtifacts
 .DS_Store
 .vscode
 coverage.xml
-test_report.xml
-test_report_build.xml
+/test*.xml
+
+# Rust
+/lib/target
+/src/Convert/Private/bin
+
+# MkDocs
+site/
+.cache/

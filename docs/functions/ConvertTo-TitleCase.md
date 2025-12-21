@@ -1,40 +1,36 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-TitleCase/
+online version: https://austoonz.github.io/Convert/functions/ConvertTo-TitleCase/
 schema: 2.0.0
 ---
 
 # ConvertTo-TitleCase
 
 ## SYNOPSIS
-
 Convert a string to title case.
 
 ## SYNTAX
 
-```powershell
-ConvertTo-TitleCase [[-String] <String[]>] [<CommonParameters>]
+```
+ConvertTo-TitleCase [[-String] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 Convert a string to title case.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-
-```powershell
+```
 ConvertTo-TitleCase -String 'my string'
+```
 
 Returns the string \`My String\`.
-```
 
 ## PARAMETERS
 
 ### -String
-
 The string to convert.
 
 ```yaml
@@ -49,8 +45,22 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
-### CommonParameters
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -58,9 +68,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [string]
-
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertTo-TitleCase/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-TitleCase/)
+[https://austoonz.github.io/Convert/functions/ConvertTo-TitleCase/](https://austoonz.github.io/Convert/functions/ConvertTo-TitleCase/)
+

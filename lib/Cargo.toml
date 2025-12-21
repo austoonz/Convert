@@ -1,0 +1,22 @@
+[package]
+name = "convert_core"
+version = "2.0.0"
+edition = "2024"
+
+[lib]
+name = "convert_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+base64 = "0.22"
+sha2 = "0.10"
+sha1 = "0.10"
+md-5 = "0.10"
+hmac = "0.12"
+flate2 = "1.0"
+percent-encoding = "2.3"
+chrono = "0.4"
+
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.4"

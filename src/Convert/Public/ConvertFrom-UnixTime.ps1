@@ -11,7 +11,7 @@
     [datetime]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertFrom-UnixTime/
+    https://austoonz.github.io/Convert/functions/ConvertFrom-UnixTime/
 
     .EXAMPLE
     ConvertFrom-UnixTime -UnixTime 1674712047
@@ -46,10 +46,30 @@ function ConvertFrom-UnixTime {
     )
 
     process {
-        if ($FromMilliseconds) {
-            [datetime]($script:EPOCH_TIME + [System.TimeSpan]::FromMilliseconds($UnixTime))
-        } else {
-            [datetime]($script:EPOCH_TIME + [System.TimeSpan]::FromSeconds($UnixTime))
+        $year = 0
+        $month = 0
+        $day = 0
+        $hour = 0
+        $minute = 0
+        $second = 0
+
+        $success = [ConvertCoreInterop]::from_unix_time(
+            $UnixTime,
+            $FromMilliseconds.IsPresent,
+            [ref]$year,
+            [ref]$month,
+            [ref]$day,
+            [ref]$hour,
+            [ref]$minute,
+            [ref]$second
+        )
+
+        if (-not $success) {
+            $errorMsg = GetRustError
+            Write-Error -Message "Failed to convert Unix time: $errorMsg"
+            return
         }
+
+        [datetime]::new($year, $month, $day, $hour, $minute, $second, [System.DateTimeKind]::Utc)
     }
 }

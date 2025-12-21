@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts a string to a base64 encoded string.
 
@@ -14,7 +14,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER Compress
         If supplied, the output will be compressed using Gzip.
@@ -136,12 +136,12 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/
+        https://austoonz.github.io/Convert/functions/ConvertTo-Base64/
 #>
 function ConvertTo-Base64 {
     [CmdletBinding(
         DefaultParameterSetName = 'String',
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/')]
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertTo-Base64/')]
     param
     (
         [Parameter(
@@ -162,7 +162,7 @@ function ConvertTo-Base64 {
         [System.IO.MemoryStream[]]
         $MemoryStream,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 
@@ -183,11 +183,7 @@ function ConvertTo-Base64 {
         switch ($PSCmdlet.ParameterSetName) {
             'String' {
                 foreach ($s in $string) {
-                    if ($Compress) {
-                        ConvertFrom-StringToBase64 -String $s -Encoding $Encoding @convertSplat -Compress
-                    } else {
-                        ConvertFrom-StringToBase64 -String $s -Encoding $Encoding @convertSplat
-                    }
+                    ConvertFrom-StringToBase64 -String $s -Encoding $Encoding -Compress:$Compress @convertSplat
                 }
                 break
             }

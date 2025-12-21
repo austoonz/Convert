@@ -1,33 +1,32 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/
+online version: https://austoonz.github.io/Convert/functions/ConvertFrom-StringToByteArray/
 schema: 2.0.0
 ---
 
 # ConvertFrom-StringToByteArray
 
 ## SYNOPSIS
-
 Converts a string to a byte array object.
 
 ## SYNTAX
 
-```powershell
-ConvertFrom-StringToByteArray [-String] <String[]> [[-Encoding] <String>] [<CommonParameters>]
+```
+ConvertFrom-StringToByteArray [-String] <String[]> [[-Encoding] <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 Converts a string to a byte array object.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-
-```powershell
+```
 $bytes = ConvertFrom-StringToByteArray -String 'A string'
 $bytes.GetType()
+```
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
@@ -38,12 +37,11 @@ $bytes\[0\].GetType()
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte                                     System.ValueType
-```
 
 ### EXAMPLE 2
-
-```powershell
+```
 $bytes = 'A string','Another string' | ConvertFrom-StringToByteArray
+```
 
 $bytes.Count
 2
@@ -59,12 +57,10 @@ $bytes\[0\].GetType()
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte\[\]                                   System.Array
-```
 
 ## PARAMETERS
 
 ### -String
-
 A string object for conversion.
 
 ```yaml
@@ -80,10 +76,9 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-
 The encoding to use for conversion.
 Defaults to UTF8.
-Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
 ```yaml
 Type: String
@@ -97,8 +92,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### CommonParameters
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -106,9 +115,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [System.Collections.Generic.List[Byte[]]]
-
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToByteArray/)
+[https://austoonz.github.io/Convert/functions/ConvertFrom-StringToByteArray/](https://austoonz.github.io/Convert/functions/ConvertFrom-StringToByteArray/)
+

@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts a base64 encoded string to a string.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER Decompress
         If supplied, the output will be decompressed using Gzip.
@@ -42,10 +42,10 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToString/
 #>
 function ConvertFrom-Base64ToString {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToString/')]
     [OutputType('String')]
     [Alias('ConvertFrom-Base64StringToString')]
     param
@@ -59,7 +59,7 @@ function ConvertFrom-Base64ToString {
         [String[]]
         $String,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 
@@ -70,17 +70,31 @@ function ConvertFrom-Base64ToString {
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         foreach ($s in $String) {
             try {
-                $bytes = [System.Convert]::FromBase64String($s)
-
                 if ($Decompress) {
+                    $bytes = [System.Convert]::FromBase64String($s)
                     ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
                 } else {
-                    [System.Text.Encoding]::$Encoding.GetString($bytes)
+                    $ptr = $nullPtr
+                    try {
+                        $ptr = [ConvertCoreInterop]::base64_to_string($s, $Encoding)
+                        
+                        if ($ptr -eq $nullPtr) {
+                            $errorMsg = GetRustError -DefaultMessage "Base64 decoding failed for encoding '$Encoding'"
+                            throw $errorMsg
+                        }
+                        
+                        ConvertPtrToString -Ptr $ptr
+                    } finally {
+                        if ($ptr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_string($ptr)
+                        }
+                    }
                 }
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference

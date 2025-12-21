@@ -1,0 +1,96 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+env:
+  MODULE_NAME: Convert
+
+jobs:
+  build-docs:
+    name: Build documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          cache: true
+          target: x86_64-unknown-linux-gnu
+      
+      - name: Build Rust library
+        shell: pwsh
+        run: ./build.ps1 -Rust -Build -Targets @('x86_64-unknown-linux-gnu')
+      
+      - name: Copy Rust library to module structure
+        run: |
+          mkdir -p src/Convert/Private/bin/x64
+          cp lib/target/x86_64-unknown-linux-gnu/release/libconvert_core.so src/Convert/Private/bin/x64/
+      
+      - name: Cache PowerShell modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/powershell/Modules
+          key: ${{ runner.os }}-psmodules-${{ hashFiles('install_modules.ps1') }}
+      
+      - name: Install PowerShell modules
+        shell: pwsh
+        run: ./install_modules.ps1
+      
+      - name: Build PowerShell module
+        shell: pwsh
+        run: ./build.ps1 -PowerShell -Build
+      
+      - name: Generate function documentation
+        shell: pwsh
+        run: |
+          ./.build/Invoke-DocumentationGeneration.ps1 -Force
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install MkDocs dependencies
+        run: pip install -r docs/requirements.txt
+      
+      - name: Build MkDocs site
+        run: mkdocs build --strict
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+  
+  deploy-docs:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build-docs
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

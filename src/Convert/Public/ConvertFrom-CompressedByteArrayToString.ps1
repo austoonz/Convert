@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts a string to a byte array object.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .EXAMPLE
         $bytes = ConvertFrom-CompressedByteArrayToString -ByteArray $byteArray
@@ -31,10 +31,10 @@
         [String]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-CompressedByteArrayToString/
 #>
 function ConvertFrom-CompressedByteArrayToString {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-CompressedByteArrayToString/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-CompressedByteArrayToString/')]
     param
     (
         [Parameter(
@@ -45,32 +45,46 @@ function ConvertFrom-CompressedByteArrayToString {
         [Byte[]]
         $ByteArray,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8'
     )
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         try {
-            $inputStream = [System.IO.MemoryStream]::new($ByteArray)
-            $output = [System.IO.MemoryStream]::new()
-
-            $gzipStream = [System.IO.Compression.GzipStream]::new($inputStream, ([IO.Compression.CompressionMode]::Decompress))
-            $gzipStream.CopyTo($output)
-            $gzipStream.Close()
-            $inputStream.Close()
-
-            [System.Text.Encoding]::$Encoding.GetString($output.ToArray())
+            $ptr = $nullPtr
+            try {
+                # Pin the byte array in memory and get a pointer to it
+                $pinnedArray = [System.Runtime.InteropServices.GCHandle]::Alloc($ByteArray, [System.Runtime.InteropServices.GCHandleType]::Pinned)
+                try {
+                    $byteArrayPtr = $pinnedArray.AddrOfPinnedObject()
+                    $length = [UIntPtr]::new($ByteArray.Length)
+                    
+                    $ptr = [ConvertCoreInterop]::decompress_string($byteArrayPtr, $length, $Encoding)
+                    
+                    if ($ptr -eq $nullPtr) {
+                        $errorMsg = GetRustError -DefaultMessage "Decompression failed for encoding '$Encoding'"
+                        throw $errorMsg
+                    }
+                    
+                    ConvertPtrToString -Ptr $ptr
+                } finally {
+                    if ($pinnedArray.IsAllocated) {
+                        $pinnedArray.Free()
+                    }
+                }
+            } finally {
+                if ($ptr -ne $nullPtr) {
+                    [ConvertCoreInterop]::free_string($ptr)
+                }
+            }
         } catch {
             Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
-        } finally {
-            if ($inputStream) {$inputStream.Dispose()}
-            if ($gzipStream) {$gzipStream.Dispose()}
-            if ($output) {$output.Dispose()}
         }
     }
 }

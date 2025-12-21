@@ -17,7 +17,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER Decompress
         If supplied, the output will be decompressed using Gzip.
@@ -84,12 +84,12 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertTo-String/
+        https://austoonz.github.io/Convert/functions/ConvertTo-String/
 #>
 function ConvertTo-String {
     [CmdletBinding(
         DefaultParameterSetName = 'Base64String',
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/')]
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertTo-String/')]
     param
     (
         [Parameter(
@@ -119,7 +119,7 @@ function ConvertTo-String {
         $Stream,
 
         [Parameter(ParameterSetName = 'Base64String')]
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 

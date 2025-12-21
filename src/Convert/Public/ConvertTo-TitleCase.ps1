@@ -17,7 +17,7 @@
     [string]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertTo-TitleCase/
+    https://austoonz.github.io/Convert/functions/ConvertTo-TitleCase/
 #>
 function ConvertTo-TitleCase {
     [CmdletBinding()]

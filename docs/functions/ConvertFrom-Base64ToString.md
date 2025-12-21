@@ -1,66 +1,60 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/
+online version: https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToString/
 schema: 2.0.0
 ---
 
 # ConvertFrom-Base64ToString
 
 ## SYNOPSIS
-
 Converts a base64 encoded string to a string.
 
 ## SYNTAX
 
-```powershell
-ConvertFrom-Base64ToString [-String] <String[]> [[-Encoding] <String>] [-Decompress] [<CommonParameters>]
+```
+ConvertFrom-Base64ToString [-String] <String[]> [[-Encoding] <String>] [-Decompress]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 Converts a base64 encoded string to a string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-
-```powershell
+```
 ConvertFrom-Base64ToString -String 'QSBzdHJpbmc='
-
-A string
 ```
 
-### EXAMPLE 2
+A string
 
-```powershell
+### EXAMPLE 2
+```
 ConvertTo-Base64 -String 'A string','Another string'
+```
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 3
-
-```powershell
+```
 'QSBzdHJpbmc=' | ConvertFrom-Base64ToString
-
-A string
 ```
 
-### EXAMPLE 4
+A string
 
-```powershell
+### EXAMPLE 4
+```
 'QSBzdHJpbmc=','QW5vdGhlciBzdHJpbmc=' | ConvertFrom-Base64ToString
+```
 
 A string
 Another string
-```
 
 ## PARAMETERS
 
 ### -String
-
 A Base64 Encoded String
 
 ```yaml
@@ -76,10 +70,9 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-
 The encoding to use for conversion.
 Defaults to UTF8.
-Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
 ```yaml
 Type: String
@@ -94,7 +87,6 @@ Accept wildcard characters: False
 ```
 
 ### -Decompress
-
 If supplied, the output will be decompressed using Gzip.
 
 ```yaml
@@ -109,8 +101,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### CommonParameters
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -118,9 +124,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64ToString/)
+[https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToString/](https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToString/)
+

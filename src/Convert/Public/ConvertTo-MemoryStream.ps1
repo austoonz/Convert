@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts an object to a MemoryStream object.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER Compress
         If supplied, the output will be compressed using Gzip.
@@ -72,12 +72,12 @@
         [System.IO.MemoryStream[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/
+        https://austoonz.github.io/Convert/functions/ConvertTo-MemoryStream/
 #>
 function ConvertTo-MemoryStream {
     [CmdletBinding(
         DefaultParameterSetName = 'String',
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertTo-MemoryStream/')]
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertTo-MemoryStream/')]
     param
     (
         [Parameter(
@@ -89,7 +89,7 @@ function ConvertTo-MemoryStream {
         [String[]]
         $String,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 
@@ -109,7 +109,7 @@ function ConvertTo-MemoryStream {
             'String' {
                 foreach ($s in $string) {
                     $params = @{
-                        String   = $s
+                        String = $s
                         Encoding = $Encoding
                     }
 

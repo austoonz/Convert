@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
     Converts an escaped URL back to a standard Url.
 
@@ -17,7 +17,7 @@
     [string]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertFrom-EscapedUrl/
+    https://austoonz.github.io/Convert/functions/ConvertFrom-EscapedUrl/
 #>
 function ConvertFrom-EscapedUrl {
     [CmdletBinding()]
@@ -29,7 +29,20 @@ function ConvertFrom-EscapedUrl {
 
     process {
         foreach ($u in $Url) {
-            [System.Uri]::UnescapeDataString($u)
+            $ptr = [IntPtr]::Zero
+            try {
+                $ptr = [ConvertCoreInterop]::url_decode($u)
+                if ($ptr -eq [IntPtr]::Zero) {
+                    $errorMessage = GetRustError
+                    Write-Error -Message $errorMessage
+                    continue
+                }
+                ConvertPtrToString -Ptr $ptr
+            } finally {
+                if ($ptr -ne [IntPtr]::Zero) {
+                    [ConvertCoreInterop]::free_string($ptr)
+                }
+            }
         }
     }
 }

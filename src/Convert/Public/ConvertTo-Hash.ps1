@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
     Converts a string to a hash.
 
@@ -19,39 +19,49 @@
     [String[]]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertTo-Hash/
+    https://austoonz.github.io/Convert/functions/ConvertTo-Hash/
 #>
 function ConvertTo-Hash {
     [CmdletBinding()]
     [Alias('Get-Hash')]
     param (
-        [Parameter(ParameterSetName='String', ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [Parameter(ParameterSetName = 'String', ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [string[]]$String,
 
         [ValidateSet('MD5', 'SHA1', 'SHA256', 'SHA384', 'SHA512')]
         [string]$Algorithm = 'SHA256',
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8'
     )
 
     begin {
-        $hashAlgorithm = [System.Security.Cryptography.HashAlgorithm]::Create($Algorithm)
+        $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         foreach ($s in $String) {
-            $sb = [System.Text.StringBuilder]::new()
-            $hashAlgorithm.ComputeHash([System.Text.Encoding]::$Encoding.GetBytes($s)) | ForEach-Object {
-                $null = $sb.Append('{0:X2}' -f $_)
+            try {
+                $ptr = $nullPtr
+                try {
+                    $ptr = [ConvertCoreInterop]::compute_hash($s, $Algorithm, $Encoding)
+                    
+                    if ($ptr -eq $nullPtr) {
+                        $errorMsg = GetRustError -DefaultMessage "Hash computation failed for algorithm '$Algorithm' with encoding '$Encoding'"
+                        throw $errorMsg
+                    }
+                    
+                    ConvertPtrToString -Ptr $ptr
+                } finally {
+                    if ($ptr -ne $nullPtr) {
+                        [ConvertCoreInterop]::free_string($ptr)
+                    }
+                }
+            } catch {
+                Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
-            $sb.ToString()
         }
-    }
-
-    end {
-        if ($hashAlgorithm) {$hashAlgorithm.Dispose()}
-        if ($sb) {$null = $sb.Clear()}
     }
 }

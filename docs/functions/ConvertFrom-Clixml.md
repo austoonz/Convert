@@ -1,7 +1,7 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/
+online version: https://austoonz.github.io/Convert/functions/ConvertFrom-Clixml/
 schema: 2.0.0
 ---
 
@@ -119,4 +119,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/](http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Clixml/)
+[https://austoonz.github.io/Convert/functions/ConvertFrom-Clixml/](https://austoonz.github.io/Convert/functions/ConvertFrom-Clixml/)

@@ -70,7 +70,7 @@ function ConvertTo-Fahrenheit {
 
     process {
         try {
-            $fahrenheit = ($Celsius * 9 / 5) + 32
+            $fahrenheit = [ConvertCoreInterop]::celsius_to_fahrenheit($Celsius)
             return [Math]::Round($fahrenheit, 2)
         } catch {
             $PSCmdlet.ThrowTerminatingError(

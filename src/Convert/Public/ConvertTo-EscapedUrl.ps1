@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
     Converts a URL to an escaped Url.
 
@@ -17,7 +17,7 @@
     [string]
 
     .LINK
-    http://convert.readthedocs.io/en/latest/functions/ConvertTo-EscapedUrl/
+    https://austoonz.github.io/Convert/functions/ConvertTo-EscapedUrl/
 #>
 function ConvertTo-EscapedUrl {
     [CmdletBinding()]
@@ -29,8 +29,20 @@ function ConvertTo-EscapedUrl {
 
     process {
         foreach ($u in $Url) {
-            $escaped = [System.Uri]::EscapeDataString($u)
-            $escaped.Replace("~", '%7E').Replace("'", '%27')
+            $ptr = [IntPtr]::Zero
+            try {
+                $ptr = [ConvertCoreInterop]::url_encode($u)
+                if ($ptr -eq [IntPtr]::Zero) {
+                    $errorMessage = GetRustError
+                    Write-Error -Message $errorMessage
+                    continue
+                }
+                ConvertPtrToString -Ptr $ptr
+            } finally {
+                if ($ptr -ne [IntPtr]::Zero) {
+                    [ConvertCoreInterop]::free_string($ptr)
+                }
+            }
         }
     }
 }

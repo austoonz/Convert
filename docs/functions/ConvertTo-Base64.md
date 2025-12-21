@@ -1,162 +1,141 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/
+online version: https://austoonz.github.io/Convert/functions/ConvertTo-Base64/
 schema: 2.0.0
 ---
 
 # ConvertTo-Base64
 
 ## SYNOPSIS
-
 Converts a string to a base64 encoded string.
 
 ## SYNTAX
 
 ### String (Default)
-
-```powershell
-ConvertTo-Base64 -String <String[]> [-Encoding <String>] [-Compress] [<CommonParameters>]
+```
+ConvertTo-Base64 -String <String[]> [-Encoding <String>] [-Compress] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ### MemoryStream
-
-```powershell
-ConvertTo-Base64 -MemoryStream <MemoryStream[]> [-Encoding <String>] [-Compress] [<CommonParameters>]
+```
+ConvertTo-Base64 -MemoryStream <MemoryStream[]> [-Encoding <String>] [-Compress]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 Converts a string to a base64 encoded string.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
-
-```powershell
+```
 $string = 'A string'
 ConvertTo-Base64 -String $string
-
 QSBzdHJpbmc=
 ```
 
 ### EXAMPLE 2
-
-```powershell
+```
 (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64).Length
 1057480
+```
 
 (Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64 -Compress).Length
 110876
-```
 
 ### EXAMPLE 3
-
-```powershell
+```
 $string = 'A string'
 $string | ConvertTo-Base64
-
 QSBzdHJpbmc=
 ```
 
 ### EXAMPLE 4
-
-```powershell
+```
 $string = 'A string'
 ConvertTo-Base64 -String $string -Encoding Unicode
-
 QQAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 5
-
-```powershell
+```
 $string = 'A string'
 $string | ConvertTo-Base64 -Encoding Unicode
-
 QQAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 6
-
-```powershell
+```
 $string1 = 'A string'
 $string2 = 'Another string'
 ConvertTo-Base64 -String $string1,$string2
-
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
 ```
 
 ### EXAMPLE 7
-
-```powershell
+```
 $string1 = 'A string'
 $string2 = 'Another string'
 $string1,$string2 | ConvertTo-Base64
-
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
 ```
 
 ### EXAMPLE 8
-
-```powershell
+```
 $string1 = 'A string'
 $string2 = 'Another string'
 ConvertTo-Base64 -String $string1,$string2 -Encoding Unicode
-
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 9
-
-```powershell
+```
 $string1 = 'A string'
 $string2 = 'Another string'
 $string1,$string2 | ConvertTo-Base64 -Encoding Unicode
-
 QQAgAHMAdAByAGkAbgBnAA==
 QQBuAG8AdABoAGUAcgAgAHMAdAByAGkAbgBnAA==
 ```
 
 ### EXAMPLE 10
-
-```powershell
+```
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 ConvertTo-Base64 -MemoryStream $stream
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 11
-
-```powershell
+```
 $string = 'A string'
 $stream = [System.IO.MemoryStream]::new()
 $writer = [System.IO.StreamWriter]::new($stream)
 $writer.Write($string)
 $writer.Flush()
+```
 
 $stream | ConvertTo-Base64
 
 QSBzdHJpbmc=
-```
 
 ### EXAMPLE 12
-
-```powershell
+```
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -168,16 +147,15 @@ ConvertTo-Base64 -MemoryStream $stream1,$stream2
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ### EXAMPLE 13
-
-```powershell
+```
 $string1 = 'A string'
 $stream1 = [System.IO.MemoryStream]::new()
 $writer1 = [System.IO.StreamWriter]::new($stream1)
 $writer1.Write($string1)
 $writer1.Flush()
+```
 
 $string2 = 'Another string'
 $stream2 = \[System.IO.MemoryStream\]::new()
@@ -189,12 +167,10 @@ $stream1,$stream2 | ConvertTo-Base64
 
 QSBzdHJpbmc=
 QW5vdGhlciBzdHJpbmc=
-```
 
 ## PARAMETERS
 
 ### -String
-
 A string object for conversion.
 
 ```yaml
@@ -210,7 +186,6 @@ Accept wildcard characters: False
 ```
 
 ### -MemoryStream
-
 A MemoryStream object for conversion.
 
 ```yaml
@@ -226,10 +201,9 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-
 The encoding to use for conversion.
 Defaults to UTF8.
-Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
 ```yaml
 Type: String
@@ -244,7 +218,6 @@ Accept wildcard characters: False
 ```
 
 ### -Compress
-
 If supplied, the output will be compressed using Gzip.
 
 ```yaml
@@ -259,8 +232,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### CommonParameters
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -268,9 +255,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [String[]]
-
 ## NOTES
 
 ## RELATED LINKS
 
-[http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/](http://convert.readthedocs.io/en/latest/functions/ConvertTo-Base64/)
+[https://austoonz.github.io/Convert/functions/ConvertTo-Base64/](https://austoonz.github.io/Convert/functions/ConvertTo-Base64/)
+

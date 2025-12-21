@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts a base64 encoded string to a string.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER ToString
         Switch parameter to specify a conversion to a string object.
@@ -45,12 +45,12 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-Base64/
 #>
 function ConvertFrom-Base64 {
     [CmdletBinding(
         DefaultParameterSetName = 'Default',
-        HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-Base64/')]
+        HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-Base64/')]
     [OutputType('String')]
     param
     (
@@ -70,7 +70,7 @@ function ConvertFrom-Base64 {
         $Base64,
 
         [Parameter(ParameterSetName = 'ToString')]
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 

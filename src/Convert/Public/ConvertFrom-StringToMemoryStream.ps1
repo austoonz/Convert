@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts a string to a MemoryStream object.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER Compress
         If supplied, the output will be compressed using Gzip.
@@ -75,10 +75,10 @@
         [System.IO.MemoryStream[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-StringToMemoryStream/
 #>
 function ConvertFrom-StringToMemoryStream {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToMemoryStream/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-StringToMemoryStream/')]
     param
     (
         [Parameter(
@@ -89,7 +89,7 @@ function ConvertFrom-StringToMemoryStream {
         [String[]]
         $String,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 

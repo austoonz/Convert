@@ -1,4 +1,4 @@
-<#
+﻿<#
     .SYNOPSIS
         Converts a string to a base64 encoded string.
 
@@ -11,7 +11,7 @@
     .PARAMETER Encoding
         The encoding to use for conversion.
         Defaults to UTF8.
-        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF7, and UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
 
     .PARAMETER Compress
         If supplied, the output will be compressed using Gzip.
@@ -56,10 +56,10 @@
         [String[]]
 
     .LINK
-        http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/
+        https://austoonz.github.io/Convert/functions/ConvertFrom-StringToBase64/
 #>
 function ConvertFrom-StringToBase64 {
-    [CmdletBinding(HelpUri = 'http://convert.readthedocs.io/en/latest/functions/ConvertFrom-StringToBase64/')]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-StringToBase64/')]
     param
     (
         [Parameter(
@@ -70,7 +70,7 @@ function ConvertFrom-StringToBase64 {
         [String[]]
         $String,
 
-        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
         $Encoding = 'UTF8',
 
@@ -81,18 +81,49 @@ function ConvertFrom-StringToBase64 {
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         foreach ($s in $String) {
             try {
                 if ($Compress) {
-                    $bytes = ConvertFrom-StringToCompressedByteArray -String $s -Encoding $Encoding
+                    $compressPtr = $nullPtr
+                    try {
+                        $length = [UIntPtr]::Zero
+                        $compressPtr = [ConvertCoreInterop]::compress_string($s, $Encoding, [ref]$length)
+                        
+                        if ($compressPtr -eq $nullPtr) {
+                            $errorMsg = GetRustError -DefaultMessage "Compression failed for encoding '$Encoding'"
+                            throw $errorMsg
+                        }
+                        
+                        $bytes = New-Object byte[] $length.ToUInt64()
+                        [System.Runtime.InteropServices.Marshal]::Copy($compressPtr, $bytes, 0, $bytes.Length)
+                        
+                        [System.Convert]::ToBase64String($bytes)
+                    } finally {
+                        if ($compressPtr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_bytes($compressPtr)
+                        }
+                    }
                 } else {
-                    $bytes = [System.Text.Encoding]::$Encoding.GetBytes($s)
+                    $ptr = $nullPtr
+                    try {
+                        $ptr = [ConvertCoreInterop]::string_to_base64($s, $Encoding)
+                        
+                        if ($ptr -eq $nullPtr) {
+                            $errorMsg = GetRustError -DefaultMessage "Base64 encoding failed for encoding '$Encoding'"
+                            throw $errorMsg
+                        }
+                        
+                        ConvertPtrToString -Ptr $ptr
+                    } finally {
+                        if ($ptr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_string($ptr)
+                        }
+                    }
                 }
-
-                [System.Convert]::ToBase64String($bytes)
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }
