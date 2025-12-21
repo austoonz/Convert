@@ -15,6 +15,9 @@ concurrency:
   group: publish-powershell-gallery
   cancel-in-progress: true
 
+env:
+  MODULE_NAME: Convert
+
 jobs:
   publish:
     name: Publish module
@@ -23,10 +26,16 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .build/Invoke-PublishModule.ps1
+          sparse-checkout-cone-mode: false
+
       - name: Download module artifact
         uses: actions/download-artifact@v4
         with:
-          name: Convert-Module-Universal
+          name: ${{ env.MODULE_NAME }}-Module-Universal
           path: Artifacts/
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -35,59 +44,4 @@ jobs:
         shell: pwsh
         env:
           PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          
-          # Extract version from manifest
-          $manifest = Import-PowerShellDataFile -Path 'Artifacts/Convert.psd1'
-          $version = $manifest.ModuleVersion
-          $prerelease = $manifest.PrivateData.PSData.Prerelease
-          $fullVersion = if ($prerelease) { "$version-$prerelease" } else { $version }
-          
-          Write-Host "Module version: $fullVersion"
-          
-          # Check if version exists on Gallery
-          $findParams = @{ Name = 'Convert'; RequiredVersion = $version; ErrorAction = 'SilentlyContinue' }
-          if ($prerelease) { $findParams['AllowPrerelease'] = $true }
-          
-          if (Find-Module @findParams) {
-              Write-Host "::notice::Version $fullVersion already exists on PowerShell Gallery - skipping publish"
-              
-              # Write skip summary
-              @"
-          ## ⏭️ Publish Skipped
-          
-          **Module:** Convert  
-          **Version:** $fullVersion
-          
-          This version already exists on [PowerShell Gallery](https://www.powershellgallery.com/packages/Convert/$version).
-          
-          To publish a new version, increment the version in ``src/Convert/Convert.psd1``.
-          "@ >> $env:GITHUB_STEP_SUMMARY
-              exit 0
-          }
-          
-          # Validate API key
-          if (-not $env:PSGALLERY_API_KEY) {
-              Write-Error "PSGALLERY_API_KEY secret is not set. Add it to repository secrets."
-          }
-          
-          # Publish
-          Write-Host "Publishing Convert $fullVersion to PowerShell Gallery..."
-          Publish-Module -Path ./Artifacts -NuGetApiKey $env:PSGALLERY_API_KEY -Repository PSGallery
-          
-          # Write success summary
-          $installCmd = if ($prerelease) { 'Install-Module -Name Convert -AllowPrerelease' } else { 'Install-Module -Name Convert' }
-          @"
-          ## ✅ Published Successfully
-          
-          **Module:** Convert  
-          **Version:** $fullVersion
-          
-          ### Installation
-          ``````powershell
-          $installCmd
-          ``````
-          
-          [View on PowerShell Gallery](https://www.powershellgallery.com/packages/Convert/$version)
-          "@ >> $env:GITHUB_STEP_SUMMARY
+        run: ./.build/Invoke-PublishModule.ps1 -ModuleName ${{ env.MODULE_NAME }} -ArtifactPath Artifacts

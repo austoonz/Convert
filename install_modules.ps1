@@ -36,14 +36,12 @@ $installModule = @{
     Verbose            = $false
 }
 
-$installedModules = Get-Module -ListAvailable
-
 foreach ($module in $modulesToInstall) {
-    $existingModule = $installedModules | Where-Object { $_.Name -eq $module.ModuleName -and $_.Version -eq $module.ModuleVersion }
-    if ($existingModule) {
-        continue
+    try {
+        Import-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion -Force -ErrorAction Stop
     }
-
-    Install-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion @installModule
-    Import-Module -Name $module.ModuleName -Force
+    catch {
+        Install-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion @installModule
+        Import-Module -Name $module.ModuleName -RequiredVersion $module.ModuleVersion -Force
+    }
 }
