@@ -38,7 +38,7 @@ try {
 Write-Host "Importing module from: $ModulePath" -ForegroundColor Gray
 Import-Module -Name $manifestPath -Force -ErrorAction Stop
 
-$moduleName = 'ConvertClixml'
+$moduleName = 'Convert'
 $module = Get-Module -Name $moduleName
 
 if (-not $module) {

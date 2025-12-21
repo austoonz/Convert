@@ -86,8 +86,8 @@ Describe -Name 'Module Manifest' -Fixture {
     }
 
     Context -Name 'Exported Aliases' -Fixture {
-        It -Name 'Exports four aliases' -Test {
-            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 4
+        It -Name 'Exports three aliases' -Test {
+            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 3
         }
 
         It -Name '<Alias>' -TestCases @(
