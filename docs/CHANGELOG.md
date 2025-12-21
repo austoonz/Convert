@@ -1,5 +1,14 @@
 # Changelog
 
+## Version v2.0.0-alpha
+
+### Breaking Changes
+
+* **Rust Migration**: Module internals have been completely rewritten in Rust for improved performance and memory safety
+* **Removed Functions**:
+  * `ConvertFrom-Clixml` - Moved to the `ConvertClixml` module
+  * `ConvertTo-Clixml` - Moved to the `ConvertClixml` module
+
 ## Version v1.5.0 (2023-03-17)
 
 * **New Functions**:
