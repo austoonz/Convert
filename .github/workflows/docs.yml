@@ -1,7 +1,10 @@
 name: Documentation
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
     branches:
       - main
   workflow_dispatch:
@@ -10,6 +13,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: 'pages'
@@ -22,29 +26,32 @@ jobs:
   build-docs:
     name: Build documentation
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      
-      - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Download module artifact from CI
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/download-artifact@v4
         with:
-          toolchain: stable
-          cache: true
-          target: x86_64-unknown-linux-gnu
+          name: Convert-Module-Universal
+          path: Artifacts/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Build Rust library
+      - name: Build module (manual trigger only)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         shell: pwsh
-        run: ./build.ps1 -Rust -Build -Targets @('x86_64-unknown-linux-gnu')
-      
-      - name: Copy Rust library to module structure
         run: |
+          ./build.ps1 -Rust -Build -Targets @('x86_64-unknown-linux-gnu')
           mkdir -p src/Convert/Private/bin/x64
           cp lib/target/x86_64-unknown-linux-gnu/release/libconvert_core.so src/Convert/Private/bin/x64/
+          ./build.ps1 -PowerShell -Build
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
       
       - name: Cache PowerShell modules
         uses: actions/cache@v4
@@ -56,14 +63,9 @@ jobs:
         shell: pwsh
         run: ./install_modules.ps1
       
-      - name: Build PowerShell module
-        shell: pwsh
-        run: ./build.ps1 -PowerShell -Build
-      
       - name: Generate function documentation
         shell: pwsh
-        run: |
-          ./.build/Invoke-DocumentationGeneration.ps1 -Force
+        run: ./.build/Invoke-DocumentationGeneration.ps1 -Force
       
       - name: Setup Python
         uses: actions/setup-python@v5
