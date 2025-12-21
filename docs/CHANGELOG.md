@@ -8,6 +8,8 @@
 * **Removed Functions**:
   * `ConvertFrom-Clixml` - Moved to the `ConvertClixml` module
   * `ConvertTo-Clixml` - Moved to the `ConvertClixml` module
+* **Removed Aliases**:
+  * `Get-Hash` - Use `ConvertTo-Hash` directly instead
 
 ## Version v1.5.0 (2023-03-17)
 

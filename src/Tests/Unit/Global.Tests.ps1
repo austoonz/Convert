@@ -103,10 +103,6 @@ Describe -Name 'Module Manifest' -Fixture {
                 Alias           = 'ConvertFrom-StreamToString'
                 ResolvedCommand = 'ConvertFrom-MemoryStreamToString'
             }
-            @{
-                Alias           = 'Get-Hash'
-                ResolvedCommand = 'ConvertTo-Hash'
-            }
         ) -Test {
             $assertion = Get-Alias -Name $Alias
             $assertion.Source | Should -BeExactly $script:ModuleName

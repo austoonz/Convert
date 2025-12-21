@@ -116,7 +116,6 @@
         'ConvertFrom-Base64StringToByteArray'
         'ConvertFrom-ByteArrayToBase64String'
         'ConvertFrom-StreamToString'
-        'Get-Hash'
     )
 
     # DSC resources to export from this module
