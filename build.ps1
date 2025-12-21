@@ -1358,8 +1358,6 @@ function Invoke-PowerShellDocs {
         [PSCustomObject]$Config
     )
     
-    Write-Host 'Generating PowerShell documentation...' -ForegroundColor Cyan
-    
     if (-not [System.IO.Directory]::Exists($Config.ArtifactsPath)) {
         Write-Host 'Artifacts directory not found. Run -Build first.' -ForegroundColor Red
         return @{ Success = $false }

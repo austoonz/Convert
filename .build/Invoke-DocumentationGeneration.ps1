@@ -12,17 +12,21 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+Write-Host 'Generating PowerShell documentation...' -ForegroundColor Cyan
+
+$ModulePath = [System.IO.Path]::GetFullPath($ModulePath)
 if (-not [System.IO.Directory]::Exists($ModulePath)) {
     throw "Module path not found: $ModulePath"
 }
 
-$manifestPath = [System.IO.Path]::Combine($ModulePath, 'Convert.psd1')
+$manifestPath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($ModulePath, 'Convert.psd1'))
 if (-not [System.IO.File]::Exists($manifestPath)) {
     throw "Module manifest not found: $manifestPath"
 }
 
+$OutputPath = [System.IO.Path]::GetFullPath($OutputPath)
 if (-not [System.IO.Directory]::Exists($OutputPath)) {
-    $null = New-Item -Path $OutputPath -ItemType Directory -Force
+    $null = [System.IO.Directory]::CreateDirectory($OutputPath)
 }
 
 try {
@@ -34,7 +38,7 @@ try {
 Write-Host "Importing module from: $ModulePath" -ForegroundColor Gray
 Import-Module -Name $manifestPath -Force -ErrorAction Stop
 
-$moduleName = 'Convert'
+$moduleName = 'ConvertClixml'
 $module = Get-Module -Name $moduleName
 
 if (-not $module) {
