@@ -2,7 +2,7 @@ name: Publish to PowerShell Gallery
 
 on:
   workflow_run:
-    workflows: ["Documentation"]
+    workflows: ["CI"]
     types: [completed]
     branches: [main]
   workflow_dispatch:
