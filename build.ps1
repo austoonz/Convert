@@ -45,7 +45,7 @@
     Run Rust deep analysis (cargo miri test). Requires -Rust.
 
 .PARAMETER Full
-    Execute complete build workflow: Clean, Analyze, Test, Build, Package.
+    Execute complete build workflow: Clean, Fix, Analyze, Build, Test, Package, Docs.
 
 .PARAMETER CI
     Execute CI/CD workflow: Full + S3 upload (CodeBuild only).
@@ -1387,13 +1387,15 @@ function Invoke-PowerShellDocs {
 
 #region Parameter Validation
 
-# Expand workflows into individual actions
+# Expand workflows into individual actions (order: Clean → Fix → Analyze → Build → Test → Package → Docs)
 if ($Full) {
     $Clean = $true
+    $Fix = $true
     $Analyze = $true
-    $Test = $true
     $Build = $true
+    $Test = $true
     $Package = $true
+    $Docs = $true
 }
 
 # Default language selection: if neither -Rust nor -PowerShell specified, enable both
@@ -1448,73 +1450,11 @@ try {
         }
     }
     
-    # Execute Rust operations
-    if ($Rust -and $Build) {
-        $result = Invoke-RustBuild -Config $config -All:$All -Targets $Targets
-        if (-not $result) {
-            exit 1
-        }
-    }
+    # Execute actions in order: Clean → Fix → Analyze → Build → Test → Package → Docs
     
-    if ($Rust -and $Test) {
-        $result = Invoke-RustTest -Config $config
-        if (-not $result.Success) {
-            exit $result.ExitCode
-        }
-    }
-    
-    if ($Rust -and $Analyze) {
-        $result = Invoke-RustAnalyze -Config $config -Security:$Security -Deep:$Deep
-        if (-not $result.Success) {
-            exit 1
-        }
-    }
-    
-    if ($Rust -and $Fix) {
-        $result = Invoke-RustFix -Config $config
-        if (-not $result.Success) {
-            exit 1
-        }
-    }
-    
-    # Execute PowerShell operations
-    if ($PowerShell -and $Build) {
-        $result = Invoke-PowerShellBuild -Config $config
-        if (-not $result.Success) {
-            exit 1
-        }
-    }
-    
-    if ($PowerShell -and $Test) {
-        $result = Invoke-PowerShellTest -Config $config -Artifact:$Artifact
-        if (-not $result.Success) {
-            exit $result.ExitCode
-        }
-    }
-    
-    if ($PowerShell -and $Analyze) {
-        $result = Invoke-PowerShellAnalyze -Config $config
-        if (-not $result.Success) {
-            exit 1
-        }
-    }
-    
-    if ($PowerShell -and $Fix) {
-        $result = Invoke-PowerShellFix -Config $config
-        if (-not $result.Success) {
-            exit 1
-        }
-    }
-    
-    if ($PowerShell -and $Package) {
-        $result = Invoke-PowerShellPackage -Config $config
-        if (-not $result.Success) {
-            exit 1
-        }
-    }
-    
-    if ($PowerShell -and $Docs) {
-        $result = Invoke-PowerShellDocs -Config $config
+    # 1. Clean
+    if ($Rust -and $Clean) {
+        $result = Invoke-RustClean -Config $config
         if (-not $result.Success) {
             exit 1
         }
@@ -1527,8 +1467,77 @@ try {
         }
     }
     
-    if ($Rust -and $Clean) {
-        $result = Invoke-RustClean -Config $config
+    # 2. Fix
+    if ($Rust -and $Fix) {
+        $result = Invoke-RustFix -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    if ($PowerShell -and $Fix) {
+        $result = Invoke-PowerShellFix -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    # 3. Analyze
+    if ($Rust -and $Analyze) {
+        $result = Invoke-RustAnalyze -Config $config -Security:$Security -Deep:$Deep
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    if ($PowerShell -and $Analyze) {
+        $result = Invoke-PowerShellAnalyze -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    # 4. Build
+    if ($Rust -and $Build) {
+        $result = Invoke-RustBuild -Config $config -All:$All -Targets $Targets
+        if (-not $result) {
+            exit 1
+        }
+    }
+    
+    if ($PowerShell -and $Build) {
+        $result = Invoke-PowerShellBuild -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    # 5. Test
+    if ($Rust -and $Test) {
+        $result = Invoke-RustTest -Config $config
+        if (-not $result.Success) {
+            exit $result.ExitCode
+        }
+    }
+    
+    if ($PowerShell -and $Test) {
+        $result = Invoke-PowerShellTest -Config $config -Artifact:$Artifact
+        if (-not $result.Success) {
+            exit $result.ExitCode
+        }
+    }
+    
+    # 6. Package (PowerShell only)
+    if ($PowerShell -and $Package) {
+        $result = Invoke-PowerShellPackage -Config $config
+        if (-not $result.Success) {
+            exit 1
+        }
+    }
+    
+    # 7. Docs (PowerShell only)
+    if ($PowerShell -and $Docs) {
+        $result = Invoke-PowerShellDocs -Config $config
         if (-not $result.Success) {
             exit 1
         }
