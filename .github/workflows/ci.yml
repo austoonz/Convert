@@ -314,12 +314,33 @@ jobs:
           echo "=== Binary Sizes ==="
           find Artifacts/bin -type f -exec ls -lh {} \;
       
-      - name: Upload universal module artifact
+      - name: Upload universal module artifact (if built)
+        id: upload-new
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: Convert-Module-Universal
           path: Artifacts/
           retention-days: 7
+      
+      - name: Download previous module artifact (if not rebuilt)
+        if: steps.upload-new.outputs.artifact-id == ''
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          name: Convert-Module-Universal
+          path: Artifacts/
+          workflow: ci.yml
+          branch: ${{ github.ref_name }}
+          search_artifacts: true
+          if_no_artifact_found: warn
+      
+      - name: Re-upload module artifact (if not rebuilt)
+        if: steps.upload-new.outputs.artifact-id == ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Convert-Module-Universal
+          path: Artifacts/
+          retention-days: 7
+          if-no-files-found: warn
   
   test-windows-x64:
     name: Test on Windows x64
