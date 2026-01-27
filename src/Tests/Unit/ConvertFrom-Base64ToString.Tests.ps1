@@ -96,6 +96,26 @@ Describe -Name $function -Fixture {
             $base64 = 'SGVsbG8'
             { ConvertFrom-Base64ToString -String $base64 -Encoding 'UTF8' -ErrorAction Stop } | Should -Throw
         }
+
+        It -Name 'Converts binary data (non-UTF8) without error' -Test {
+            $binaryBytes = [byte[]](0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x00, 0x80)
+            $base64 = [System.Convert]::ToBase64String($binaryBytes)
+            
+            $result = ConvertFrom-Base64ToString -String $base64
+            
+            $result | Should -Not -BeNullOrEmpty
+            $result | Should -BeOfType [string]
+        }
+
+        It -Name 'Round-trips binary data through Latin-1 fallback' -Test {
+            $binaryBytes = [byte[]](0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x00, 0x80)
+            $base64 = [System.Convert]::ToBase64String($binaryBytes)
+            
+            $resultString = ConvertFrom-Base64ToString -String $base64
+            $resultBytes = [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetBytes($resultString)
+            
+            $resultBytes | Should -Be $binaryBytes
+        }
     }
 
     Context -Name 'Error Handling' -Fixture {
