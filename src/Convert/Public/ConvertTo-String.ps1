@@ -133,33 +133,38 @@ function ConvertTo-String {
     }
 
     process {
-        $splat = @{}
         switch ($PSCmdlet.ParameterSetName) {
             'Base64String' {
-                $InputObject = $Base64EncodedString
-                $Function = 'ConvertFrom-Base64ToString'
-                $splat.Add('Encoding', $Encoding)
-                if ($Decompress) {
-                    $splat.Add('Decompress', $true)
+                foreach ($b64 in $Base64EncodedString) {
+                    try {
+                        if ($Decompress) {
+                            $b64 | ConvertFrom-Base64ToString -Encoding $Encoding -Decompress -ErrorAction Stop
+                        } else {
+                            try {
+                                ConvertFrom-Base64ToString -String $b64 -Encoding $Encoding -ErrorAction Stop
+                            } catch {
+                                if ($_.Exception.Message -match 'does not represent valid .+ text') {
+                                    # Binary data - fall back to Latin-1 which can represent any byte
+                                    $bytes = [System.Convert]::FromBase64String($b64)
+                                    [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetString($bytes)
+                                } else {
+                                    throw
+                                }
+                            }
+                        }
+                    } catch {
+                        Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+                    }
                 }
-                break
             }
 
             'MemoryStream' {
-                $InputObject = $MemoryStream
-                $Function = 'ConvertFrom-MemoryStreamToString'
-                break
+                $MemoryStream | ConvertFrom-MemoryStreamToString -ErrorAction $userErrorActionPreference
             }
 
             'Stream' {
-                $InputObject = $Stream
-                $Function = 'ConvertFrom-MemoryStreamToString'
-                break
+                $Stream | ConvertFrom-MemoryStreamToString -ErrorAction $userErrorActionPreference
             }
-        }
-
-        if ($InputObject) {
-            $InputObject | & $Function @splat -ErrorAction $userErrorActionPreference
         }
     }
 }
