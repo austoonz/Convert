@@ -5,13 +5,40 @@
 $ErrorActionPreference = 'Stop'
 
 # Detect architecture (x64, ARM64, or x86)
+# Try RuntimeInformation first, fall back to environment/pointer size for older systems
+$architecture = $null
+
 $runtimeArch = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
-$architecture = switch ($runtimeArch) {
-    ([System.Runtime.InteropServices.Architecture]::X64) { 'x64' }
-    ([System.Runtime.InteropServices.Architecture]::Arm64) { 'arm64' }
-    ([System.Runtime.InteropServices.Architecture]::X86) { 'x86' }
-    ([System.Runtime.InteropServices.Architecture]::Arm) { 'arm' }
-    default { throw "Unsupported architecture: $runtimeArch" }
+if ($null -ne $runtimeArch) {
+    $architecture = switch ($runtimeArch) {
+        ([System.Runtime.InteropServices.Architecture]::X64) { 'x64' }
+        ([System.Runtime.InteropServices.Architecture]::Arm64) { 'arm64' }
+        ([System.Runtime.InteropServices.Architecture]::X86) { 'x86' }
+        ([System.Runtime.InteropServices.Architecture]::Arm) { 'arm' }
+    }
+}
+
+# Fallback detection when RuntimeInformation is unavailable or returns null
+if ($null -eq $architecture) {
+    $processorArch = $env:PROCESSOR_ARCHITECTURE
+    if ($processorArch -eq 'AMD64') {
+        $architecture = 'x64'
+    } elseif ($processorArch -eq 'ARM64') {
+        $architecture = 'arm64'
+    } elseif ($processorArch -eq 'x86') {
+        $architecture = 'x86'
+    } elseif ($processorArch -eq 'ARM') {
+        $architecture = 'arm'
+    } else {
+        # Last resort: use pointer size to distinguish 32-bit vs 64-bit
+        if ([IntPtr]::Size -eq 8) {
+            $architecture = 'x64'
+        } elseif ([IntPtr]::Size -eq 4) {
+            $architecture = 'x86'
+        } else {
+            throw "Unable to detect architecture. PROCESSOR_ARCHITECTURE='$processorArch', IntPtr.Size=$([IntPtr]::Size)"
+        }
+    }
 }
 
 # Determine library filename based on platform
