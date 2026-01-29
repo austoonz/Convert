@@ -8,6 +8,11 @@
     .PARAMETER Stream
         A System.IO.Stream object for conversion. Accepts any stream type including MemoryStream, FileStream, etc.
 
+    .PARAMETER Encoding
+        The encoding to use for conversion.
+        Defaults to UTF8.
+        Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
+
     .EXAMPLE
         $string = 'A string'
         $stream = [System.IO.MemoryStream]::new()
@@ -85,7 +90,11 @@ function ConvertFrom-MemoryStreamToString {
         [ValidateNotNullOrEmpty()]
         [Alias('MemoryStream')]
         [System.IO.Stream[]]
-        $Stream
+        $Stream,
+
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
+        [String]
+        $Encoding = 'UTF8'
     )
 
     begin {
@@ -98,7 +107,8 @@ function ConvertFrom-MemoryStreamToString {
                 if ($object.CanSeek) {
                     $object.Position = 0
                 }
-                $reader = [System.IO.StreamReader]::new($object)
+                $enc = [System.Text.Encoding]::$Encoding
+                $reader = [System.IO.StreamReader]::new($object, $enc)
                 $reader.ReadToEnd()
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference

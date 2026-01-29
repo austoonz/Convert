@@ -1,6 +1,6 @@
 # Changelog
 
-## Version v2.0.0-alpha
+## Version v2.0.4-alpha
 
 ### Breaking Changes
 
@@ -10,6 +10,23 @@
   * `ConvertTo-Clixml` - Moved to the `ConvertClixml` module
 * **Removed Aliases**:
   * `Get-Hash` - Use `ConvertTo-Hash` directly instead
+
+### New Features
+
+* **Added `-Encoding` parameter** to `ConvertFrom-MemoryStreamToString` (Issue #21)
+* **Added `-Encoding` parameter** to `ConvertFrom-MemoryStreamToSecureString` (Issue #21)
+* **Added pipeline support** to `ConvertFrom-Base64ToByteArray` (Issue #16)
+* **Added pipeline support** to `ConvertFrom-ByteArrayToMemoryStream` (Issue #16)
+
+### Changed
+
+* **Consolidated `-MemoryStream` parameter** into `-Stream` for `ConvertFrom-MemoryStreamToString` and `ConvertTo-String` (Issue #17)
+  * `-MemoryStream` is now an alias for `-Stream` for backward compatibility
+
+### Fixed
+
+* `ConvertFrom-MemoryStream` now correctly passes `-Encoding` parameter to `ConvertFrom-MemoryStreamToString` for consistent behavior
+* `ConvertFrom-Base64ToString` and `ConvertTo-String` now handle binary data correctly (Issue #14)
 
 ## Version v1.5.0 (2023-03-17)
 

@@ -14,13 +14,14 @@ Converts MemoryStream to a string.
 
 ### MemoryStream
 ```
-ConvertFrom-MemoryStreamToString -MemoryStream <MemoryStream[]> [-ProgressAction <ActionPreference>]
+ConvertFrom-MemoryStreamToString -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
 ```
 
 ### Stream
 ```
-ConvertFrom-MemoryStreamToString -Stream <Stream[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ConvertFrom-MemoryStreamToString -Stream <Stream[]> [-Encoding <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -123,6 +124,23 @@ Required: True
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -Encoding
+The encoding to use for conversion.
+Defaults to UTF8.
+Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: UTF8
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

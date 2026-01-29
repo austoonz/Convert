@@ -39,7 +39,8 @@ Describe -Name $function -Fixture {
                 $string = 'ThisIsMyString'
 
                 $stream = [System.IO.MemoryStream]::new()
-                $writer = [System.IO.StreamWriter]::new($stream)
+                $enc = [System.Text.Encoding]::$Encoding
+                $writer = [System.IO.StreamWriter]::new($stream, $enc)
                 $writer.Write($string)
                 $writer.Flush()
 

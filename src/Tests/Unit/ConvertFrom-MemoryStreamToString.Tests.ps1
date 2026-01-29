@@ -199,4 +199,104 @@ Describe -Name $function -Fixture {
             $assertion.Exception.InnerException.Message | Should -BeIn @('Cannot access a closed Stream.', 'Stream was not readable.')
         }
     }
+
+    Context -Name 'Encoding' -Fixture {
+        It -Name 'Uses UTF8 encoding by default' -Test {
+            $string = 'Hello World'
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $assertion = ConvertFrom-MemoryStreamToString -Stream $stream
+
+            $assertion | Should -BeExactly $string
+            $stream.Dispose()
+        }
+
+        It -Name 'Converts ASCII encoded stream' -Test {
+            $string = 'Hello World'
+            $bytes = [System.Text.Encoding]::ASCII.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $assertion = ConvertFrom-MemoryStreamToString -Stream $stream -Encoding ASCII
+
+            $assertion | Should -BeExactly $string
+            $stream.Dispose()
+        }
+
+        It -Name 'Converts Unicode (UTF-16 LE) encoded stream' -Test {
+            $string = 'Hello World'
+            $bytes = [System.Text.Encoding]::Unicode.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $assertion = ConvertFrom-MemoryStreamToString -Stream $stream -Encoding Unicode
+
+            $assertion | Should -BeExactly $string
+            $stream.Dispose()
+        }
+
+        It -Name 'Converts BigEndianUnicode (UTF-16 BE) encoded stream' -Test {
+            $string = 'Hello World'
+            $bytes = [System.Text.Encoding]::BigEndianUnicode.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $assertion = ConvertFrom-MemoryStreamToString -Stream $stream -Encoding BigEndianUnicode
+
+            $assertion | Should -BeExactly $string
+            $stream.Dispose()
+        }
+
+        It -Name 'Converts UTF32 encoded stream' -Test {
+            $string = 'Hello World'
+            $bytes = [System.Text.Encoding]::UTF32.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $assertion = ConvertFrom-MemoryStreamToString -Stream $stream -Encoding UTF32
+
+            $assertion | Should -BeExactly $string
+            $stream.Dispose()
+        }
+
+        It -Name 'Converts UTF8 encoded stream explicitly' -Test {
+            $string = 'Hello World'
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $assertion = ConvertFrom-MemoryStreamToString -Stream $stream -Encoding UTF8
+
+            $assertion | Should -BeExactly $string
+            $stream.Dispose()
+        }
+
+        It -Name 'Supports -Encoding with pipeline input' -Test {
+            $string = 'Hello World'
+            $bytes = [System.Text.Encoding]::Unicode.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $assertion = $stream | ConvertFrom-MemoryStreamToString -Encoding Unicode
+
+            $assertion | Should -BeExactly $string
+            $stream.Dispose()
+        }
+
+        It -Name 'Handles special characters with Unicode encoding' -Test {
+            $string = 'Hello 世界 🌍'
+            $bytes = [System.Text.Encoding]::Unicode.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $assertion = ConvertFrom-MemoryStreamToString -Stream $stream -Encoding Unicode
+
+            $assertion | Should -BeExactly $string
+            $stream.Dispose()
+        }
+
+        It -Name 'Rejects invalid encoding name' -Test {
+            $string = 'Hello World'
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            { ConvertFrom-MemoryStreamToString -Stream $stream -Encoding InvalidEncoding } | Should -Throw
+
+            $stream.Dispose()
+        }
+    }
 }
