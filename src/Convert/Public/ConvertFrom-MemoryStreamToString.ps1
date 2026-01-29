@@ -5,11 +5,8 @@
     .DESCRIPTION
         Converts MemoryStream to a string.
 
-    .PARAMETER MemoryStream
-        A System.IO.MemoryStream object for conversion.
-
     .PARAMETER Stream
-        A System.IO.Stream object for conversion.
+        A System.IO.Stream object for conversion. Accepts any stream type including MemoryStream, FileStream, etc.
 
     .EXAMPLE
         $string = 'A string'
@@ -84,16 +81,9 @@ function ConvertFrom-MemoryStreamToString {
             Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            ParameterSetName = 'MemoryStream')]
-        [ValidateNotNullOrEmpty()]
-        [System.IO.MemoryStream[]]
-        $MemoryStream,
-
-        [Parameter(
-            Mandatory = $true,
-            ValueFromPipelineByPropertyName = $true,
             ParameterSetName = 'Stream')]
         [ValidateNotNullOrEmpty()]
+        [Alias('MemoryStream')]
         [System.IO.Stream[]]
         $Stream
     )
@@ -103,18 +93,9 @@ function ConvertFrom-MemoryStreamToString {
     }
 
     process {
-        switch ($PSCmdlet.ParameterSetName) {
-            'MemoryStream' {
-                $inputObject = $MemoryStream
-            }
-            'Stream' {
-                $inputObject = $Stream
-            }
-        }
-
-        foreach ($object in $inputObject) {
+        foreach ($object in $Stream) {
             try {
-                if ($PSCmdlet.ParameterSetName -eq 'MemoryStream') {
+                if ($object.CanSeek) {
                     $object.Position = 0
                 }
                 $reader = [System.IO.StreamReader]::new($object)
