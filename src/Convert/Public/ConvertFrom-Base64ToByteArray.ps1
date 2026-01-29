@@ -9,26 +9,46 @@
     The Base 64 Encoded String to be converted
 
     .EXAMPLE
-    PS C:\> ConvertFrom-Base64ToByteArray -String 'dGVzdA=='
-    116
-    101
-    115
-    116
+    ConvertFrom-Base64ToByteArray -String 'dGVzdA=='
 
-    Converts the base64 string to its byte array representation.
+    .EXAMPLE
+    'SGVsbG8=' | ConvertFrom-Base64ToByteArray
+
+    .EXAMPLE
+    'SGVsbG8=', 'V29ybGQ=' | ConvertFrom-Base64ToByteArray
+
+    .OUTPUTS
+    [Byte[]]
 
     .LINK
-    https://msdn.microsoft.com/en-us/library/system.convert.frombase64string%28v=vs.110%29.aspx
+    https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToByteArray/
 #>
 function ConvertFrom-Base64ToByteArray {
     [CmdletBinding()]
     [Alias('ConvertFrom-Base64StringToByteArray')]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
         [Alias('Base64String')]
-        [String]$String
+        [String[]]
+        $String
     )
-    [System.Convert]::FromBase64String($String)
+
+    begin {
+        $userErrorActionPreference = $ErrorActionPreference
+    }
+
+    process {
+        foreach ($s in $String) {
+            try {
+                [System.Convert]::FromBase64String($s)
+            } catch {
+                Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+            }
+        }
+    }
 }

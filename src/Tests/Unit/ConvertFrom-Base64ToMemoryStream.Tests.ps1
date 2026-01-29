@@ -39,7 +39,7 @@ Describe -Name $function -Fixture {
                 # Windows PowerShell
                 'Invalid length for a Base-64 char array or string.'
             )
-            $assertion.Exception.InnerException.Message | Should -BeIn $exception
+            $assertion[0].Exception.InnerException.Message | Should -BeIn $exception
         }
     }
 }

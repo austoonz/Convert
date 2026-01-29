@@ -8,25 +8,42 @@
     .PARAMETER ByteArray
     The Byte Array to be converted
 
-    .LINK
-    https://msdn.microsoft.com/en-us/library/system.io.memorystream(v=vs.110).aspx
-
-    .NOTES
-    Additional information:
-    https://msdn.microsoft.com/en-us/library/63z365ty(v=vs.110).aspx
-
     .EXAMPLE
     ConvertFrom-ByteArrayToMemoryStream -ByteArray ([Byte[]] (,0xFF * 100))
 
-    This command uses the ConvertFrom-ByteArrayToMemoryStream cmdlet to convert a Byte Array into a Memory Stream.
+    .EXAMPLE
+    $bytes = [Byte[]]@(72, 101, 108, 108, 111)
+    ,$bytes | ConvertFrom-ByteArrayToMemoryStream
+
+    .OUTPUTS
+    [System.IO.MemoryStream[]]
+
+    .LINK
+    https://austoonz.github.io/Convert/functions/ConvertFrom-ByteArrayToMemoryStream/
 #>
 function ConvertFrom-ByteArrayToMemoryStream {
+    [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
         [Alias('Bytes')]
-        [System.Byte[]]$ByteArray
+        [System.Byte[]]
+        $ByteArray
     )
-    [System.IO.MemoryStream]::new($ByteArray, 0, $ByteArray.Length)
+
+    begin {
+        $userErrorActionPreference = $ErrorActionPreference
+    }
+
+    process {
+        try {
+            [System.IO.MemoryStream]::new($ByteArray, 0, $ByteArray.Length)
+        } catch {
+            Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+        }
+    }
 }
