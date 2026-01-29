@@ -85,11 +85,19 @@ function ConvertFrom-Base64ToString {
                         $ptr = [ConvertCoreInterop]::base64_to_string($s, $Encoding)
                         
                         if ($ptr -eq $nullPtr) {
-                            $errorMsg = GetRustError -DefaultMessage "Base64 decoding failed for encoding '$Encoding'"
-                            throw $errorMsg
+                            $rustError = GetRustError -DefaultMessage ''
+                            if ($rustError -match 'Invalid UTF-8|Invalid ASCII|Invalid UTF-16|Invalid UTF-32') {
+                                # Binary data - fall back to Latin-1 which can represent any byte
+                                $bytes = [System.Convert]::FromBase64String($s)
+                                [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetString($bytes)
+                            } elseif ($rustError) {
+                                throw $rustError
+                            } else {
+                                throw "Base64 decoding failed for encoding '$Encoding'"
+                            }
+                        } else {
+                            ConvertPtrToString -Ptr $ptr
                         }
-                        
-                        ConvertPtrToString -Ptr $ptr
                     } finally {
                         if ($ptr -ne $nullPtr) {
                             [ConvertCoreInterop]::free_string($ptr)
