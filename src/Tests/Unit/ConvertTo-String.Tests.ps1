@@ -59,6 +59,94 @@ Describe -Name $function -Fixture {
         }
     }
 
+    Context -Name 'Stream input' -Fixture {
+        It -Name 'Converts MemoryStream using -Stream parameter' -Test {
+            $stream = [System.IO.MemoryStream]::new()
+            $writer = [System.IO.StreamWriter]::new($stream)
+            $writer.Write($String)
+            $writer.Flush()
+
+            $assertion = ConvertTo-String -Stream $stream
+
+            $assertion | Should -BeExactly $String
+
+            $writer.Dispose()
+            $stream.Dispose()
+        }
+
+        It -Name 'Converts FileStream to string' -Test {
+            $tempFile = [System.IO.Path]::GetTempFileName()
+            $fileStream = $null
+            try {
+                [System.IO.File]::WriteAllText($tempFile, $String)
+                $fileStream = [System.IO.File]::OpenRead($tempFile)
+
+                $assertion = ConvertTo-String -Stream $fileStream
+
+                $assertion | Should -BeExactly $String
+            } finally {
+                if ($fileStream) { $fileStream.Dispose() }
+                if (Test-Path $tempFile) { Remove-Item $tempFile -Force }
+            }
+        }
+
+        It -Name 'Converts FileStream from Pipeline' -Test {
+            $tempFile = [System.IO.Path]::GetTempFileName()
+            $fileStream = $null
+            try {
+                [System.IO.File]::WriteAllText($tempFile, $String)
+                $fileStream = [System.IO.File]::OpenRead($tempFile)
+
+                $assertion = $fileStream | ConvertTo-String
+
+                $assertion | Should -BeExactly $String
+            } finally {
+                if ($fileStream) { $fileStream.Dispose() }
+                if (Test-Path $tempFile) { Remove-Item $tempFile -Force }
+            }
+        }
+
+        It -Name 'Converts BufferedStream to string' -Test {
+            $memStream = [System.IO.MemoryStream]::new()
+            $writer = [System.IO.StreamWriter]::new($memStream)
+            $writer.Write($String)
+            $writer.Flush()
+
+            $bufferedStream = [System.IO.BufferedStream]::new($memStream)
+
+            $assertion = ConvertTo-String -Stream $bufferedStream
+
+            $assertion | Should -BeExactly $String
+
+            $bufferedStream.Dispose()
+            $writer.Dispose()
+            $memStream.Dispose()
+        }
+
+        It -Name 'Converts array of FileStreams from Pipeline' -Test {
+            $tempFile1 = [System.IO.Path]::GetTempFileName()
+            $tempFile2 = [System.IO.Path]::GetTempFileName()
+            $stream1 = $null
+            $stream2 = $null
+            try {
+                [System.IO.File]::WriteAllText($tempFile1, $String)
+                [System.IO.File]::WriteAllText($tempFile2, $String)
+
+                $stream1 = [System.IO.File]::OpenRead($tempFile1)
+                $stream2 = [System.IO.File]::OpenRead($tempFile2)
+
+                $assertion = @($stream1, $stream2) | ConvertTo-String
+
+                $assertion | Should -HaveCount 2
+            } finally {
+                if ($stream1) { $stream1.Dispose() }
+                if ($stream2) { $stream2.Dispose() }
+                if (Test-Path $tempFile1) { Remove-Item $tempFile1 -Force }
+                if (Test-Path $tempFile2) { Remove-Item $tempFile2 -Force }
+            }
+        }
+    }
+
     Context -Name 'MemoryStream input' -Fixture {
         It -Name 'Converts to base64 correctly' -Test {
             $stream = [System.IO.MemoryStream]::new()

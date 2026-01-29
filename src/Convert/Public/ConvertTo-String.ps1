@@ -8,11 +8,8 @@
     .PARAMETER Base64EncodedString
         A Base64 Encoded String
 
-    .PARAMETER MemoryStream
-        A MemoryStream object for conversion.
-
     .PARAMETER Stream
-        A System.IO.Stream object for conversion.
+        A System.IO.Stream object for conversion. Accepts any stream type including MemoryStream, FileStream, etc.
 
     .PARAMETER Encoding
         The encoding to use for conversion.
@@ -105,16 +102,9 @@ function ConvertTo-String {
             Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            ParameterSetName = 'MemoryStream')]
-        [ValidateNotNullOrEmpty()]
-        [System.IO.MemoryStream[]]
-        $MemoryStream,
-
-        [Parameter(
-            Mandatory = $true,
-            ValueFromPipelineByPropertyName = $true,
             ParameterSetName = 'Stream')]
         [ValidateNotNullOrEmpty()]
+        [Alias('MemoryStream')]
         [System.IO.Stream[]]
         $Stream,
 
@@ -156,10 +146,6 @@ function ConvertTo-String {
                         Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
                     }
                 }
-            }
-
-            'MemoryStream' {
-                $MemoryStream | ConvertFrom-MemoryStreamToString -ErrorAction $userErrorActionPreference
             }
 
             'Stream' {

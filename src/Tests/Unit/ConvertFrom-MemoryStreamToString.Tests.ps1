@@ -2,6 +2,101 @@ $function = $MyInvocation.MyCommand.Name.Split('.')[0]
 
 Describe -Name $function -Fixture {
 
+    Context -Name 'Stream input (non-MemoryStream)' -Fixture {
+        It -Name 'Converts FileStream using -Stream parameter' -Test {
+            $string = 'ThisIsMyString'
+            $tempFile = [System.IO.Path]::GetTempFileName()
+            $fileStream = $null
+            try {
+                [System.IO.File]::WriteAllText($tempFile, $string)
+                $fileStream = [System.IO.File]::OpenRead($tempFile)
+
+                $assertion = ConvertFrom-MemoryStreamToString -Stream $fileStream
+
+                $assertion | Should -BeExactly $string
+            } finally {
+                if ($fileStream) { $fileStream.Dispose() }
+                if (Test-Path $tempFile) { Remove-Item $tempFile -Force }
+            }
+        }
+
+        It -Name 'Converts FileStream from Pipeline' -Test {
+            $string = 'ThisIsMyString'
+            $tempFile = [System.IO.Path]::GetTempFileName()
+            $fileStream = $null
+            try {
+                [System.IO.File]::WriteAllText($tempFile, $string)
+                $fileStream = [System.IO.File]::OpenRead($tempFile)
+
+                $assertion = $fileStream | ConvertFrom-MemoryStreamToString
+
+                $assertion | Should -BeExactly $string
+            } finally {
+                if ($fileStream) { $fileStream.Dispose() }
+                if (Test-Path $tempFile) { Remove-Item $tempFile -Force }
+            }
+        }
+
+        It -Name 'Converts BufferedStream to string' -Test {
+            $string = 'ThisIsMyString'
+            $memStream = [System.IO.MemoryStream]::new()
+            $writer = [System.IO.StreamWriter]::new($memStream)
+            $writer.Write($string)
+            $writer.Flush()
+
+            $bufferedStream = [System.IO.BufferedStream]::new($memStream)
+
+            $assertion = ConvertFrom-MemoryStreamToString -Stream $bufferedStream
+
+            $assertion | Should -BeExactly $string
+
+            $bufferedStream.Dispose()
+            $writer.Dispose()
+            $memStream.Dispose()
+        }
+
+        It -Name 'Converts array of FileStreams from Pipeline' -Test {
+            $string = 'ThisIsMyString'
+            $tempFile1 = [System.IO.Path]::GetTempFileName()
+            $tempFile2 = [System.IO.Path]::GetTempFileName()
+            $stream1 = $null
+            $stream2 = $null
+            try {
+                [System.IO.File]::WriteAllText($tempFile1, $string)
+                [System.IO.File]::WriteAllText($tempFile2, $string)
+
+                $stream1 = [System.IO.File]::OpenRead($tempFile1)
+                $stream2 = [System.IO.File]::OpenRead($tempFile2)
+
+                $assertion = @($stream1, $stream2) | ConvertFrom-MemoryStreamToString
+
+                $assertion | Should -HaveCount 2
+            } finally {
+                if ($stream1) { $stream1.Dispose() }
+                if ($stream2) { $stream2.Dispose() }
+                if (Test-Path $tempFile1) { Remove-Item $tempFile1 -Force }
+                if (Test-Path $tempFile2) { Remove-Item $tempFile2 -Force }
+            }
+        }
+    }
+
+    Context -Name 'Alias' -Fixture {
+        It -Name 'ConvertFrom-StreamToString alias works' -Test {
+            $string = 'ThisIsMyString'
+            $stream = [System.IO.MemoryStream]::new()
+            $writer = [System.IO.StreamWriter]::new($stream)
+            $writer.Write($string)
+            $writer.Flush()
+
+            $assertion = ConvertFrom-StreamToString -Stream $stream
+
+            $assertion | Should -BeExactly $string
+
+            $stream.Dispose()
+            $writer.Dispose()
+        }
+    }
+
     Context -Name 'Input/Output' -Fixture {
         It -Name "Converts a MemoryStream to a string" -Test {
             $string = 'ThisIsMyString'
