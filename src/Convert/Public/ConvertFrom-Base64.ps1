@@ -87,21 +87,56 @@ function ConvertFrom-Base64 {
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         foreach ($b64 in $Base64) {
             try {
-                $bytes = [System.Convert]::FromBase64String($b64)
-
-                if ($ToString) {
-                    if ($Decompress) {
-                        ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
-                    } else {
-                        [System.Text.Encoding]::$Encoding.GetString($bytes)
+                if ($ToString -and -not $Decompress) {
+                    # Direct base64 to string conversion via Rust
+                    $ptr = $nullPtr
+                    try {
+                        $ptr = [ConvertCoreInterop]::base64_to_string($b64, $Encoding)
+                        
+                        if ($ptr -eq $nullPtr) {
+                            $errorMsg = GetRustError -DefaultMessage "Base64 to string conversion failed for encoding '$Encoding'"
+                            throw $errorMsg
+                        }
+                        
+                        ConvertPtrToString -Ptr $ptr
+                    } finally {
+                        if ($ptr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_string($ptr)
+                        }
                     }
                 } else {
-                    $bytes
+                    # Get bytes first (for raw output or decompression)
+                    $bytesPtr = $nullPtr
+                    try {
+                        $length = [UIntPtr]::Zero
+                        $bytesPtr = [ConvertCoreInterop]::base64_to_bytes($b64, [ref]$length)
+                        
+                        if ($bytesPtr -eq $nullPtr) {
+                            $errorMsg = GetRustError -DefaultMessage "Base64 decoding failed"
+                            throw $errorMsg
+                        }
+                        
+                        $bytes = New-Object byte[] $length.ToUInt64()
+                        [System.Runtime.InteropServices.Marshal]::Copy($bytesPtr, $bytes, 0, $bytes.Length)
+                    } finally {
+                        if ($bytesPtr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_bytes($bytesPtr)
+                        }
+                    }
+                    
+                    if ($ToString) {
+                        # Decompress path
+                        ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
+                    } else {
+                        # Return raw bytes
+                        $bytes
+                    }
                 }
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference

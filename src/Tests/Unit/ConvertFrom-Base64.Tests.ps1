@@ -79,12 +79,7 @@ Describe -Name $function -Fixture {
             }
             $assertion = ConvertFrom-Base64 @splat -ErrorAction Continue 2>&1
 
-            $ExpectedList = @(
-                'Invalid length for a Base-64 char array or string.',
-                'The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.'
-            )
-
-            $assertion.Exception.InnerException.Message | Should -BeIn $ExpectedList
+            $assertion[0].Exception.Message | Should -BeLike 'Failed to decode Base64:*'
         }
     }
 
@@ -156,12 +151,7 @@ Describe -Name $function -Fixture {
             }
             $assertion = ConvertFrom-Base64 @splat -ErrorAction Continue 2>&1
 
-            $ExpectedList = @(
-                'Invalid length for a Base-64 char array or string.',
-                'The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.'
-            )
-
-            $assertion.Exception.InnerException.Message | Should -BeIn $ExpectedList
+            $assertion[0].Exception.Message | Should -BeLike 'Failed to decode Base64:*'
         }
     }
 
