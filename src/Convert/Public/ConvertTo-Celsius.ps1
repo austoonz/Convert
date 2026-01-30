@@ -5,11 +5,15 @@
     .DESCRIPTION
         The ConvertTo-Celsius function converts a temperature value from Fahrenheit to Celsius.
         It accepts input via parameter or pipeline, validates that the temperature is not below absolute zero
-        (-459.67°F), and returns the result rounded to two decimal places.
+        (-459.67°F), and returns the result rounded to the specified precision (default: 2 decimal places).
 
     .PARAMETER Fahrenheit
         The temperature in Fahrenheit to convert. Must be greater than or equal to -459.67°F (absolute zero).
         This parameter accepts pipeline input.
+
+    .PARAMETER Precision
+        The number of decimal places to round the result to. Default is 2.
+        Use higher values for more precise results, or 15 for maximum floating-point precision.
 
     .EXAMPLE
         ConvertTo-Celsius -Fahrenheit 32
@@ -35,13 +39,19 @@
 
         Converts -40°F to Celsius (-40°C), demonstrating the point where both scales intersect.
 
+    .EXAMPLE
+        ConvertTo-Celsius -Fahrenheit 0 -Precision 10
+        -17.7777777778
+
+        Converts 0°F to Celsius with 10 decimal places of precision.
+
     .INPUTS
         System.Double
         You can pipe a double value representing the temperature in Fahrenheit to this function.
 
     .OUTPUTS
         System.Double
-        Returns the temperature in Celsius as a double value, rounded to two decimal places.
+        Returns the temperature in Celsius as a double value, rounded to the specified precision.
 
     .NOTES
         The formula used is: °C = (°F - 32) × 5/9
@@ -62,13 +72,18 @@ function ConvertTo-Celsius {
             Position = 0)]
         [ValidateRange(-459.67, [double]::MaxValue)]
         [double]
-        $Fahrenheit
+        $Fahrenheit,
+
+        [Parameter(Position = 1)]
+        [ValidateRange(0, 15)]
+        [int]
+        $Precision = 2
     )
 
     process {
         try {
             $celsius = [ConvertCoreInterop]::fahrenheit_to_celsius($Fahrenheit)
-            return [Math]::Round($celsius, 2)
+            return [Math]::Round($celsius, $Precision)
         } catch {
             $PSCmdlet.ThrowTerminatingError(
                 [System.Management.Automation.ErrorRecord]::new(
@@ -81,4 +96,3 @@ function ConvertTo-Celsius {
         }
     }
 }
-
