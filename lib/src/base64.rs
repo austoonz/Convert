@@ -1837,11 +1837,14 @@ mod tests {
             result.is_ok(),
             "Odd-length bytes should fall back to Latin-1 for UTF-16"
         );
-        
+
         // Verify round-trip
         let s = result.unwrap();
         let round_trip: Vec<u8> = s.chars().map(|c| c as u8).collect();
-        assert_eq!(round_trip, odd_bytes, "Should preserve original bytes via Latin-1");
+        assert_eq!(
+            round_trip, odd_bytes,
+            "Should preserve original bytes via Latin-1"
+        );
     }
 
     #[test]
@@ -1871,7 +1874,10 @@ mod tests {
         ];
 
         let result = convert_bytes_to_string_with_fallback(&binary_data, "UTF8");
-        assert!(result.is_ok(), "Binary data should succeed via Latin-1 fallback");
+        assert!(
+            result.is_ok(),
+            "Binary data should succeed via Latin-1 fallback"
+        );
 
         let s = result.unwrap();
         let round_trip: Vec<u8> = s.chars().map(|c| c as u8).collect();
@@ -1891,8 +1897,20 @@ mod tests {
 
         let s = result.unwrap();
         assert_eq!(s.chars().count(), 3, "Should have 3 characters");
-        assert_eq!(s.chars().nth(0).unwrap(), '\u{00A1}', "First char should be Latin-1 0xA1");
-        assert_eq!(s.chars().nth(1).unwrap(), '\u{FFFD}', "Null byte should be replacement char");
-        assert_eq!(s.chars().nth(2).unwrap(), '\u{00C0}', "Third char should be Latin-1 0xC0");
+        assert_eq!(
+            s.chars().next().unwrap(),
+            '\u{00A1}',
+            "First char should be Latin-1 0xA1"
+        );
+        assert_eq!(
+            s.chars().nth(1).unwrap(),
+            '\u{FFFD}',
+            "Null byte should be replacement char"
+        );
+        assert_eq!(
+            s.chars().nth(2).unwrap(),
+            '\u{00C0}',
+            "Third char should be Latin-1 0xC0"
+        );
     }
 }

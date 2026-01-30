@@ -19,6 +19,7 @@ use std::os::raw::c_char;
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn url_encode(input: *const c_char) -> *mut c_char {
     if input.is_null() {
+        crate::error::set_error("Input pointer is null".to_string());
         return std::ptr::null_mut();
     }
 
@@ -90,6 +91,7 @@ pub unsafe extern "C" fn url_encode(input: *const c_char) -> *mut c_char {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn url_decode(input: *const c_char) -> *mut c_char {
     if input.is_null() {
+        crate::error::set_error("Input pointer is null".to_string());
         return std::ptr::null_mut();
     }
 
