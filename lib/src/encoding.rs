@@ -340,7 +340,10 @@ mod tests {
             )
         };
 
-        assert!(result.is_null(), "UTF7 encoding should return null (deprecated)");
+        assert!(
+            result.is_null(),
+            "UTF7 encoding should return null (deprecated)"
+        );
         assert_eq!(out_length, 0, "Output length should be 0 for UTF7");
     }
 
@@ -808,7 +811,10 @@ mod tests {
 
         let result = unsafe { bytes_to_string(bytes.as_ptr(), 0, encoding.as_ptr()) };
 
-        assert!(!result.is_null(), "Result should not be null for empty bytes");
+        assert!(
+            !result.is_null(),
+            "Result should not be null for empty bytes"
+        );
 
         let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
         assert_eq!(result_str, "", "Should return empty string");
@@ -823,7 +829,10 @@ mod tests {
 
         let result = unsafe { bytes_to_string(std::ptr::null(), 5, encoding.as_ptr()) };
 
-        assert!(result.is_null(), "Null bytes with length > 0 should return null");
+        assert!(
+            result.is_null(),
+            "Null bytes with length > 0 should return null"
+        );
     }
 
     #[test]
@@ -855,24 +864,39 @@ mod tests {
     fn test_bytes_to_string_all_encodings() {
         // Test: all supported encodings should work
         let encodings_and_bytes: Vec<(&str, Vec<u8>)> = vec![
-            ("UTF8", vec![72, 101, 108, 108, 111]),           // "Hello" in UTF-8
-            ("ASCII", vec![72, 101, 108, 108, 111]),          // "Hello" in ASCII
+            ("UTF8", vec![72, 101, 108, 108, 111]),  // "Hello" in UTF-8
+            ("ASCII", vec![72, 101, 108, 108, 111]), // "Hello" in ASCII
             ("Unicode", vec![72, 0, 101, 0, 108, 0, 108, 0, 111, 0]), // "Hello" in UTF-16LE
-            ("BigEndianUnicode", vec![0, 72, 0, 101, 0, 108, 0, 108, 0, 111]), // "Hello" in UTF-16BE
-            ("UTF32", vec![72, 0, 0, 0, 101, 0, 0, 0, 108, 0, 0, 0, 108, 0, 0, 0, 111, 0, 0, 0]), // "Hello" in UTF-32LE
-            ("Default", vec![72, 101, 108, 108, 111]),        // "Hello" in Default (UTF-8)
+            (
+                "BigEndianUnicode",
+                vec![0, 72, 0, 101, 0, 108, 0, 108, 0, 111],
+            ), // "Hello" in UTF-16BE
+            (
+                "UTF32",
+                vec![
+                    72, 0, 0, 0, 101, 0, 0, 0, 108, 0, 0, 0, 108, 0, 0, 0, 111, 0, 0, 0,
+                ],
+            ), // "Hello" in UTF-32LE
+            ("Default", vec![72, 101, 108, 108, 111]), // "Hello" in Default (UTF-8)
         ];
 
         for (enc, bytes) in encodings_and_bytes {
             let encoding = CString::new(enc).unwrap();
 
-            let result =
-                unsafe { bytes_to_string(bytes.as_ptr(), bytes.len(), encoding.as_ptr()) };
+            let result = unsafe { bytes_to_string(bytes.as_ptr(), bytes.len(), encoding.as_ptr()) };
 
-            assert!(!result.is_null(), "Result should not be null for encoding: {}", enc);
+            assert!(
+                !result.is_null(),
+                "Result should not be null for encoding: {}",
+                enc
+            );
 
             let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
-            assert_eq!(result_str, "Hello", "Should decode to 'Hello' for encoding: {}", enc);
+            assert_eq!(
+                result_str, "Hello",
+                "Should decode to 'Hello' for encoding: {}",
+                enc
+            );
 
             unsafe { crate::memory::free_string(result) };
         }
@@ -886,7 +910,10 @@ mod tests {
 
         let result = unsafe { bytes_to_string(bytes.as_ptr(), bytes.len(), encoding.as_ptr()) };
 
-        assert!(result.is_null(), "UTF7 encoding should return null (deprecated)");
+        assert!(
+            result.is_null(),
+            "UTF7 encoding should return null (deprecated)"
+        );
     }
 
     #[test]
@@ -920,7 +947,10 @@ mod tests {
 
         let result = unsafe { bytes_to_string(bytes.as_ptr(), bytes.len(), encoding.as_ptr()) };
 
-        assert!(result.is_null(), "Result containing null byte should return null");
+        assert!(
+            result.is_null(),
+            "Result containing null byte should return null"
+        );
     }
 
     #[test]
@@ -931,7 +961,10 @@ mod tests {
 
         let result = unsafe { bytes_to_string(bytes.as_ptr(), bytes.len(), encoding.as_ptr()) };
 
-        assert!(result.is_null(), "Odd-length UTF-16 bytes should return null");
+        assert!(
+            result.is_null(),
+            "Odd-length UTF-16 bytes should return null"
+        );
     }
 
     #[test]
@@ -942,7 +975,10 @@ mod tests {
 
         let result = unsafe { bytes_to_string(bytes.as_ptr(), bytes.len(), encoding.as_ptr()) };
 
-        assert!(result.is_null(), "Non-multiple-of-4 UTF-32 bytes should return null");
+        assert!(
+            result.is_null(),
+            "Non-multiple-of-4 UTF-32 bytes should return null"
+        );
     }
 
     #[test]
@@ -982,10 +1018,17 @@ mod tests {
         let result =
             unsafe { bytes_to_string(large_bytes.as_ptr(), large_bytes.len(), encoding.as_ptr()) };
 
-        assert!(!result.is_null(), "Result should not be null for large input");
+        assert!(
+            !result.is_null(),
+            "Result should not be null for large input"
+        );
 
         let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
-        assert_eq!(result_str.len(), 1024 * 1024, "Should have 1MB of characters");
+        assert_eq!(
+            result_str.len(),
+            1024 * 1024,
+            "Should have 1MB of characters"
+        );
 
         unsafe { crate::memory::free_string(result) };
     }
@@ -1012,7 +1055,10 @@ mod tests {
         assert!(!result.is_null(), "bytes_to_string should succeed");
 
         let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
-        assert_eq!(result_str, "Hello, World! 🌍", "Round-trip should preserve string");
+        assert_eq!(
+            result_str, "Hello, World! 🌍",
+            "Round-trip should preserve string"
+        );
 
         unsafe {
             crate::memory::free_bytes(bytes_ptr);
@@ -1023,7 +1069,14 @@ mod tests {
     #[test]
     fn test_bytes_to_string_round_trip_all_encodings() {
         // Test: round-trip for all encodings
-        let encodings = vec!["UTF8", "ASCII", "Unicode", "BigEndianUnicode", "UTF32", "Default"];
+        let encodings = vec![
+            "UTF8",
+            "ASCII",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF32",
+            "Default",
+        ];
 
         for enc in encodings {
             let original = CString::new("Test").unwrap(); // ASCII-safe for all encodings
@@ -1038,14 +1091,26 @@ mod tests {
                     &mut out_length as *mut usize,
                 )
             };
-            assert!(!bytes_ptr.is_null(), "string_to_bytes should succeed for {}", enc);
+            assert!(
+                !bytes_ptr.is_null(),
+                "string_to_bytes should succeed for {}",
+                enc
+            );
 
             // Bytes to string
             let result = unsafe { bytes_to_string(bytes_ptr, out_length, encoding.as_ptr()) };
-            assert!(!result.is_null(), "bytes_to_string should succeed for {}", enc);
+            assert!(
+                !result.is_null(),
+                "bytes_to_string should succeed for {}",
+                enc
+            );
 
             let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
-            assert_eq!(result_str, "Test", "Round-trip should preserve string for {}", enc);
+            assert_eq!(
+                result_str, "Test",
+                "Round-trip should preserve string for {}",
+                enc
+            );
 
             unsafe {
                 crate::memory::free_bytes(bytes_ptr);
@@ -1091,7 +1156,11 @@ mod tests {
                     assert!(!result.is_null(), "Decoding should succeed in thread {}", i);
 
                     let result_str = unsafe { CStr::from_ptr(result).to_str().unwrap() };
-                    assert_eq!(result_str, "Hello", "Should decode to 'Hello' in thread {}", i);
+                    assert_eq!(
+                        result_str, "Hello",
+                        "Should decode to 'Hello' in thread {}",
+                        i
+                    );
 
                     unsafe { crate::memory::free_string(result) };
                 })
