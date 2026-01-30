@@ -76,7 +76,7 @@ pub unsafe extern "C" fn compute_hash(
     };
 
     // Convert string to bytes based on encoding
-    let bytes = match convert_string_to_bytes(input_str, encoding_str) {
+    let bytes = match crate::base64::convert_string_to_bytes(input_str, encoding_str) {
         Ok(b) => b,
         Err(e) => {
             crate::error::set_error(e);
@@ -325,55 +325,6 @@ fn compute_hmac_sha512(key: &[u8], input: &[u8]) -> Result<String, String> {
         .map_err(|_| "Failed to create HMAC-SHA512 instance".to_string())?;
     mac.update(input);
     Ok(format!("{:X}", mac.finalize().into_bytes()))
-}
-
-/// Convert a Rust string to bytes using the specified encoding
-fn convert_string_to_bytes(input: &str, encoding: &str) -> Result<Vec<u8>, String> {
-    if encoding.eq_ignore_ascii_case("UTF8") || encoding.eq_ignore_ascii_case("UTF-8") {
-        Ok(input.as_bytes().to_vec())
-    } else if encoding.eq_ignore_ascii_case("ASCII") {
-        if input.is_ascii() {
-            Ok(input.as_bytes().to_vec())
-        } else {
-            Err("String contains non-ASCII characters".to_string())
-        }
-    } else if encoding.eq_ignore_ascii_case("UNICODE")
-        || encoding.eq_ignore_ascii_case("UTF16")
-        || encoding.eq_ignore_ascii_case("UTF-16")
-    {
-        let utf16: Vec<u16> = input.encode_utf16().collect();
-        let mut bytes = Vec::with_capacity(utf16.len() * 2);
-        for word in utf16 {
-            bytes.push((word & 0xFF) as u8);
-            bytes.push((word >> 8) as u8);
-        }
-        Ok(bytes)
-    } else if encoding.eq_ignore_ascii_case("UTF32") || encoding.eq_ignore_ascii_case("UTF-32") {
-        let mut bytes = Vec::with_capacity(input.chars().count() * 4);
-        for ch in input.chars() {
-            let code_point = ch as u32;
-            bytes.push((code_point & 0xFF) as u8);
-            bytes.push(((code_point >> 8) & 0xFF) as u8);
-            bytes.push(((code_point >> 16) & 0xFF) as u8);
-            bytes.push(((code_point >> 24) & 0xFF) as u8);
-        }
-        Ok(bytes)
-    } else if encoding.eq_ignore_ascii_case("BIGENDIANUNICODE")
-        || encoding.eq_ignore_ascii_case("UTF16BE")
-        || encoding.eq_ignore_ascii_case("UTF-16BE")
-    {
-        let utf16: Vec<u16> = input.encode_utf16().collect();
-        let mut bytes = Vec::with_capacity(utf16.len() * 2);
-        for word in utf16 {
-            bytes.push((word >> 8) as u8);
-            bytes.push((word & 0xFF) as u8);
-        }
-        Ok(bytes)
-    } else if encoding.eq_ignore_ascii_case("DEFAULT") {
-        Ok(input.as_bytes().to_vec())
-    } else {
-        Err(format!("Unsupported encoding: {}", encoding))
-    }
 }
 
 #[cfg(test)]
