@@ -111,7 +111,7 @@ function ConvertTo-HmacHash {
         [string]$Algorithm = 'HMACSHA256',
         
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
-        [String]$Encoding = 'UTF8',
+        [String]$Encoding,
         
         [ValidateSet('Hex', 'Base64', 'ByteArray')]
         [string]$OutputFormat = 'Hex',
@@ -123,6 +123,11 @@ function ConvertTo-HmacHash {
     begin {
         $userErrorActionPreference = $ErrorActionPreference
         $generatedKey = $null
+        
+        # Default to UTF8 if no encoding specified
+        if ([string]::IsNullOrEmpty($Encoding)) {
+            $Encoding = 'UTF8'
+        }
         
         # Minimum recommended key lengths
         $minimumKeyLengths = @{

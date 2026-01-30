@@ -47,12 +47,16 @@ function ConvertFrom-StringToCompressedByteArray {
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
-        $Encoding = 'UTF8'
+        $Encoding
     )
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
         $nullPtr = [IntPtr]::Zero
+        # Default to UTF8 if no encoding specified
+        if ([string]::IsNullOrEmpty($Encoding)) {
+            $Encoding = 'UTF8'
+        }
     }
 
     process {

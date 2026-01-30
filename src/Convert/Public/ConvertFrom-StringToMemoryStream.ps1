@@ -91,7 +91,7 @@ function ConvertFrom-StringToMemoryStream {
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
-        $Encoding = 'UTF8',
+        $Encoding,
 
         [Switch]
         $Compress
@@ -99,6 +99,10 @@ function ConvertFrom-StringToMemoryStream {
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        # Default to UTF8 if no encoding specified
+        if ([string]::IsNullOrEmpty($Encoding)) {
+            $Encoding = 'UTF8'
+        }
     }
 
     process {
