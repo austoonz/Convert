@@ -16,6 +16,7 @@ nav:
     - ConvertFrom-Base64ToString: functions/ConvertFrom-Base64ToString.md
     - ConvertFrom-ByteArrayToBase64: functions/ConvertFrom-ByteArrayToBase64.md
     - ConvertFrom-ByteArrayToMemoryStream: functions/ConvertFrom-ByteArrayToMemoryStream.md
+    - ConvertFrom-ByteArrayToString: functions/ConvertFrom-ByteArrayToString.md
     - ConvertFrom-Clixml: functions/ConvertFrom-Clixml.md
     - ConvertFrom-CompressedByteArrayToString: functions/ConvertFrom-CompressedByteArrayToString.md
     - ConvertFrom-EscapedUrl: functions/ConvertFrom-EscapedUrl.md

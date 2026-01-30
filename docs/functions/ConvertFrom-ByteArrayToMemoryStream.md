@@ -1,7 +1,7 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: https://msdn.microsoft.com/en-us/library/system.io.memorystream(v=vs.110).aspx
+online version: https://austoonz.github.io/Convert/functions/ConvertFrom-ByteArrayToMemoryStream/
 schema: 2.0.0
 ---
 
@@ -27,7 +27,11 @@ Converts a Byte Array to a MemoryStream
 ConvertFrom-ByteArrayToMemoryStream -ByteArray ([Byte[]] (,0xFF * 100))
 ```
 
-This command uses the ConvertFrom-ByteArrayToMemoryStream cmdlet to convert a Byte Array into a Memory Stream.
+### EXAMPLE 2
+```
+$bytes = [Byte[]]@(72, 101, 108, 108, 111)
+,$bytes | ConvertFrom-ByteArrayToMemoryStream
+```
 
 ## PARAMETERS
 
@@ -42,7 +46,7 @@ Aliases: Bytes
 Required: True
 Position: 1
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
@@ -68,11 +72,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
+### [System.IO.MemoryStream[]]
 ## NOTES
-Additional information:
-https://msdn.microsoft.com/en-us/library/63z365ty(v=vs.110).aspx
 
 ## RELATED LINKS
 
-[https://msdn.microsoft.com/en-us/library/system.io.memorystream(v=vs.110).aspx](https://msdn.microsoft.com/en-us/library/system.io.memorystream(v=vs.110).aspx)
+[https://austoonz.github.io/Convert/functions/ConvertFrom-ByteArrayToMemoryStream/](https://austoonz.github.io/Convert/functions/ConvertFrom-ByteArrayToMemoryStream/)
 

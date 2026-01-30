@@ -19,6 +19,7 @@ ConvertFrom-StringToByteArray [-String] <String[]> [[-Encoding] <String>] [-Prog
 
 ## DESCRIPTION
 Converts a string to a byte array object.
+This is the inverse operation of ConvertFrom-ByteArrayToString.
 
 ## EXAMPLES
 

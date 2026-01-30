@@ -14,14 +14,14 @@ Converts a Memory Stream to a Secure String
 
 ### MemoryStream (Default)
 ```
-ConvertFrom-MemoryStreamToSecureString -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ConvertFrom-MemoryStreamToSecureString -MemoryStream <MemoryStream[]> [-Encoding <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Stream
 ```
-ConvertFrom-MemoryStreamToSecureString -Stream <Stream[]> [-Encoding <String>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ConvertFrom-MemoryStreamToSecureString -Stream <Stream[]> [-Encoding <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION

@@ -13,6 +13,9 @@
 
 ### New Features
 
+* **Added `ConvertFrom-ByteArrayToString`** - Converts byte arrays to strings with encoding support (Issue #15)
+  * Supports ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8 encodings
+  * Inverse operation of `ConvertFrom-StringToByteArray`
 * **Added `-Encoding` parameter** to `ConvertFrom-MemoryStreamToString` (Issue #21)
 * **Added `-Encoding` parameter** to `ConvertFrom-MemoryStreamToSecureString` (Issue #21)
 * **Added pipeline support** to `ConvertFrom-Base64ToByteArray` (Issue #16)

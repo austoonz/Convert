@@ -4,6 +4,7 @@
 
     .DESCRIPTION
         Converts a string to a byte array object.
+        This is the inverse operation of ConvertFrom-ByteArrayToString.
 
     .PARAMETER String
         A string object for conversion.

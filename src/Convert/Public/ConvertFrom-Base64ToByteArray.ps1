@@ -3,7 +3,7 @@
     Converts a Base 64 Encoded String to a Byte Array
 
     .DESCRIPTION
-    Converts a Base 64 Encoded String to a Byte Array
+    Converts a Base 64 Encoded String to a Byte Array.
 
     .PARAMETER String
     The Base 64 Encoded String to be converted
@@ -24,7 +24,7 @@
     https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToByteArray/
 #>
 function ConvertFrom-Base64ToByteArray {
-    [CmdletBinding()]
+    [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToByteArray/')]
     [Alias('ConvertFrom-Base64StringToByteArray')]
     param
     (
@@ -40,14 +40,32 @@ function ConvertFrom-Base64ToByteArray {
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        $nullPtr = [IntPtr]::Zero
     }
 
     process {
         foreach ($s in $String) {
+            $ptr = $nullPtr
             try {
-                [System.Convert]::FromBase64String($s)
+                $length = [UIntPtr]::Zero
+                $ptr = [ConvertCoreInterop]::base64_to_bytes($s, [ref]$length)
+                
+                if ($ptr -eq $nullPtr) {
+                    $errorMsg = GetRustError -DefaultMessage "Base64 to byte array conversion failed"
+                    throw $errorMsg
+                }
+                
+                $byteArray = New-Object byte[] $length.ToUInt64()
+                [System.Runtime.InteropServices.Marshal]::Copy($ptr, $byteArray, 0, $byteArray.Length)
+                
+                # Output the byte array (use comma to prevent PowerShell from unrolling)
+                ,$byteArray
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
+            } finally {
+                if ($ptr -ne $nullPtr) {
+                    [ConvertCoreInterop]::free_bytes($ptr)
+                }
             }
         }
     }
