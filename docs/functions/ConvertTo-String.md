@@ -18,11 +18,6 @@ ConvertTo-String -Base64EncodedString <String[]> [-Encoding <String>] [-Decompre
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
-### MemoryStream
-```
-ConvertTo-String -MemoryStream <MemoryStream[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
-```
-
 ### Stream
 ```
 ConvertTo-String -Stream <Stream[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
@@ -120,33 +115,19 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
-### -MemoryStream
-A MemoryStream object for conversion.
+### -Stream
+A System.IO.Stream object for conversion.
+Accepts any stream type including MemoryStream, FileStream, etc.
 
 ```yaml
-Type: MemoryStream[]
-Parameter Sets: MemoryStream
-Aliases:
+Type: Stream[]
+Parameter Sets: Stream
+Aliases: MemoryStream
 
 Required: True
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -Stream
-A System.IO.Stream object for conversion.
-
-```yaml
-Type: Stream[]
-Parameter Sets: Stream
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 

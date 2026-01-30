@@ -1,7 +1,7 @@
 ---
 external help file: Convert-help.xml
 Module Name: Convert
-online version: https://msdn.microsoft.com/en-us/library/system.convert.frombase64string%28v=vs.110%29.aspx
+online version: https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToByteArray/
 schema: 2.0.0
 ---
 
@@ -13,7 +13,7 @@ Converts a Base 64 Encoded String to a Byte Array
 ## SYNTAX
 
 ```
-ConvertFrom-Base64ToByteArray [-String] <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ConvertFrom-Base64ToByteArray [-String] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -24,13 +24,17 @@ Converts a Base 64 Encoded String to a Byte Array
 ### EXAMPLE 1
 ```
 ConvertFrom-Base64ToByteArray -String 'dGVzdA=='
-116
-101
-115
-116
 ```
 
-Converts the base64 string to its byte array representation.
+### EXAMPLE 2
+```
+'SGVsbG8=' | ConvertFrom-Base64ToByteArray
+```
+
+### EXAMPLE 3
+```
+'SGVsbG8=', 'V29ybGQ=' | ConvertFrom-Base64ToByteArray
+```
 
 ## PARAMETERS
 
@@ -38,14 +42,14 @@ Converts the base64 string to its byte array representation.
 The Base 64 Encoded String to be converted
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases: Base64String
 
 Required: True
 Position: 1
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
@@ -71,9 +75,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
+### [Byte[]]
 ## NOTES
 
 ## RELATED LINKS
 
-[https://msdn.microsoft.com/en-us/library/system.convert.frombase64string%28v=vs.110%29.aspx](https://msdn.microsoft.com/en-us/library/system.convert.frombase64string%28v=vs.110%29.aspx)
+[https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToByteArray/](https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToByteArray/)
 

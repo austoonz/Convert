@@ -79,6 +79,7 @@
         'ConvertFrom-Base64ToString'
         'ConvertFrom-ByteArrayToBase64'
         'ConvertFrom-ByteArrayToMemoryStream'
+        'ConvertFrom-ByteArrayToString'
         'ConvertFrom-CompressedByteArrayToString'
         'ConvertFrom-EscapedUrl'
         'ConvertFrom-HashTable'

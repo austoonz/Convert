@@ -12,13 +12,6 @@ Converts MemoryStream to a string.
 
 ## SYNTAX
 
-### MemoryStream
-```
-ConvertFrom-MemoryStreamToString -MemoryStream <MemoryStream[]> [-Encoding <String>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
-```
-
-### Stream
 ```
 ConvertFrom-MemoryStreamToString -Stream <Stream[]> [-Encoding <String>] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
@@ -97,33 +90,19 @@ Another string
 
 ## PARAMETERS
 
-### -MemoryStream
-A System.IO.MemoryStream object for conversion.
+### -Stream
+A System.IO.Stream object for conversion.
+Accepts any stream type including MemoryStream, FileStream, etc.
 
 ```yaml
-Type: MemoryStream[]
-Parameter Sets: MemoryStream
-Aliases:
+Type: Stream[]
+Parameter Sets: (All)
+Aliases: MemoryStream
 
 Required: True
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -Stream
-A System.IO.Stream object for conversion.
-
-```yaml
-Type: Stream[]
-Parameter Sets: Stream
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
