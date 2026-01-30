@@ -24,4 +24,63 @@ Describe $function {
     It 'Does not throw an exception when input is an empty System.IO.MemoryStream' {
         { ConvertFrom-MemoryStreamToSecureString -MemoryStream (New-Object System.IO.MemoryStream) } | Should -Not -Throw
     }
+
+    Context 'Encoding' {
+        It 'Uses UTF8 encoding by default' {
+            $string = 'MySecretPassword'
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $secure = ConvertFrom-MemoryStreamToSecureString -MemoryStream $stream
+            $credential = [PSCredential]::new('Dummy', $secure)
+            $credential.GetNetworkCredential().Password | Should -BeExactly $string
+        }
+
+        It 'Converts ASCII encoded stream to SecureString' {
+            $string = 'MySecretPassword'
+            $bytes = [System.Text.Encoding]::ASCII.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $secure = ConvertFrom-MemoryStreamToSecureString -MemoryStream $stream -Encoding ASCII
+            $credential = [PSCredential]::new('Dummy', $secure)
+            $credential.GetNetworkCredential().Password | Should -BeExactly $string
+        }
+
+        It 'Converts Unicode encoded stream to SecureString' {
+            $string = 'MySecretPassword'
+            $bytes = [System.Text.Encoding]::Unicode.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $secure = ConvertFrom-MemoryStreamToSecureString -MemoryStream $stream -Encoding Unicode
+            $credential = [PSCredential]::new('Dummy', $secure)
+            $credential.GetNetworkCredential().Password | Should -BeExactly $string
+        }
+
+        It 'Converts BigEndianUnicode encoded stream to SecureString' {
+            $string = 'MySecretPassword'
+            $bytes = [System.Text.Encoding]::BigEndianUnicode.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $secure = ConvertFrom-MemoryStreamToSecureString -MemoryStream $stream -Encoding BigEndianUnicode
+            $credential = [PSCredential]::new('Dummy', $secure)
+            $credential.GetNetworkCredential().Password | Should -BeExactly $string
+        }
+
+        It 'Converts UTF32 encoded stream to SecureString' {
+            $string = 'MySecretPassword'
+            $bytes = [System.Text.Encoding]::UTF32.GetBytes($string)
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            $secure = ConvertFrom-MemoryStreamToSecureString -MemoryStream $stream -Encoding UTF32
+            $credential = [PSCredential]::new('Dummy', $secure)
+            $credential.GetNetworkCredential().Password | Should -BeExactly $string
+        }
+
+        It 'Rejects invalid encoding name' {
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes('test')
+            $stream = [System.IO.MemoryStream]::new($bytes)
+
+            { ConvertFrom-MemoryStreamToSecureString -MemoryStream $stream -Encoding InvalidEncoding } | Should -Throw
+        }
+    }
 }

@@ -11,6 +11,11 @@
     .PARAMETER Stream
     A System.IO.Stream object for conversion.
 
+    .PARAMETER Encoding
+    The encoding to use for conversion.
+    Defaults to UTF8.
+    Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
+
     .EXAMPLE
     $string = 'My Super Secret Value'
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
@@ -47,7 +52,11 @@ function ConvertFrom-MemoryStreamToSecureString {
             ParameterSetName = 'Stream')]
         [ValidateNotNullOrEmpty()]
         [System.IO.Stream[]]
-        $Stream
+        $Stream,
+
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
+        [String]
+        $Encoding = 'UTF8'
     )
 
     begin {
@@ -67,7 +76,8 @@ function ConvertFrom-MemoryStreamToSecureString {
         foreach ($object in $inputObject) {
             try {
                 $secureString = [System.Security.SecureString]::new()
-                $reader = [System.IO.StreamReader]::new($object)
+                $enc = [System.Text.Encoding]::$Encoding
+                $reader = [System.IO.StreamReader]::new($object, $enc)
 
                 while ($reader.Peek() -ge 0) {
                     $secureString.AppendChar($reader.Read())

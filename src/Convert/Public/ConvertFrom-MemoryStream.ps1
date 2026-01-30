@@ -176,7 +176,7 @@ function ConvertFrom-MemoryStream {
     process {
         foreach ($m in $MemoryStream) {
             try {
-                $string = ConvertFrom-MemoryStreamToString -MemoryStream $m -ErrorAction Stop
+                $string = ConvertFrom-MemoryStreamToString -MemoryStream $m -Encoding $Encoding -ErrorAction Stop
 
                 if ($ToString) {
                     $string
