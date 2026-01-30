@@ -108,17 +108,36 @@ function ConvertFrom-StringToMemoryStream {
     process {
         foreach ($s in $String) {
             try {
-                [System.IO.MemoryStream]$stream = [System.IO.MemoryStream]::new()
-                if ($Compress) {
-                    $byteArray = [System.Text.Encoding]::$Encoding.GetBytes($s)
-                    $gzipStream = [System.IO.Compression.GzipStream]::new($stream, ([IO.Compression.CompressionMode]::Compress))
-                    $gzipStream.Write( $byteArray, 0, $byteArray.Length )
-                } else {
-                    $writer = [System.IO.StreamWriter]::new($stream)
-                    $writer.Write($s)
-                    $writer.Flush()
+                # Use Rust for string-to-bytes conversion (consistent encoding behavior)
+                $lengthPtr = [UIntPtr]::Zero
+                $bytesPtr = [ConvertCoreInterop]::string_to_bytes($s, $Encoding, [ref]$lengthPtr)
+                
+                if ($bytesPtr -eq [IntPtr]::Zero) {
+                    $errorMsg = GetRustError -DefaultMessage "Failed to convert string to bytes with encoding '$Encoding'"
+                    throw $errorMsg
                 }
-                $stream
+                
+                try {
+                    # Copy bytes from Rust memory to managed array
+                    $byteArray = [byte[]]::new([int]$lengthPtr.ToUInt64())
+                    [System.Runtime.InteropServices.Marshal]::Copy($bytesPtr, $byteArray, 0, $byteArray.Length)
+                    
+                    [System.IO.MemoryStream]$stream = [System.IO.MemoryStream]::new()
+                    if ($Compress) {
+                        # Use leaveOpen: true to keep the MemoryStream open after GzipStream is disposed
+                        $gzipStream = [System.IO.Compression.GzipStream]::new($stream, ([IO.Compression.CompressionMode]::Compress), $true)
+                        $gzipStream.Write($byteArray, 0, $byteArray.Length)
+                        $gzipStream.Close()
+                        $stream.Position = 0
+                    } else {
+                        $stream.Write($byteArray, 0, $byteArray.Length)
+                        $stream.Position = 0
+                    }
+                    $stream
+                } finally {
+                    # Free Rust-allocated memory
+                    [ConvertCoreInterop]::free_bytes($bytesPtr)
+                }
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference
             }

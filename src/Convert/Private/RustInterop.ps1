@@ -153,8 +153,17 @@ public static class ConvertCoreInterop {
         [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
 
     [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr compute_hmac(
+    public static extern IntPtr compute_hmac_with_encoding(
         [MarshalAs(UnmanagedType.LPUTF8Str)] string input,
+        IntPtr key,
+        UIntPtr keyLength,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string algorithm,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
+
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr compute_hmac_bytes(
+        IntPtr inputBytes,
+        UIntPtr inputLength,
         IntPtr key,
         UIntPtr keyLength,
         [MarshalAs(UnmanagedType.LPUTF8Str)] string algorithm);

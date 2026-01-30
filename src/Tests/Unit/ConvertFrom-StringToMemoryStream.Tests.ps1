@@ -54,11 +54,13 @@ Describe -Name $function -Fixture {
 
         It -Name 'Returned a MemoryStream with the correct compressed length' -Test {
             $assertion = ConvertFrom-StringToMemoryStream -String $String -Compress
-            $assertion.Length | Should -BeExactly 10
+            # GZip compressed "ThisIsMyString" (14 bytes UTF-8) = 34 bytes
+            $assertion.Length | Should -BeExactly 34
         }
 
         It -Name 'Compressed stream is shorter than the non-compressed stream' -Test {
-            $testString = 'This string has multiple string values'
+            # Use a longer, repetitive string that compresses well
+            $testString = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
             $nonCompressed = ConvertFrom-StringToMemoryStream -String $testString
             $compressed = ConvertFrom-StringToMemoryStream -String $testString -Compress
             $compressed.Length | Should -BeLessThan $nonCompressed.Length
