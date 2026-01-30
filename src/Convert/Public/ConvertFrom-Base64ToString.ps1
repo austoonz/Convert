@@ -61,7 +61,7 @@ function ConvertFrom-Base64ToString {
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
-        $Encoding = 'UTF8',
+        $Encoding,
 
         [Parameter(Mandatory = $false)]
         [Switch]
@@ -71,6 +71,12 @@ function ConvertFrom-Base64ToString {
     begin {
         $userErrorActionPreference = $ErrorActionPreference
         $nullPtr = [IntPtr]::Zero
+        # Determine if we should use strict or lenient mode
+        # Lenient mode (Latin-1 fallback) is used when no encoding is specified
+        $useLenientMode = [string]::IsNullOrEmpty($Encoding)
+        if ($useLenientMode) {
+            $Encoding = 'UTF8'  # Default encoding for lenient mode
+        }
     }
 
     process {
@@ -78,26 +84,28 @@ function ConvertFrom-Base64ToString {
             try {
                 if ($Decompress) {
                     $bytes = [System.Convert]::FromBase64String($s)
-                    ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
+                    if ($useLenientMode) {
+                        ConvertFrom-CompressedByteArrayToString -ByteArray $bytes
+                    } else {
+                        ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
+                    }
                 } else {
                     $ptr = $nullPtr
                     try {
-                        $ptr = [ConvertCoreInterop]::base64_to_string($s, $Encoding)
+                        # Use strict mode if encoding was explicitly specified, lenient mode otherwise
+                        # Lenient mode falls back to Latin-1 for binary data that isn't valid text
+                        if ($useLenientMode) {
+                            $ptr = [ConvertCoreInterop]::base64_to_string_lenient($s, $Encoding)
+                        } else {
+                            $ptr = [ConvertCoreInterop]::base64_to_string($s, $Encoding)
+                        }
                         
                         if ($ptr -eq $nullPtr) {
-                            $rustError = GetRustError -DefaultMessage ''
-                            if ($rustError -match 'Invalid UTF-8|Invalid ASCII|Invalid UTF-16|Invalid UTF-32') {
-                                # Binary data - fall back to Latin-1 which can represent any byte
-                                $bytes = [System.Convert]::FromBase64String($s)
-                                [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetString($bytes)
-                            } elseif ($rustError) {
-                                throw $rustError
-                            } else {
-                                throw "Base64 decoding failed for encoding '$Encoding'"
-                            }
-                        } else {
-                            ConvertPtrToString -Ptr $ptr
+                            $errorMsg = GetRustError -DefaultMessage "Base64 decoding failed for encoding '$Encoding'"
+                            throw $errorMsg
                         }
+                        
+                        ConvertPtrToString -Ptr $ptr
                     } finally {
                         if ($ptr -ne $nullPtr) {
                             [ConvertCoreInterop]::free_string($ptr)

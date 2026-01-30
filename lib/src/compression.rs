@@ -222,6 +222,81 @@ pub unsafe extern "C" fn decompress_string(
     }
 }
 
+/// Decompress a Gzip-compressed byte array to a string with Latin-1 fallback
+///
+/// This is a lenient version of `decompress_string` that automatically falls back to
+/// Latin-1 (ISO-8859-1) encoding when the decompressed byte sequence is invalid for
+/// the specified encoding. This is useful for handling binary data (like certificates)
+/// that may not be valid text in any standard encoding.
+///
+/// Use this function when you want best-effort conversion without errors.
+/// Use `decompress_string` when you want strict validation of the encoding.
+///
+/// # Safety
+/// Same safety requirements as `decompress_string`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn decompress_string_lenient(
+    bytes: *const u8,
+    length: usize,
+    encoding: *const c_char,
+) -> *mut c_char {
+    // Validate null pointers
+    if bytes.is_null() {
+        crate::error::set_error("Byte array pointer is null".to_string());
+        return std::ptr::null_mut();
+    }
+
+    if encoding.is_null() {
+        crate::error::set_error("Encoding pointer is null".to_string());
+        return std::ptr::null_mut();
+    }
+
+    // Convert encoding C string to Rust string
+    let encoding_str = match unsafe { CStr::from_ptr(encoding).to_str() } {
+        Ok(s) => s,
+        Err(_) => {
+            crate::error::set_error("Invalid UTF-8 in encoding string".to_string());
+            return std::ptr::null_mut();
+        }
+    };
+
+    // Create a slice from the raw pointer
+    let compressed_slice = unsafe { std::slice::from_raw_parts(bytes, length) };
+
+    // Decompress using Gzip
+    let mut decoder = GzDecoder::new(compressed_slice);
+    let mut decompressed = Vec::new();
+
+    if let Err(e) = decoder.read_to_end(&mut decompressed) {
+        crate::error::set_error(format!("Decompression failed: {}", e));
+        return std::ptr::null_mut();
+    }
+
+    // Convert bytes to string with Latin-1 fallback for binary data
+    let result_string =
+        match crate::base64::convert_bytes_to_string_with_fallback(&decompressed, encoding_str) {
+            Ok(s) => s,
+            Err(e) => {
+                crate::error::set_error(e);
+                return std::ptr::null_mut();
+            }
+        };
+
+    // Convert to C string
+    match CString::new(result_string) {
+        Ok(c_str) => {
+            crate::error::clear_error();
+            c_str.into_raw()
+        }
+        Err(_) => {
+            crate::error::set_error(
+                "Failed to create C string from decompressed result".to_string(),
+            );
+            std::ptr::null_mut()
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

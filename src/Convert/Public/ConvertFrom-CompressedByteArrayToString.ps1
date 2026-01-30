@@ -47,12 +47,18 @@ function ConvertFrom-CompressedByteArrayToString {
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
-        $Encoding = 'UTF8'
+        $Encoding
     )
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
         $nullPtr = [IntPtr]::Zero
+        # Determine if we should use strict or lenient mode
+        # Lenient mode (Latin-1 fallback) is used when no encoding is specified
+        $useLenientMode = [string]::IsNullOrEmpty($Encoding)
+        if ($useLenientMode) {
+            $Encoding = 'UTF8'  # Default encoding for lenient mode
+        }
     }
 
     process {
@@ -65,7 +71,13 @@ function ConvertFrom-CompressedByteArrayToString {
                     $byteArrayPtr = $pinnedArray.AddrOfPinnedObject()
                     $length = [UIntPtr]::new($ByteArray.Length)
                     
-                    $ptr = [ConvertCoreInterop]::decompress_string($byteArrayPtr, $length, $Encoding)
+                    # Use strict mode if encoding was explicitly specified, lenient mode otherwise
+                    # Lenient mode falls back to Latin-1 for binary data that isn't valid text
+                    if ($useLenientMode) {
+                        $ptr = [ConvertCoreInterop]::decompress_string_lenient($byteArrayPtr, $length, $Encoding)
+                    } else {
+                        $ptr = [ConvertCoreInterop]::decompress_string($byteArrayPtr, $length, $Encoding)
+                    }
                     
                     if ($ptr -eq $nullPtr) {
                         $errorMsg = GetRustError -DefaultMessage "Decompression failed for encoding '$Encoding'"

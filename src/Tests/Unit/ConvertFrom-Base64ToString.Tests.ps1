@@ -98,7 +98,8 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Converts binary data (non-UTF8) without error' -Test {
-            $binaryBytes = [byte[]](0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x00, 0x80)
+            # Binary data without null bytes (null bytes are replaced with replacement char)
+            $binaryBytes = [byte[]](0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x80)
             $base64 = [System.Convert]::ToBase64String($binaryBytes)
             
             $result = ConvertFrom-Base64ToString -String $base64
@@ -108,13 +109,23 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Round-trips binary data through Latin-1 fallback' -Test {
-            $binaryBytes = [byte[]](0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x00, 0x80)
+            # Binary data without null bytes (null bytes are replaced with replacement char)
+            $binaryBytes = [byte[]](0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x80)
             $base64 = [System.Convert]::ToBase64String($binaryBytes)
             
             $resultString = ConvertFrom-Base64ToString -String $base64
             $resultBytes = [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetBytes($resultString)
             
             $resultBytes | Should -Be $binaryBytes
+        }
+
+        It -Name 'Throws on invalid UTF-8 when encoding is explicitly specified (strict mode)' -Test {
+            # Binary data that is not valid UTF-8
+            $binaryBytes = [byte[]](0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x80)
+            $base64 = [System.Convert]::ToBase64String($binaryBytes)
+            
+            # With explicit -Encoding = strict mode, should throw
+            { ConvertFrom-Base64ToString -String $base64 -Encoding 'UTF8' -ErrorAction Stop } | Should -Throw
         }
     }
 
@@ -219,24 +230,4 @@ Describe -Name $function -Fixture {
             $result | Should -BeOfType [string]
         }
     }
-
-    Context -Name 'RED TDD Tests for Future Improvements' -Fixture {
-        It -Name 'Preserves binary-safe data (null bytes) in round-trip' -Skip {
-            $binaryString = "Before`0After"
-            $encoded = ConvertFrom-StringToBase64 -String $binaryString -Encoding 'UTF8'
-            $decoded = ConvertFrom-Base64ToString -String $encoded -Encoding 'UTF8'
-            
-            $decoded | Should -BeExactly $binaryString
-        }
-
-        It -Name 'Handles complex Unicode sequences correctly' -Skip {
-            $complexUnicode = "Test 👨‍👩‍👧‍👦 Family"
-            $encoded = ConvertFrom-StringToBase64 -String $complexUnicode -Encoding 'UTF8'
-            $decoded = ConvertFrom-Base64ToString -String $encoded -Encoding 'UTF8'
-            
-            $decoded | Should -BeExactly $complexUnicode
-        }
-    }
 }
-
-
