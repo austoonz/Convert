@@ -57,6 +57,7 @@ function ConvertFrom-ByteArrayToString {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
+        [Alias('Bytes')]
         [Byte[]]
         $ByteArray,
 

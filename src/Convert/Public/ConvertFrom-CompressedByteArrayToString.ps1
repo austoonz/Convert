@@ -47,6 +47,7 @@ function ConvertFrom-CompressedByteArrayToString {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
+        [Alias('Bytes')]
         [Byte[]]
         $ByteArray,
 
