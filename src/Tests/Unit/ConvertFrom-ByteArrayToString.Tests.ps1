@@ -72,13 +72,13 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Round-trips Unicode characters (emoji) with UTF8' -Test {
-            $original = 'Hello 🌍'
+            $original = 'Hello ' + [char]::ConvertFromUtf32(0x1F30D)
             $bytes = ConvertFrom-StringToByteArray -String $original -Encoding 'UTF8'
             $result = ConvertFrom-ByteArrayToString -ByteArray $bytes -Encoding 'UTF8'
             $result | Should -BeExactly $original
         }
 
-        It -Name 'Round-trips from Base64 → ByteArray → String' -Test {
+        It -Name 'Round-trips from Base64 to ByteArray to String' -Test {
             $original = 'Hello, World!'
             $base64 = ConvertFrom-StringToBase64 -String $original -Encoding 'UTF8'
             $bytes = ConvertFrom-Base64ToByteArray -String $base64
@@ -103,10 +103,11 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Converts emoji bytes without specifying encoding' -Test {
-            # 🌍 = F0 9F 8C 8D in UTF-8
+            # Earth globe emoji (U+1F30D) = F0 9F 8C 8D in UTF-8
             $emojiBytes = [byte[]]@(0xF0, 0x9F, 0x8C, 0x8D)
             $result = ConvertFrom-ByteArrayToString -ByteArray $emojiBytes
-            $result | Should -BeExactly '🌍'
+            $expected = [char]::ConvertFromUtf32(0x1F30D)
+            $result | Should -BeExactly $expected
         }
     }
 
@@ -134,10 +135,11 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Handles Unicode characters (emoji)' -Test {
-            # 🌍 = F0 9F 8C 8D in UTF-8
+            # Earth globe emoji (U+1F30D) = F0 9F 8C 8D in UTF-8
             $emojiBytes = [byte[]]@(0xF0, 0x9F, 0x8C, 0x8D)
             $result = ConvertFrom-ByteArrayToString -ByteArray $emojiBytes -Encoding 'UTF8'
-            $result | Should -BeExactly '🌍'
+            $expected = [char]::ConvertFromUtf32(0x1F30D)
+            $result | Should -BeExactly $expected
         }
 
         It -Name 'Handles whitespace-only content' -Test {
