@@ -111,7 +111,7 @@ function ConvertTo-String {
         [Parameter(ParameterSetName = 'Base64String')]
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
-        $Encoding = 'UTF8',
+        $Encoding,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'Base64String')]
         [Switch]
@@ -127,19 +127,19 @@ function ConvertTo-String {
             'Base64String' {
                 foreach ($b64 in $Base64EncodedString) {
                     try {
-                        if ($Decompress) {
-                            $b64 | ConvertFrom-Base64ToString -Encoding $Encoding -Decompress -ErrorAction Stop
+                        # Pass through to ConvertFrom-Base64ToString which handles strict/lenient mode
+                        # based on whether -Encoding was specified
+                        if ([string]::IsNullOrEmpty($Encoding)) {
+                            if ($Decompress) {
+                                $b64 | ConvertFrom-Base64ToString -Decompress -ErrorAction Stop
+                            } else {
+                                ConvertFrom-Base64ToString -String $b64 -ErrorAction Stop
+                            }
                         } else {
-                            try {
+                            if ($Decompress) {
+                                $b64 | ConvertFrom-Base64ToString -Encoding $Encoding -Decompress -ErrorAction Stop
+                            } else {
                                 ConvertFrom-Base64ToString -String $b64 -Encoding $Encoding -ErrorAction Stop
-                            } catch {
-                                if ($_.Exception.Message -match 'does not represent valid .+ text') {
-                                    # Binary data - fall back to Latin-1 which can represent any byte
-                                    $bytes = [System.Convert]::FromBase64String($b64)
-                                    [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetString($bytes)
-                                } else {
-                                    throw
-                                }
                             }
                         }
                     } catch {

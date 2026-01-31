@@ -13,13 +13,14 @@ Converts a temperature from Celsius to Fahrenheit.
 ## SYNTAX
 
 ```
-ConvertTo-Fahrenheit [-Celsius] <Double> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ConvertTo-Fahrenheit [-Celsius] <Double> [[-Precision] <Int32>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 The ConvertTo-Fahrenheit function converts a temperature value from Celsius to Fahrenheit.
 It accepts input via parameter or pipeline, validates that the temperature is not below absolute zero
-(-273.15°C), and returns the result rounded to two decimal places.
+(-273.15°C), and returns the result rounded to the specified precision (default: 2 decimal places).
 
 ## EXAMPLES
 
@@ -55,6 +56,14 @@ ConvertTo-Fahrenheit -Celsius -40
 
 Converts -40°C to Fahrenheit (-40°F), demonstrating the point where both scales intersect.
 
+### EXAMPLE 5
+```
+ConvertTo-Fahrenheit -Celsius -273.15 -Precision 10
+-459.67
+```
+
+Converts absolute zero to Fahrenheit with 10 decimal places of precision.
+
 ## PARAMETERS
 
 ### -Celsius
@@ -71,6 +80,23 @@ Required: True
 Position: 1
 Default value: 0
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Precision
+The number of decimal places to round the result to.
+Default is 2.
+Use higher values for more precise results, or 15 for maximum floating-point precision.
+
+```yaml
+Type: Int32
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 2
+Default value: 2
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -99,12 +125,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### System.Double
-### Returns the temperature in Fahrenheit as a double value, rounded to two decimal places.
+### Returns the temperature in Fahrenheit as a double value, rounded to the specified precision.
 ## NOTES
-Author: Your Name
-Version: 1.0
-Date: Current Date
-
 The formula used is: °F = (°C × 9/5) + 32
 
 ## RELATED LINKS

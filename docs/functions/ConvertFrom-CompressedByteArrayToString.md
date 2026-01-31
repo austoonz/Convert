@@ -8,7 +8,7 @@ schema: 2.0.0
 # ConvertFrom-CompressedByteArrayToString
 
 ## SYNOPSIS
-Converts a string to a byte array object.
+Decompresses a Gzip-compressed byte array and converts it to a string.
 
 ## SYNTAX
 
@@ -18,30 +18,34 @@ ConvertFrom-CompressedByteArrayToString [-ByteArray] <Byte[]> [[-Encoding] <Stri
 ```
 
 ## DESCRIPTION
-Converts a string to a byte array object.
+Decompresses a Gzip-compressed byte array and converts the result to a string
+using the specified encoding.
+This is the inverse operation of
+ConvertFrom-StringToCompressedByteArray.
+
+When the -Encoding parameter is not specified, the function uses lenient mode:
+it first attempts to decode the decompressed bytes as UTF-8, and if that fails
+(due to invalid byte sequences), it falls back to Latin-1 (ISO-8859-1) encoding
+which can represent any byte value.
+This is useful when the source encoding is unknown.
+
+When -Encoding is explicitly specified, the function uses strict mode and will
+return an error if the decompressed bytes are not valid for the specified encoding.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-$bytes = ConvertFrom-CompressedByteArrayToString -ByteArray $byteArray
-$bytes.GetType()
+$compressedBytes = ConvertFrom-StringToCompressedByteArray -String 'Hello, World!'
+ConvertFrom-CompressedByteArrayToString -ByteArray $compressedBytes
 ```
 
-IsPublic IsSerial Name                                     BaseType
--------- -------- ----                                     --------
-True     True     Object\[\]                                 System.Array
-
-$bytes\[0\].GetType()
-
-IsPublic IsSerial Name                                     BaseType
--------- -------- ----                                     --------
-True     True     Byte                                     System.ValueType
+Hello, World!
 
 ## PARAMETERS
 
 ### -ByteArray
-The array of bytes to convert.
+The Gzip-compressed byte array to decompress and convert to a string.
 
 ```yaml
 Type: Byte[]
@@ -57,8 +61,12 @@ Accept wildcard characters: False
 
 ### -Encoding
 The encoding to use for conversion.
-Defaults to UTF8.
 Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
+
+When not specified, the function attempts UTF-8 decoding with automatic fallback
+to Latin-1 for invalid byte sequences.
+When specified, strict decoding is used
+and an error is returned if the bytes are invalid for the chosen encoding.
 
 ```yaml
 Type: String
@@ -67,7 +75,7 @@ Aliases:
 
 Required: False
 Position: 2
-Default value: UTF8
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

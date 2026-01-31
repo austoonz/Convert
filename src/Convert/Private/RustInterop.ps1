@@ -114,6 +114,11 @@ public static class ConvertCoreInterop {
         [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
 
     [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr base64_to_string_lenient(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string input,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
+
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr bytes_to_base64(IntPtr bytes, UIntPtr length);
 
     [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
@@ -134,6 +139,12 @@ public static class ConvertCoreInterop {
         UIntPtr length,
         [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
 
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr bytes_to_string_lenient(
+        IntPtr bytes,
+        UIntPtr length,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
+
     // Hash operations
     [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr compute_hash(
@@ -142,8 +153,17 @@ public static class ConvertCoreInterop {
         [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
 
     [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr compute_hmac(
+    public static extern IntPtr compute_hmac_with_encoding(
         [MarshalAs(UnmanagedType.LPUTF8Str)] string input,
+        IntPtr key,
+        UIntPtr keyLength,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string algorithm,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
+
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr compute_hmac_bytes(
+        IntPtr inputBytes,
+        UIntPtr inputLength,
         IntPtr key,
         UIntPtr keyLength,
         [MarshalAs(UnmanagedType.LPUTF8Str)] string algorithm);
@@ -159,6 +179,23 @@ public static class ConvertCoreInterop {
     public static extern IntPtr decompress_string(
         IntPtr bytes,
         UIntPtr length,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
+
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr decompress_string_lenient(
+        IntPtr bytes,
+        UIntPtr length,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
+
+    // Combined Base64 decode + decompress operations
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr base64_to_decompressed_string(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string input,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
+
+    [DllImport("$escapedPath", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr base64_to_decompressed_string_lenient(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string input,
         [MarshalAs(UnmanagedType.LPUTF8Str)] string encoding);
 
     // URL operations

@@ -113,18 +113,17 @@ Describe -Name $function -Fixture {
 
     Context -Name 'Encoding Options' -Fixture {
         It -Name "Handles different text encodings" -TestCases @(
-            @{ Encoding = 'UTF8' }
-            @{ Encoding = 'ASCII' }
-            @{ Encoding = 'Unicode' }
+            @{ Encoding = 'UTF8'; Data = "Test String with special chars: äöü" }
+            @{ Encoding = 'ASCII'; Data = "Test String with ASCII only chars" }
+            @{ Encoding = 'Unicode'; Data = "Test String with special chars: äöü" }
         ) -Test {
-            param($Encoding)
+            param($Encoding, $Data)
             
             # Note: Results will differ based on encoding
             $key = [byte[]]@(1..32)
-            $data = "Test String with special chars: äöü"
             
             # This just verifies the function runs with different encodings
-            { ConvertTo-HmacHash -InputObject $data -Key $key -Encoding $Encoding } | Should -Not -Throw
+            { ConvertTo-HmacHash -InputObject $Data -Key $key -Encoding $Encoding } | Should -Not -Throw
             $Encoding | Out-Null
         }
     }

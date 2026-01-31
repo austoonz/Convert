@@ -164,7 +164,7 @@ function ConvertTo-Base64 {
 
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
-        $Encoding = 'UTF8',
+        $Encoding,
 
         [Parameter(Mandatory = $false)]
         [Switch]
@@ -173,6 +173,10 @@ function ConvertTo-Base64 {
 
     begin {
         $userErrorActionPreference = $ErrorActionPreference
+        # Default to UTF8 if no encoding specified
+        if ([string]::IsNullOrEmpty($Encoding)) {
+            $Encoding = 'UTF8'
+        }
 
         $convertSplat = @{
             ErrorAction = $userErrorActionPreference

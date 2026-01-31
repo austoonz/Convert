@@ -111,7 +111,7 @@ function ConvertTo-HmacHash {
         [string]$Algorithm = 'HMACSHA256',
         
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
-        [String]$Encoding = 'UTF8',
+        [String]$Encoding,
         
         [ValidateSet('Hex', 'Base64', 'ByteArray')]
         [string]$OutputFormat = 'Hex',
@@ -123,6 +123,11 @@ function ConvertTo-HmacHash {
     begin {
         $userErrorActionPreference = $ErrorActionPreference
         $generatedKey = $null
+        
+        # Default to UTF8 if no encoding specified
+        if ([string]::IsNullOrEmpty($Encoding)) {
+            $Encoding = 'UTF8'
+        }
         
         # Minimum recommended key lengths
         $minimumKeyLengths = @{
@@ -156,30 +161,6 @@ function ConvertTo-HmacHash {
                 throw "InputObject cannot be null"
             }
             
-            # Convert input to string for Rust FFI
-            # The Rust compute_hmac function expects UTF-8 string input
-            $inputString = switch ($InputObject.GetType().Name) {
-                'String' { 
-                    $InputObject
-                }
-                'Byte[]' { 
-                    # Convert byte array to string using specified encoding
-                    [System.Text.Encoding]::$Encoding.GetString($InputObject)
-                }
-                'MemoryStream' { 
-                    # Read stream contents while preserving original position
-                    $originalPosition = $InputObject.Position
-                    $InputObject.Position = 0
-                    $bytes = [byte[]]::new($InputObject.Length)
-                    $null = $InputObject.Read($bytes, 0, $InputObject.Length)
-                    $InputObject.Position = $originalPosition
-                    [System.Text.Encoding]::$Encoding.GetString($bytes)
-                }
-                default { 
-                    throw "Unsupported input type: $($InputObject.GetType().Name). Expected String, Byte[], or MemoryStream." 
-                }
-            }
-            
             # Extract algorithm name without "HMAC" prefix for Rust
             # PowerShell uses "HMACSHA256", Rust expects "SHA256"
             $rustAlgorithm = $Algorithm -replace '^HMAC', ''
@@ -187,22 +168,62 @@ function ConvertTo-HmacHash {
             # Initialize pointers for FFI memory management
             $ptr = [IntPtr]::Zero
             $keyHandle = $null
+            $inputHandle = $null
             
             try {
                 # Pin the key byte array in memory to prevent garbage collection during FFI call
-                # This ensures the key pointer remains valid for the duration of the Rust function call
                 $keyHandle = [System.Runtime.InteropServices.GCHandle]::Alloc($Key, [System.Runtime.InteropServices.GCHandleType]::Pinned)
                 $keyPtr = $keyHandle.AddrOfPinnedObject()
                 
-                # Call Rust FFI function to compute HMAC
-                # Parameters: input string, key pointer, key length, algorithm name
-                # Returns: pointer to hex-encoded hash string (must be freed)
-                $ptr = [ConvertCoreInterop]::compute_hmac(
-                    $inputString,
-                    $keyPtr,
-                    [UIntPtr]::new($Key.Length),
-                    $rustAlgorithm
-                )
+                # Call appropriate Rust function based on input type
+                switch ($InputObject.GetType().Name) {
+                    'String' {
+                        # Use compute_hmac_with_encoding - Rust handles encoding conversion
+                        $ptr = [ConvertCoreInterop]::compute_hmac_with_encoding(
+                            $InputObject,
+                            $keyPtr,
+                            [UIntPtr]::new($Key.Length),
+                            $rustAlgorithm,
+                            $Encoding
+                        )
+                    }
+                    'Byte[]' {
+                        # Pin byte array and use compute_hmac_bytes
+                        $inputHandle = [System.Runtime.InteropServices.GCHandle]::Alloc($InputObject, [System.Runtime.InteropServices.GCHandleType]::Pinned)
+                        $inputPtr = $inputHandle.AddrOfPinnedObject()
+                        
+                        $ptr = [ConvertCoreInterop]::compute_hmac_bytes(
+                            $inputPtr,
+                            [UIntPtr]::new($InputObject.Length),
+                            $keyPtr,
+                            [UIntPtr]::new($Key.Length),
+                            $rustAlgorithm
+                        )
+                    }
+                    'MemoryStream' {
+                        # Read stream contents while preserving original position
+                        $originalPosition = $InputObject.Position
+                        $InputObject.Position = 0
+                        $streamBytes = [byte[]]::new($InputObject.Length)
+                        $null = $InputObject.Read($streamBytes, 0, $InputObject.Length)
+                        $InputObject.Position = $originalPosition
+                        
+                        # Pin and use compute_hmac_bytes
+                        $inputHandle = [System.Runtime.InteropServices.GCHandle]::Alloc($streamBytes, [System.Runtime.InteropServices.GCHandleType]::Pinned)
+                        $inputPtr = $inputHandle.AddrOfPinnedObject()
+                        
+                        $ptr = [ConvertCoreInterop]::compute_hmac_bytes(
+                            $inputPtr,
+                            [UIntPtr]::new($streamBytes.Length),
+                            $keyPtr,
+                            [UIntPtr]::new($Key.Length),
+                            $rustAlgorithm
+                        )
+                    }
+                    default {
+                        throw "Unsupported input type: $($InputObject.GetType().Name). Expected String, Byte[], or MemoryStream."
+                    }
+                }
                 
                 # Check for null pointer indicating error
                 if ($ptr -eq [IntPtr]::Zero) {
@@ -216,11 +237,9 @@ function ConvertTo-HmacHash {
                 # Convert hex result to requested output format
                 $result = switch ($OutputFormat) {
                     'Hex' {
-                        # Return hex string directly from Rust
                         $hexResult
                     }
                     'Base64' {
-                        # Convert hex string to byte array, then encode as Base64
                         $hashBytes = [byte[]]::new($hexResult.Length / 2)
                         for ($i = 0; $i -lt $hexResult.Length; $i += 2) {
                             $hashBytes[$i / 2] = [Convert]::ToByte($hexResult.Substring($i, 2), 16)
@@ -228,7 +247,6 @@ function ConvertTo-HmacHash {
                         [Convert]::ToBase64String($hashBytes)
                     }
                     'ByteArray' {
-                        # Convert hex string to byte array
                         $hashBytes = [byte[]]::new($hexResult.Length / 2)
                         for ($i = 0; $i -lt $hexResult.Length; $i += 2) {
                             $hashBytes[$i / 2] = [Convert]::ToByte($hexResult.Substring($i, 2), 16)
@@ -252,7 +270,12 @@ function ConvertTo-HmacHash {
                     [ConvertCoreInterop]::free_string($ptr)
                 }
                 
-                # Unpin the key from memory to allow garbage collection
+                # Unpin the input bytes from memory (for byte array and MemoryStream inputs)
+                if ($null -ne $inputHandle -and $inputHandle.IsAllocated) {
+                    $inputHandle.Free()
+                }
+                
+                # Unpin the key from memory
                 if ($null -ne $keyHandle -and $keyHandle.IsAllocated) {
                     $keyHandle.Free()
                 }

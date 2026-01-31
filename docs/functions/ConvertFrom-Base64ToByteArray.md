@@ -17,7 +17,7 @@ ConvertFrom-Base64ToByteArray [-String] <String[]> [-ProgressAction <ActionPrefe
 ```
 
 ## DESCRIPTION
-Converts a Base 64 Encoded String to a Byte Array
+Converts a Base 64 Encoded String to a Byte Array.
 
 ## EXAMPLES
 

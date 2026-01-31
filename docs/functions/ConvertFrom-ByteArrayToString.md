@@ -21,6 +21,15 @@ ConvertFrom-ByteArrayToString [-ByteArray] <Byte[]> [[-Encoding] <String>] [-Pro
 Converts a byte array to a string using the specified encoding.
 This is the inverse operation of ConvertFrom-StringToByteArray.
 
+When the -Encoding parameter is not specified, the function uses lenient mode:
+it first attempts to decode the bytes as UTF-8, and if that fails (due to invalid
+byte sequences), it falls back to Latin-1 (ISO-8859-1) encoding which can represent
+any byte value.
+This is useful when the source encoding is unknown.
+
+When -Encoding is explicitly specified, the function uses strict mode and will
+return an error if the bytes are not valid for the specified encoding.
+
 ## EXAMPLES
 
 ### EXAMPLE 1
@@ -65,8 +74,12 @@ Accept wildcard characters: False
 
 ### -Encoding
 The encoding to use for conversion.
-Defaults to UTF8.
 Valid options are ASCII, BigEndianUnicode, Default, Unicode, UTF32, and UTF8.
+
+When not specified, the function attempts UTF-8 decoding with automatic fallback
+to Latin-1 for invalid byte sequences.
+When specified, strict decoding is used
+and an error is returned if the bytes are invalid for the chosen encoding.
 
 ```yaml
 Type: String
@@ -75,7 +88,7 @@ Aliases:
 
 Required: False
 Position: 2
-Default value: UTF8
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

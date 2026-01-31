@@ -72,7 +72,7 @@ function ConvertFrom-Base64 {
         [Parameter(ParameterSetName = 'ToString')]
         [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Unicode', 'UTF32', 'UTF8')]
         [String]
-        $Encoding = 'UTF8',
+        $Encoding,
 
         [Parameter(ParameterSetName = 'ToString')]
         [Parameter(Mandatory = $false)]
@@ -88,6 +88,10 @@ function ConvertFrom-Base64 {
     begin {
         $userErrorActionPreference = $ErrorActionPreference
         $nullPtr = [IntPtr]::Zero
+        # Default to UTF8 if no encoding specified
+        if ([string]::IsNullOrEmpty($Encoding)) {
+            $Encoding = 'UTF8'
+        }
     }
 
     process {
@@ -110,8 +114,25 @@ function ConvertFrom-Base64 {
                             [ConvertCoreInterop]::free_string($ptr)
                         }
                     }
+                } elseif ($ToString -and $Decompress) {
+                    # Combined Base64 decode + decompress + string conversion in one Rust call
+                    $ptr = $nullPtr
+                    try {
+                        $ptr = [ConvertCoreInterop]::base64_to_decompressed_string($b64, $Encoding)
+                        
+                        if ($ptr -eq $nullPtr) {
+                            $errorMsg = GetRustError -DefaultMessage "Failed to decode and decompress Base64"
+                            throw $errorMsg
+                        }
+                        
+                        ConvertPtrToString -Ptr $ptr
+                    } finally {
+                        if ($ptr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_string($ptr)
+                        }
+                    }
                 } else {
-                    # Get bytes first (for raw output or decompression)
+                    # Get raw bytes (no ToString)
                     $bytesPtr = $nullPtr
                     try {
                         $length = [UIntPtr]::Zero
@@ -130,13 +151,8 @@ function ConvertFrom-Base64 {
                         }
                     }
                     
-                    if ($ToString) {
-                        # Decompress path
-                        ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
-                    } else {
-                        # Return raw bytes
-                        $bytes
-                    }
+                    # Return raw bytes
+                    $bytes
                 }
             } catch {
                 Write-Error -ErrorRecord $_ -ErrorAction $userErrorActionPreference

@@ -192,7 +192,7 @@ pub unsafe extern "C" fn bytes_to_string(
         return std::ptr::null_mut();
     }
 
-    // Convert bytes to string using shared encoding logic
+    // Convert bytes to string using shared encoding logic (strict - no fallback)
     let result_string = match crate::base64::convert_bytes_to_string(byte_slice, encoding_str) {
         Ok(s) => s,
         Err(e) => {
@@ -200,6 +200,93 @@ pub unsafe extern "C" fn bytes_to_string(
             return std::ptr::null_mut();
         }
     };
+
+    // Convert Rust string to C string
+    match std::ffi::CString::new(result_string) {
+        Ok(c_string) => {
+            crate::error::clear_error();
+            c_string.into_raw()
+        }
+        Err(_) => {
+            crate::error::set_error("Result string contains null byte".to_string());
+            std::ptr::null_mut()
+        }
+    }
+}
+
+/// Convert a byte array to a string using the specified encoding with Latin-1 fallback
+///
+/// This is a lenient version of `bytes_to_string` that automatically falls back to
+/// Latin-1 (ISO-8859-1) encoding when the byte sequence is invalid for the specified
+/// encoding. This is useful for handling binary data (like certificates) that may not
+/// be valid text in any standard encoding.
+///
+/// Use this function when you want best-effort conversion without errors.
+/// Use `bytes_to_string` when you want strict validation of the encoding.
+///
+/// # Arguments
+/// * `bytes` - Pointer to byte array to convert
+/// * `length` - Length of the byte array
+/// * `encoding` - Null-terminated C string specifying the encoding
+///
+/// # Returns
+/// Pointer to allocated null-terminated C string, or null on error. The caller must
+/// free the returned pointer using `free_string`.
+///
+/// # Safety
+/// Same safety requirements as `bytes_to_string`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn bytes_to_string_lenient(
+    bytes: *const u8,
+    length: usize,
+    encoding: *const c_char,
+) -> *mut c_char {
+    // Validate encoding pointer first
+    if encoding.is_null() {
+        crate::error::set_error("Encoding pointer is null".to_string());
+        return std::ptr::null_mut();
+    }
+
+    // SAFETY: encoding pointer is validated as non-null above
+    let encoding_str = match unsafe { CStr::from_ptr(encoding).to_str() } {
+        Ok(s) => s,
+        Err(_) => {
+            crate::error::set_error("Invalid UTF-8 in encoding string".to_string());
+            return std::ptr::null_mut();
+        }
+    };
+
+    // Handle empty byte array case
+    if length == 0 {
+        crate::error::clear_error();
+        let empty = std::ffi::CString::new("").unwrap();
+        return empty.into_raw();
+    }
+
+    // Validate bytes pointer (only needed when length > 0)
+    if bytes.is_null() {
+        crate::error::set_error("Bytes pointer is null".to_string());
+        return std::ptr::null_mut();
+    }
+
+    // SAFETY: bytes pointer is validated as non-null and length is provided by caller
+    let byte_slice = unsafe { std::slice::from_raw_parts(bytes, length) };
+
+    // Check for deprecated UTF7 encoding
+    if encoding_str.eq_ignore_ascii_case("UTF7") || encoding_str.eq_ignore_ascii_case("UTF-7") {
+        crate::error::set_error("UTF7 encoding is deprecated and not supported".to_string());
+        return std::ptr::null_mut();
+    }
+
+    // Convert bytes to string with Latin-1 fallback for binary data
+    let result_string =
+        match crate::base64::convert_bytes_to_string_with_fallback(byte_slice, encoding_str) {
+            Ok(s) => s,
+            Err(e) => {
+                crate::error::set_error(e);
+                return std::ptr::null_mut();
+            }
+        };
 
     // Convert Rust string to C string
     match std::ffi::CString::new(result_string) {

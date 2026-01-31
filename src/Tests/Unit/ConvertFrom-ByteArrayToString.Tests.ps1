@@ -72,18 +72,42 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Round-trips Unicode characters (emoji) with UTF8' -Test {
-            $original = 'Hello 🌍'
+            $original = 'Hello ' + [char]::ConvertFromUtf32(0x1F30D)
             $bytes = ConvertFrom-StringToByteArray -String $original -Encoding 'UTF8'
             $result = ConvertFrom-ByteArrayToString -ByteArray $bytes -Encoding 'UTF8'
             $result | Should -BeExactly $original
         }
 
-        It -Name 'Round-trips from Base64 → ByteArray → String' -Test {
+        It -Name 'Round-trips from Base64 to ByteArray to String' -Test {
             $original = 'Hello, World!'
             $base64 = ConvertFrom-StringToBase64 -String $original -Encoding 'UTF8'
             $bytes = ConvertFrom-Base64ToByteArray -String $base64
             $result = ConvertFrom-ByteArrayToString -ByteArray $bytes -Encoding 'UTF8'
             $result | Should -BeExactly $original
+        }
+    }
+
+    Context -Name 'Default Behavior (No Encoding Specified)' -Fixture {
+        It -Name 'Converts valid UTF-8 bytes without specifying encoding' -Test {
+            $bytes = [byte[]]@(72, 101, 108, 108, 111)  # "Hello"
+            $result = ConvertFrom-ByteArrayToString -ByteArray $bytes
+            $result | Should -BeExactly 'Hello'
+        }
+
+        It -Name 'Handles binary data gracefully without specifying encoding (Latin-1 fallback)' -Test {
+            # Binary data that is not valid UTF-8
+            $binaryBytes = [byte[]]@(0xA1, 0x59, 0xC0, 0xA5)
+            $result = ConvertFrom-ByteArrayToString -ByteArray $binaryBytes
+            $result | Should -Not -BeNullOrEmpty
+            $result.Length | Should -Be 4
+        }
+
+        It -Name 'Converts emoji bytes without specifying encoding' -Test {
+            # Earth globe emoji (U+1F30D) = F0 9F 8C 8D in UTF-8
+            $emojiBytes = [byte[]]@(0xF0, 0x9F, 0x8C, 0x8D)
+            $result = ConvertFrom-ByteArrayToString -ByteArray $emojiBytes
+            $expected = [char]::ConvertFromUtf32(0x1F30D)
+            $result | Should -BeExactly $expected
         }
     }
 
@@ -111,10 +135,11 @@ Describe -Name $function -Fixture {
         }
 
         It -Name 'Handles Unicode characters (emoji)' -Test {
-            # 🌍 = F0 9F 8C 8D in UTF-8
+            # Earth globe emoji (U+1F30D) = F0 9F 8C 8D in UTF-8
             $emojiBytes = [byte[]]@(0xF0, 0x9F, 0x8C, 0x8D)
             $result = ConvertFrom-ByteArrayToString -ByteArray $emojiBytes -Encoding 'UTF8'
-            $result | Should -BeExactly '🌍'
+            $expected = [char]::ConvertFromUtf32(0x1F30D)
+            $result | Should -BeExactly $expected
         }
 
         It -Name 'Handles whitespace-only content' -Test {
@@ -142,10 +167,50 @@ Describe -Name $function -Fixture {
             { ConvertFrom-ByteArrayToString -ByteArray $null -Encoding 'UTF8' } | Should -Throw
         }
 
-        It -Name 'Throws on invalid UTF-8 byte sequence' -Test {
-            # Invalid UTF-8 sequence
-            $invalidBytes = [byte[]]@(0xFF, 0xFE)
-            { ConvertFrom-ByteArrayToString -ByteArray $invalidBytes -Encoding 'UTF8' -ErrorAction Stop } | Should -Throw
+        It -Name 'Converts binary data (non-UTF8) without error using Latin-1 fallback' -Test {
+            # Binary data that is not valid UTF-8 (e.g., certificate/image data)
+            # When no encoding is specified, lenient mode is used (Latin-1 fallback)
+            # Note: Null bytes (0x00) are replaced with replacement character for C string safety
+            $binaryBytes = [byte[]]@(0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x80)
+            
+            # No -Encoding parameter = lenient mode with Latin-1 fallback
+            $result = ConvertFrom-ByteArrayToString -ByteArray $binaryBytes
+            
+            $result | Should -Not -BeNullOrEmpty
+            $result | Should -BeOfType [string]
+        }
+
+        It -Name 'Round-trips binary data through Latin-1 fallback (without null bytes)' -Test {
+            # When no encoding is specified, lenient mode is used (Latin-1 fallback)
+            # Note: Test excludes null bytes as they are replaced with replacement character
+            $binaryBytes = [byte[]]@(0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x80)
+            
+            # No -Encoding parameter = lenient mode with Latin-1 fallback
+            $resultString = ConvertFrom-ByteArrayToString -ByteArray $binaryBytes
+            $resultBytes = [System.Text.Encoding]::GetEncoding('ISO-8859-1').GetBytes($resultString)
+            
+            $resultBytes | Should -Be $binaryBytes
+        }
+
+        It -Name 'Replaces null bytes with replacement character in Latin-1 fallback' -Test {
+            # Binary data containing null byte
+            $binaryBytes = [byte[]]@(0xA1, 0x00, 0xC0)
+            
+            # No -Encoding parameter = lenient mode with Latin-1 fallback
+            $result = ConvertFrom-ByteArrayToString -ByteArray $binaryBytes
+            
+            $result | Should -Not -BeNullOrEmpty
+            $result.Length | Should -Be 3
+            # Null byte (0x00) is replaced with Unicode replacement character (U+FFFD)
+            $result[1] | Should -Be ([char]0xFFFD)
+        }
+
+        It -Name 'Throws on invalid UTF-8 when encoding is explicitly specified (strict mode)' -Test {
+            # Binary data that is not valid UTF-8
+            $binaryBytes = [byte[]]@(0xA1, 0x59, 0xC0, 0xA5, 0xE4, 0x94, 0xFF, 0x80)
+            
+            # With explicit -Encoding = strict mode, should throw
+            { ConvertFrom-ByteArrayToString -ByteArray $binaryBytes -Encoding 'UTF8' -ErrorAction Stop } | Should -Throw
         }
 
         It -Name 'Throws on invalid UTF-16 byte length (odd)' -Test {
