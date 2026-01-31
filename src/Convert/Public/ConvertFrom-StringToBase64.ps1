@@ -102,10 +102,19 @@ function ConvertFrom-StringToBase64 {
                             throw $errorMsg
                         }
                         
-                        $bytes = New-Object byte[] $length.ToUInt64()
-                        [System.Runtime.InteropServices.Marshal]::Copy($compressPtr, $bytes, 0, $bytes.Length)
+                        # Convert compressed bytes to Base64 using Rust
+                        $base64Ptr = [ConvertCoreInterop]::bytes_to_base64($compressPtr, $length)
                         
-                        [System.Convert]::ToBase64String($bytes)
+                        if ($base64Ptr -eq $nullPtr) {
+                            $errorMsg = GetRustError -DefaultMessage "Failed to encode compressed data to Base64"
+                            throw $errorMsg
+                        }
+                        
+                        try {
+                            ConvertPtrToString -Ptr $base64Ptr
+                        } finally {
+                            [ConvertCoreInterop]::free_string($base64Ptr)
+                        }
                     } finally {
                         if ($compressPtr -ne $nullPtr) {
                             [ConvertCoreInterop]::free_bytes($compressPtr)

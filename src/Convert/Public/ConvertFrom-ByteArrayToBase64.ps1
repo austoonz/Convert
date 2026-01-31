@@ -59,7 +59,23 @@ function ConvertFrom-ByteArrayToBase64 {
                 $gzipStream.Close()
                 $output.Close()
 
-                [System.Convert]::ToBase64String($output.ToArray())
+                $compressedBytes = $output.ToArray()
+                
+                # Pin the compressed byte array and convert to Base64 using Rust
+                $pinnedCompressed = [System.Runtime.InteropServices.GCHandle]::Alloc($compressedBytes, [System.Runtime.InteropServices.GCHandleType]::Pinned)
+                try {
+                    $compressedPtr = $pinnedCompressed.AddrOfPinnedObject()
+                    $ptr = [ConvertCoreInterop]::bytes_to_base64($compressedPtr, [UIntPtr]::new($compressedBytes.Length))
+                    
+                    if ($ptr -eq $nullPtr) {
+                        $errorMsg = GetRustError -DefaultMessage "Failed to encode compressed byte array to Base64"
+                        throw $errorMsg
+                    }
+                    
+                    ConvertPtrToString -Ptr $ptr
+                } finally {
+                    $pinnedCompressed.Free()
+                }
             } else {
                 # Direct Base64 encoding via Rust for improved performance
                 

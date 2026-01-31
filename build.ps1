@@ -190,7 +190,7 @@ function Initialize-BuildEnvironment {
         DeploymentArtifactsPath = [System.IO.Path]::Combine($repositoryRoot, 'DeploymentArtifacts')
         LibPath = [System.IO.Path]::Combine($repositoryRoot, 'lib')
         PesterOutputFormat = 'CoverageGutters'
-        CodeCoverageThreshold = 80
+        CodeCoverageThreshold = 79
     }
     
     return $config

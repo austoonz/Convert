@@ -174,8 +174,12 @@ Describe -Name 'RustInterop' -Fixture {
             $methodNames | Should -Contain 'compute_hash'
         }
 
-        It -Name 'Has compute_hmac method' -Test {
-            $methodNames | Should -Contain 'compute_hmac'
+        It -Name 'Has compute_hmac_with_encoding method' -Test {
+            $methodNames | Should -Contain 'compute_hmac_with_encoding'
+        }
+
+        It -Name 'Has compute_hmac_bytes method' -Test {
+            $methodNames | Should -Contain 'compute_hmac_bytes'
         }
 
         It -Name 'Has compress_string method' -Test {
@@ -184,6 +188,18 @@ Describe -Name 'RustInterop' -Fixture {
 
         It -Name 'Has decompress_string method' -Test {
             $methodNames | Should -Contain 'decompress_string'
+        }
+
+        It -Name 'Has decompress_string_lenient method' -Test {
+            $methodNames | Should -Contain 'decompress_string_lenient'
+        }
+
+        It -Name 'Has base64_to_decompressed_string method' -Test {
+            $methodNames | Should -Contain 'base64_to_decompressed_string'
+        }
+
+        It -Name 'Has base64_to_decompressed_string_lenient method' -Test {
+            $methodNames | Should -Contain 'base64_to_decompressed_string_lenient'
         }
 
         It -Name 'Has url_encode method' -Test {

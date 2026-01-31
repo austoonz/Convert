@@ -95,11 +95,25 @@ function ConvertFrom-Base64ToString {
         foreach ($s in $String) {
             try {
                 if ($Decompress) {
-                    $bytes = [System.Convert]::FromBase64String($s)
-                    if ($useLenientMode) {
-                        ConvertFrom-CompressedByteArrayToString -ByteArray $bytes
-                    } else {
-                        ConvertFrom-CompressedByteArrayToString -ByteArray $bytes -Encoding $Encoding
+                    # Combined Base64 decode + decompress + string conversion in one Rust call
+                    $ptr = $nullPtr
+                    try {
+                        if ($useLenientMode) {
+                            $ptr = [ConvertCoreInterop]::base64_to_decompressed_string_lenient($s, $Encoding)
+                        } else {
+                            $ptr = [ConvertCoreInterop]::base64_to_decompressed_string($s, $Encoding)
+                        }
+                        
+                        if ($ptr -eq $nullPtr) {
+                            $errorMsg = GetRustError -DefaultMessage "Failed to decode and decompress Base64"
+                            throw $errorMsg
+                        }
+                        
+                        ConvertPtrToString -Ptr $ptr
+                    } finally {
+                        if ($ptr -ne $nullPtr) {
+                            [ConvertCoreInterop]::free_string($ptr)
+                        }
                     }
                 } else {
                     $ptr = $nullPtr
