@@ -60,7 +60,9 @@ pub unsafe extern "C" fn base64_to_bytes(input: *const c_char, out_length: *mut 
     if input.is_null() {
         crate::error::set_error("Input pointer is null".to_string());
         if !out_length.is_null() {
-            unsafe { *out_length = 0; }
+            unsafe {
+                *out_length = 0;
+            }
         }
         return std::ptr::null_mut();
     }
@@ -70,7 +72,9 @@ pub unsafe extern "C" fn base64_to_bytes(input: *const c_char, out_length: *mut 
         Err(_) => {
             crate::error::set_error("Invalid UTF-8 in input string".to_string());
             if !out_length.is_null() {
-                unsafe { *out_length = 0; }
+                unsafe {
+                    *out_length = 0;
+                }
             }
             return std::ptr::null_mut();
         }
@@ -79,7 +83,9 @@ pub unsafe extern "C" fn base64_to_bytes(input: *const c_char, out_length: *mut 
     if input_str.is_empty() {
         crate::error::clear_error();
         if !out_length.is_null() {
-            unsafe { *out_length = 0; }
+            unsafe {
+                *out_length = 0;
+            }
         }
         return crate::memory::allocate_byte_array(Vec::<u8>::new());
     }
@@ -89,7 +95,9 @@ pub unsafe extern "C" fn base64_to_bytes(input: *const c_char, out_length: *mut 
         Err(e) => {
             crate::error::set_error(format!("Failed to decode Base64: {}", e));
             if !out_length.is_null() {
-                unsafe { *out_length = 0; }
+                unsafe {
+                    *out_length = 0;
+                }
             }
             return std::ptr::null_mut();
         }
@@ -97,7 +105,9 @@ pub unsafe extern "C" fn base64_to_bytes(input: *const c_char, out_length: *mut 
 
     let length = decoded_bytes.len();
     if !out_length.is_null() {
-        unsafe { *out_length = length; }
+        unsafe {
+            *out_length = length;
+        }
     }
 
     crate::error::clear_error();

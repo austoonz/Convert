@@ -1,9 +1,11 @@
 //! String-based Base64 encoding and decoding functions
 
+use super::encoding::{
+    convert_bytes_to_string, convert_bytes_to_string_with_fallback, convert_string_to_bytes,
+};
 use base64::{Engine as _, engine::general_purpose};
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
-use super::encoding::{convert_string_to_bytes, convert_bytes_to_string, convert_bytes_to_string_with_fallback};
 
 /// Convert a string to Base64 encoding
 ///
@@ -279,7 +281,14 @@ mod tests {
     #[test]
     fn test_string_to_base64_various_encodings() {
         let input = CString::new("Test").unwrap();
-        let encodings = vec!["UTF8", "ASCII", "Unicode", "UTF32", "BigEndianUnicode", "Default"];
+        let encodings = vec![
+            "UTF8",
+            "ASCII",
+            "Unicode",
+            "UTF32",
+            "BigEndianUnicode",
+            "Default",
+        ];
         for enc in encodings {
             let encoding = CString::new(enc).unwrap();
             let result = unsafe { string_to_base64(input.as_ptr(), encoding.as_ptr()) };
