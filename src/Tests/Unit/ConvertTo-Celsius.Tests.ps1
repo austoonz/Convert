@@ -138,4 +138,10 @@ Describe $function {
             $result | Should -BeOfType [double]
         }
     }
+
+    Context 'Alias' {
+        It 'ctc resolves to ConvertTo-Celsius' {
+            (Get-Alias -Name 'ctc').ResolvedCommand | Should -BeExactly 'ConvertTo-Celsius'
+        }
+    }
 }

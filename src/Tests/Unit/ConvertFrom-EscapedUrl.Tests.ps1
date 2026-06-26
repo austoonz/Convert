@@ -45,4 +45,10 @@ Describe $function {
             $err | Should -Not -BeNullOrEmpty
         }
     }
+
+    Context -Name 'Alias' -Fixture {
+        It -Name 'cfurl resolves to ConvertFrom-EscapedUrl' -Test {
+            (Get-Alias -Name 'cfurl').ResolvedCommand | Should -BeExactly 'ConvertFrom-EscapedUrl'
+        }
+    }
 }

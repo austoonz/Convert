@@ -18,7 +18,7 @@ Describe -Name 'Module Manifest' -Fixture {
         $assertion.ToString().Split('.') | Should -HaveCount 3
     }
 
-    It -Name 'Is compatible with PSEdition: <_>' -TestCases @(
+    It -Name 'Is compatible with PSEdition: <_>' -ForEach @(
         'Core'
         'Desktop'
     ) -Test {
@@ -42,7 +42,7 @@ Describe -Name 'Module Manifest' -Fixture {
             $assertion | Should -HaveCount 31
         }
 
-        It -Name '<_>' -TestCases @(
+        It -Name '<_>' -ForEach @(
             'ConvertFrom-Base64'
             'ConvertFrom-Base64ToByteArray'
             'ConvertFrom-Base64ToMemoryStream'
@@ -86,11 +86,11 @@ Describe -Name 'Module Manifest' -Fixture {
     }
 
     Context -Name 'Exported Aliases' -Fixture {
-        It -Name 'Exports three aliases' -Test {
-            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 3
+        It -Name 'Exports sixteen aliases' -Test {
+            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 16
         }
 
-        It -Name '<Alias>' -TestCases @(
+        It -Name '<Alias>' -ForEach @(
             @{
                 Alias           = 'ConvertFrom-Base64StringToByteArray'
                 ResolvedCommand = 'ConvertFrom-Base64ToByteArray'
@@ -102,6 +102,58 @@ Describe -Name 'Module Manifest' -Fixture {
             @{
                 Alias           = 'ConvertFrom-StreamToString'
                 ResolvedCommand = 'ConvertFrom-MemoryStreamToString'
+            }
+            @{
+                Alias           = 'cfb64'
+                ResolvedCommand = 'ConvertFrom-Base64ToString'
+            }
+            @{
+                Alias           = 'cfurl'
+                ResolvedCommand = 'ConvertFrom-EscapedUrl'
+            }
+            @{
+                Alias           = 'cfut'
+                ResolvedCommand = 'ConvertFrom-UnixTime'
+            }
+            @{
+                Alias           = 'ctb64'
+                ResolvedCommand = 'ConvertTo-Base64'
+            }
+            @{
+                Alias           = 'ctc'
+                ResolvedCommand = 'ConvertTo-Celsius'
+            }
+            @{
+                Alias           = 'ctf'
+                ResolvedCommand = 'ConvertTo-Fahrenheit'
+            }
+            @{
+                Alias           = 'cthash'
+                ResolvedCommand = 'ConvertTo-Hash'
+            }
+            @{
+                Alias           = 'cthmac'
+                ResolvedCommand = 'ConvertTo-HmacHash'
+            }
+            @{
+                Alias           = 'ctstr'
+                ResolvedCommand = 'ConvertTo-String'
+            }
+            @{
+                Alias           = 'cttc'
+                ResolvedCommand = 'ConvertTo-TitleCase'
+            }
+            @{
+                Alias           = 'cturl'
+                ResolvedCommand = 'ConvertTo-EscapedUrl'
+            }
+            @{
+                Alias           = 'ctut'
+                ResolvedCommand = 'ConvertTo-UnixTime'
+            }
+            @{
+                Alias           = 'gut'
+                ResolvedCommand = 'Get-UnixTime'
             }
         ) -Test {
             $assertion = Get-Alias -Name $Alias

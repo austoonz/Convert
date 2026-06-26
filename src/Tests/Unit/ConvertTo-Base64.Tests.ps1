@@ -228,4 +228,10 @@ Describe -Name $function -Fixture {
             $result | Should -Not -BeNullOrEmpty
         }
     }
+
+    Context -Name 'Alias' -Fixture {
+        It -Name 'ctb64 resolves to ConvertTo-Base64' -Test {
+            (Get-Alias -Name 'ctb64').ResolvedCommand | Should -BeExactly 'ConvertTo-Base64'
+        }
+    }
 }

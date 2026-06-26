@@ -226,8 +226,14 @@ Describe -Name $function -Fixture {
         It -Name 'Returns correct type' -Test {
             $base64 = 'VGhpc0lzTXlTdHJpbmc='
             $result = ConvertFrom-Base64ToString -String $base64 -Encoding 'UTF8'
-            
+
             $result | Should -BeOfType [string]
+        }
+    }
+
+    Context -Name 'Alias' -Fixture {
+        It -Name 'cfb64 resolves to ConvertFrom-Base64ToString' -Test {
+            (Get-Alias -Name 'cfb64').ResolvedCommand | Should -BeExactly 'ConvertFrom-Base64ToString'
         }
     }
 }
