@@ -28,4 +28,10 @@ Describe $function {
         $assertion = $strings | ConvertTo-TitleCase
         $assertion | Should -BeExactly $expected
     }
+
+    Context 'Alias' {
+        It 'cttc resolves to ConvertTo-TitleCase' {
+            (Get-Alias -Name 'cttc').ResolvedCommand | Should -BeExactly 'ConvertTo-TitleCase'
+        }
+    }
 }

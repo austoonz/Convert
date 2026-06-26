@@ -50,7 +50,7 @@ Describe -Name $function -Fixture {
     }
 
     Context -Name 'Algorithm Validation' -Fixture {
-        It -Name "Produces correct HMAC with <Algorithm>" -TestCases @(
+        It -Name "Produces correct HMAC with <Algorithm>" -ForEach @(
             @{ Algorithm = 'HMACSHA256' }
             @{ Algorithm = 'HMACSHA384' }
             @{ Algorithm = 'HMACSHA512' }
@@ -112,7 +112,7 @@ Describe -Name $function -Fixture {
     }
 
     Context -Name 'Encoding Options' -Fixture {
-        It -Name "Handles different text encodings" -TestCases @(
+        It -Name "Handles different text encodings" -ForEach @(
             @{ Encoding = 'UTF8'; Data = "Test String with special chars: äöü" }
             @{ Encoding = 'ASCII'; Data = "Test String with ASCII only chars" }
             @{ Encoding = 'Unicode'; Data = "Test String with special chars: äöü" }
@@ -396,7 +396,7 @@ Describe -Name $function -Fixture {
             $stream.Dispose()
         }
 
-        It -Name "Supports all output formats with Rust" -TestCases @(
+        It -Name "Supports all output formats with Rust" -ForEach @(
             @{ Format = 'Hex'; ExpectedLength = 64; ExpectedType = 'String' }
             @{ Format = 'Base64'; ExpectedType = 'String' }
             @{ Format = 'ByteArray'; ExpectedLength = 32; ExpectedType = 'Byte' }
@@ -461,6 +461,12 @@ Describe -Name $function -Fixture {
             # Test with null input and SilentlyContinue
             $result = ConvertTo-HmacHash -InputObject $null -Key $key -ErrorAction SilentlyContinue
             $result | Should -BeNullOrEmpty
+        }
+    }
+
+    Context -Name 'Alias' -Fixture {
+        It -Name 'cthmac resolves to ConvertTo-HmacHash' -Test {
+            (Get-Alias -Name 'cthmac').ResolvedCommand | Should -BeExactly 'ConvertTo-HmacHash'
         }
     }
 }

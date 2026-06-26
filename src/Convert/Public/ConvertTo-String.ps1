@@ -87,6 +87,7 @@ function ConvertTo-String {
     [CmdletBinding(
         DefaultParameterSetName = 'Base64String',
         HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertTo-String/')]
+    [Alias('ctstr')]
     param
     (
         [Parameter(

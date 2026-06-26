@@ -12,7 +12,7 @@
     RootModule           = 'Convert.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '2.0.7'
+    ModuleVersion        = '2.0.8'
 
     # Supported PSEditions
     CompatiblePSEditions = @(
@@ -117,6 +117,19 @@
         'ConvertFrom-Base64StringToByteArray'
         'ConvertFrom-ByteArrayToBase64String'
         'ConvertFrom-StreamToString'
+        'cfb64'
+        'cfurl'
+        'cfut'
+        'ctb64'
+        'ctc'
+        'ctf'
+        'cthash'
+        'cthmac'
+        'ctstr'
+        'cttc'
+        'cturl'
+        'ctut'
+        'gut'
     )
 
     # DSC resources to export from this module

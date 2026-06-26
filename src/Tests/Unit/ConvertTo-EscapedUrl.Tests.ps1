@@ -185,4 +185,10 @@ Describe $function {
             $result | Should -Match '%'
         }
     }
+
+    Context -Name 'Alias' -Fixture {
+        It -Name 'cturl resolves to ConvertTo-EscapedUrl' -Test {
+            (Get-Alias -Name 'cturl').ResolvedCommand | Should -BeExactly 'ConvertTo-EscapedUrl'
+        }
+    }
 }

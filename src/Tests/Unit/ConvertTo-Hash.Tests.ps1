@@ -10,7 +10,7 @@ Describe -Name $function -Fixture {
     }
 
     Context -Name 'Algorithm Support' -Fixture {
-        It -Name 'Computes <Algorithm> hash correctly' -TestCases @(
+        It -Name 'Computes <Algorithm> hash correctly' -ForEach @(
             @{
                 Algorithm = 'MD5'
                 Expected = '441BE86C39533902C582CB7C8BEB7CF4'
@@ -164,7 +164,7 @@ Describe -Name $function -Fixture {
             $result2 | Should -BeExactly $result3
         }
 
-        It -Name 'Produces valid hex output format for <Algorithm>' -TestCases @(
+        It -Name 'Produces valid hex output format for <Algorithm>' -ForEach @(
             @{Algorithm = 'MD5'; Length = 32}
             @{Algorithm = 'SHA1'; Length = 40}
             @{Algorithm = 'SHA256'; Length = 64}
@@ -193,6 +193,12 @@ Describe -Name $function -Fixture {
             
             # For ASCII-compatible strings, UTF8 and ASCII should produce same hash
             $utf8Result | Should -BeExactly $asciiResult
+        }
+    }
+
+    Context -Name 'Alias' -Fixture {
+        It -Name 'cthash resolves to ConvertTo-Hash' -Test {
+            (Get-Alias -Name 'cthash').ResolvedCommand | Should -BeExactly 'ConvertTo-Hash'
         }
     }
 }

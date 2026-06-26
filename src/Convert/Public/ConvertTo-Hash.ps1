@@ -23,6 +23,7 @@
 #>
 function ConvertTo-Hash {
     [CmdletBinding()]
+    [Alias('cthash')]
     param (
         [Parameter(ParameterSetName = 'String', ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [string[]]$String,

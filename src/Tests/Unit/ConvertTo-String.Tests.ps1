@@ -198,4 +198,10 @@ Describe -Name $function -Fixture {
             $writer2.Dispose()
         }
     }
+
+    Context -Name 'Alias' -Fixture {
+        It -Name 'ctstr resolves to ConvertTo-String' -Test {
+            (Get-Alias -Name 'ctstr').ResolvedCommand | Should -BeExactly 'ConvertTo-String'
+        }
+    }
 }
