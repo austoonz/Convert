@@ -142,6 +142,7 @@ function ConvertTo-Base64 {
     [CmdletBinding(
         DefaultParameterSetName = 'String',
         HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertTo-Base64/')]
+    [Alias('ctb64')]
     param
     (
         [Parameter(

@@ -36,6 +36,7 @@
 #>
 function ConvertTo-UnixTime {
     [CmdletBinding()]
+    [Alias('ctut')]
     param (
         # A DateTime object representing the time to convert. Defaults to `[datetime]::UtcNow`.
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]

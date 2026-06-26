@@ -21,6 +21,7 @@
 #>
 function ConvertFrom-EscapedUrl {
     [CmdletBinding()]
+    [Alias('cfurl')]
     param (
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]

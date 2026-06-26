@@ -66,6 +66,7 @@ function ConvertTo-Celsius {
     [CmdletBinding()]
     [OutputType([double])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
+    [Alias('ctc')]
     param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,

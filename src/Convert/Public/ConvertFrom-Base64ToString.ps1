@@ -59,7 +59,7 @@
 function ConvertFrom-Base64ToString {
     [CmdletBinding(HelpUri = 'https://austoonz.github.io/Convert/functions/ConvertFrom-Base64ToString/')]
     [OutputType('String')]
-    [Alias('ConvertFrom-Base64StringToString')]
+    [Alias('ConvertFrom-Base64StringToString', 'cfb64')]
     param
     (
         [Parameter(
