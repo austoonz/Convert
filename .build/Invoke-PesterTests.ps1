@@ -69,4 +69,4 @@ if ($EnableCoverage.IsPresent) {
 }
 
 $result = Invoke-Pester -Configuration $config
-exit $result.FailedCount
+exit ($result.FailedCount + $result.FailedBlocksCount + $result.FailedContainersCount)
