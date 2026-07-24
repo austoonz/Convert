@@ -119,17 +119,9 @@
         'ConvertFrom-StreamToString'
         'cfb64'
         'cfurl'
-        'cfut'
         'ctb64'
-        'ctc'
-        'ctf'
         'cthash'
-        'cthmac'
-        'ctstr'
-        'cttc'
         'cturl'
-        'ctut'
-        'gut'
     )
 
     # DSC resources to export from this module

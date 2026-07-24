@@ -92,7 +92,6 @@
 function ConvertTo-HmacHash {
     [CmdletBinding(DefaultParameterSetName = 'ProvidedKey')]
     [OutputType([String], [Byte[]], [PSCustomObject])]
-    [Alias('cthmac')]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [AllowNull()]

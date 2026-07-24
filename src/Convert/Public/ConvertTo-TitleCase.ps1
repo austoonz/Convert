@@ -21,7 +21,6 @@
 #>
 function ConvertTo-TitleCase {
     [CmdletBinding()]
-    [Alias('cttc')]
     param (
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]

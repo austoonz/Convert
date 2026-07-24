@@ -140,10 +140,4 @@ Describe -Name $function -Fixture {
             $result | Should -BeOfType [datetime]
         }
     }
-
-    Context -Name 'Alias' -Fixture {
-        It -Name 'cfut resolves to ConvertFrom-UnixTime' -Test {
-            (Get-Alias -Name 'cfut').ResolvedCommand | Should -BeExactly 'ConvertFrom-UnixTime'
-        }
-    }
 }

@@ -38,12 +38,15 @@ QSBzdHJpbmc=
 
 ### EXAMPLE 2
 ```
-(Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64).Length
-1057480
+$string = 'PowerShell is cross-platform. ' * 50
+(ConvertTo-Base64 -String $string).Length
+2000
+
+(ConvertTo-Base64 -String $string -Compress).Length
+92
 ```
 
-(Get-Module -Name PowerShellGet | ConvertTo-Clixml | ConvertTo-Base64 -Compress).Length
-110876
+Demonstrates how -Compress reduces the output size for repetitive input.
 
 ### EXAMPLE 3
 ```

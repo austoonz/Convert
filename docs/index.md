@@ -18,7 +18,6 @@ Convert provides a comprehensive set of functions for converting between differe
 - URL encoding/decoding
 - Temperature conversions (Celsius/Fahrenheit)
 - Unix timestamp conversions
-- CLIXML serialization
 - Case conversions (Title Case)
 
 ## Installation
@@ -81,7 +80,6 @@ $stream | ConvertFrom-MemoryStream
 | **URLs** | [ConvertTo-EscapedUrl](functions/ConvertTo-EscapedUrl.md), [ConvertFrom-EscapedUrl](functions/ConvertFrom-EscapedUrl.md) |
 | **Temperature** | [ConvertTo-Celsius](functions/ConvertTo-Celsius.md), [ConvertTo-Fahrenheit](functions/ConvertTo-Fahrenheit.md) |
 | **Time** | [ConvertTo-UnixTime](functions/ConvertTo-UnixTime.md), [ConvertFrom-UnixTime](functions/ConvertFrom-UnixTime.md), [Get-UnixTime](functions/Get-UnixTime.md) |
-| **CLIXML** | [ConvertTo-Clixml](functions/ConvertTo-Clixml.md), [ConvertFrom-Clixml](functions/ConvertFrom-Clixml.md) |
 | **Hashtables** | [ConvertFrom-HashTable](functions/ConvertFrom-HashTable.md) |
 
 ## Requirements

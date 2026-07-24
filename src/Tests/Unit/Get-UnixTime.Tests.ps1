@@ -34,10 +34,4 @@ Describe -Name $function -Fixture {
             (($epochTime + [System.TimeSpan]::FromMilliseconds($assertion)) - $now).TotalMilliseconds | Should -BeLessThan 1000
         }
     }
-
-    Context -Name 'Alias' -Fixture {
-        It -Name 'gut resolves to Get-UnixTime' -Test {
-            (Get-Alias -Name 'gut').ResolvedCommand | Should -BeExactly 'Get-UnixTime'
-        }
-    }
 }
