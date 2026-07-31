@@ -1,25 +1,32 @@
 # Changelog
 
-## Version v2.0.8-alpha
+## Version v2.0.9-alpha
 
-### New Features
+### Changed
 
-* **Short interactive aliases** for the most commonly used cmdlets (Issue #26):
+* **Interactive aliases trimmed to a core set of 5** (Issue #26), down from the 13 introduced in v2.0.8-alpha. Trimming while still in `alpha` avoids a breaking change later, since removing exported aliases post-release would be breaking. Retained:
   * `ctb64` → `ConvertTo-Base64`
   * `cfb64` → `ConvertFrom-Base64ToString`
   * `cthash` → `ConvertTo-Hash`
   * `cturl` → `ConvertTo-EscapedUrl`
   * `cfurl` → `ConvertFrom-EscapedUrl`
   * The three existing compatibility aliases (`ConvertFrom-Base64StringToByteArray`, `ConvertFrom-ByteArrayToBase64String`, `ConvertFrom-StreamToString`) are retained.
-
-### Changed
-
 * **Documentation**: Removed references to the `ConvertTo-Clixml` / `ConvertFrom-Clixml` cmdlets, which moved to the `ConvertClixml` module in v2.0.4-alpha, and refreshed the `ConvertTo-Base64` compression example to be self-contained.
 * **CI**: Pester runs now fail on block and container failures, not only on failed tests (PR #32).
+
+### Security
+
+* Bumped transitive dev-dependency `crossbeam-epoch` from 0.9.18 to 0.9.20 to clear RUSTSEC-2026-0204 (invalid pointer dereference in the `fmt::Pointer` impl). Dev/bench-only dependency — not part of the shipped module — but it fails the `cargo audit` security gate.
 
 ### Dependencies
 
 * Bumped `rand` from 0.9.2 to 0.9.4 (PR #31).
+
+## Version v2.0.8-alpha
+
+### New Features
+
+* **Short interactive aliases** for the most commonly used cmdlets (Issue #26, PR #30) — an initial set of 13 aliases across the Base64, hash, encoding, URL, temperature, and Unix-time cmdlets. (Trimmed to a core 5 in v2.0.9-alpha.)
 
 ## Version v2.0.4-alpha
 
