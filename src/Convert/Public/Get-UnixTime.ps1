@@ -26,7 +26,6 @@
 #>
 function Get-UnixTime {
     [CmdletBinding()]
-    [Alias('gut')]
     param (
         # If specified, returns the time in milliseconds that have elapsed since 00:00:00 UTC on 1 January, 1970.
         [switch]$AsMilliseconds

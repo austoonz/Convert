@@ -35,7 +35,6 @@
 #>
 function ConvertFrom-UnixTime {
     [CmdletBinding()]
-    [Alias('cfut')]
     param (
         # The Unix time to convert. Represented in seconds by default, or in milliseconds if the FromMilliseconds
         # parameter is specified.

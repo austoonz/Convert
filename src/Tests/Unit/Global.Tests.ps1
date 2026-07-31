@@ -86,8 +86,8 @@ Describe -Name 'Module Manifest' -Fixture {
     }
 
     Context -Name 'Exported Aliases' -Fixture {
-        It -Name 'Exports sixteen aliases' -Test {
-            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 16
+        It -Name 'Exports eight aliases' -Test {
+            ($script:Manifest).ExportedAliases.GetEnumerator() | Should -HaveCount 8
         }
 
         It -Name '<Alias>' -ForEach @(
@@ -112,48 +112,16 @@ Describe -Name 'Module Manifest' -Fixture {
                 ResolvedCommand = 'ConvertFrom-EscapedUrl'
             }
             @{
-                Alias           = 'cfut'
-                ResolvedCommand = 'ConvertFrom-UnixTime'
-            }
-            @{
                 Alias           = 'ctb64'
                 ResolvedCommand = 'ConvertTo-Base64'
-            }
-            @{
-                Alias           = 'ctc'
-                ResolvedCommand = 'ConvertTo-Celsius'
-            }
-            @{
-                Alias           = 'ctf'
-                ResolvedCommand = 'ConvertTo-Fahrenheit'
             }
             @{
                 Alias           = 'cthash'
                 ResolvedCommand = 'ConvertTo-Hash'
             }
             @{
-                Alias           = 'cthmac'
-                ResolvedCommand = 'ConvertTo-HmacHash'
-            }
-            @{
-                Alias           = 'ctstr'
-                ResolvedCommand = 'ConvertTo-String'
-            }
-            @{
-                Alias           = 'cttc'
-                ResolvedCommand = 'ConvertTo-TitleCase'
-            }
-            @{
                 Alias           = 'cturl'
                 ResolvedCommand = 'ConvertTo-EscapedUrl'
-            }
-            @{
-                Alias           = 'ctut'
-                ResolvedCommand = 'ConvertTo-UnixTime'
-            }
-            @{
-                Alias           = 'gut'
-                ResolvedCommand = 'Get-UnixTime'
             }
         ) -Test {
             $assertion = Get-Alias -Name $Alias

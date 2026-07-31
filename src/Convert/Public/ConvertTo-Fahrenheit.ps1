@@ -65,7 +65,6 @@
 function ConvertTo-Fahrenheit {
     [CmdletBinding()]
     [OutputType([double])]
-    [Alias('ctf')]
     param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,

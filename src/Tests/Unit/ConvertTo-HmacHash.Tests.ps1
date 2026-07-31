@@ -463,10 +463,4 @@ Describe -Name $function -Fixture {
             $result | Should -BeNullOrEmpty
         }
     }
-
-    Context -Name 'Alias' -Fixture {
-        It -Name 'cthmac resolves to ConvertTo-HmacHash' -Test {
-            (Get-Alias -Name 'cthmac').ResolvedCommand | Should -BeExactly 'ConvertTo-HmacHash'
-        }
-    }
 }

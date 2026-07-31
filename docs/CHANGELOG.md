@@ -1,5 +1,26 @@
 # Changelog
 
+## Version v2.0.8-alpha
+
+### New Features
+
+* **Short interactive aliases** for the most commonly used cmdlets (Issue #26):
+  * `ctb64` → `ConvertTo-Base64`
+  * `cfb64` → `ConvertFrom-Base64ToString`
+  * `cthash` → `ConvertTo-Hash`
+  * `cturl` → `ConvertTo-EscapedUrl`
+  * `cfurl` → `ConvertFrom-EscapedUrl`
+  * The three existing compatibility aliases (`ConvertFrom-Base64StringToByteArray`, `ConvertFrom-ByteArrayToBase64String`, `ConvertFrom-StreamToString`) are retained.
+
+### Changed
+
+* **Documentation**: Removed references to the `ConvertTo-Clixml` / `ConvertFrom-Clixml` cmdlets, which moved to the `ConvertClixml` module in v2.0.4-alpha, and refreshed the `ConvertTo-Base64` compression example to be self-contained.
+* **CI**: Pester runs now fail on block and container failures, not only on failed tests (PR #32).
+
+### Dependencies
+
+* Bumped `rand` from 0.9.2 to 0.9.4 (PR #31).
+
 ## Version v2.0.4-alpha
 
 ### Breaking Changes

@@ -155,10 +155,4 @@ Describe -Name $function -Fixture {
             $result | Should -BeOfType [long]
         }
     }
-
-    Context -Name 'Alias' -Fixture {
-        It -Name 'ctut resolves to ConvertTo-UnixTime' -Test {
-            (Get-Alias -Name 'ctut').ResolvedCommand | Should -BeExactly 'ConvertTo-UnixTime'
-        }
-    }
 }
